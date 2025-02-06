@@ -7,6 +7,7 @@ use App\Models\Setting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * Class UserPresenter
@@ -37,7 +38,7 @@ class UserPresenter extends Presenter
                 'searchable' => false,
                 'sortable' => false,
                 'switchable' => true,
-                'title' => 'Avatar',
+                'title' => trans('general.importer.avatar'),
                 'visible' => false,
                 'formatter' => 'imageFormatter',
             ],
@@ -86,6 +87,15 @@ class UserPresenter extends Presenter
                 'formatter' => 'usersLinkFormatter',
             ],
             [
+                'field' => 'vip',
+                'searchable' => false,
+                'sortable' => true,
+                'switchable' => true,
+                'title' => trans('admin/users/general.vip_label'),
+                'visible' => false,
+                'formatter' => 'trueFalseFormatter',
+            ],
+            [
                 'field' => 'remote',
                 'searchable' => false,
                 'sortable' => true,
@@ -111,6 +121,15 @@ class UserPresenter extends Presenter
                 'title' => trans('admin/users/table.phone'),
                 'visible' => true,
                 'formatter'    => 'phoneFormatter',
+            ],
+            [
+                'field' => 'website',
+                'searchable' => true,
+                'sortable' => true,
+                'switchable' => true,
+                'title' => trans('general.website'),
+                'visible' => false,
+                'formatter'    => 'externalLinkFormatter',
             ],
             [
                 'field' => 'address',
@@ -156,7 +175,7 @@ class UserPresenter extends Presenter
                 'field' => 'username',
                 'searchable' => true,
                 'sortable' => true,
-                'switchable' => true,
+                'switchable' => false,
                 'title' => trans('admin/users/table.username'),
                 'visible' => true,
                 'formatter' => 'usersLinkFormatter',
@@ -167,6 +186,14 @@ class UserPresenter extends Presenter
                 'sortable' => true,
                 'switchable' => true,
                 'title' => trans('general.employee_number'),
+                'visible' => false,
+            ],
+            [
+                'field' => 'locale',
+                'searchable' => true,
+                'sortable' => true,
+                'switchable' => true,
+                'title' => trans('general.language'),
                 'visible' => false,
             ],
             [
@@ -202,8 +229,9 @@ class UserPresenter extends Presenter
                 'switchable' => true,
                 'escape' => true,
                 'class' => 'css-barcode',
-                'title' => 'Assets',
+                'title' => trans('general.assets'),
                 'visible' => true,
+                'formatter' => 'linkNumberToUserAssetsFormatter',
             ],
             [
                 'field' => 'licenses_count',
@@ -211,8 +239,9 @@ class UserPresenter extends Presenter
                 'sortable' => true,
                 'switchable' => true,
                 'class' => 'css-license',
-                'title' => 'License',
+                'title' => trans('general.licenses'),
                 'visible' => true,
+                'formatter' => 'linkNumberToUserLicensesFormatter',
             ],
             [
                 'field' => 'consumables_count',
@@ -220,8 +249,9 @@ class UserPresenter extends Presenter
                 'sortable' => true,
                 'switchable' => true,
                 'class' => 'css-consumable',
-                'title' => 'Consumables',
+                'title' => trans('general.consumables'),
                 'visible' => true,
+                'formatter' => 'linkNumberToUserConsumablesFormatter',
             ],
             [
                 'field' => 'accessories_count',
@@ -229,8 +259,29 @@ class UserPresenter extends Presenter
                 'sortable' => true,
                 'switchable' => true,
                 'class' => 'css-accessory',
-                'title' => 'Accessories',
+                'title' => trans('general.accessories'),
                 'visible' => true,
+                'formatter' => 'linkNumberToUserAccessoriesFormatter',
+            ],
+            [
+                'field' => 'manages_users_count',
+                'searchable' => false,
+                'sortable' => true,
+                'switchable' => true,
+                'class' => 'css-users',
+                'title' => trans('admin/users/table.managed_users'),
+                'visible' => true,
+                'formatter' => 'linkNumberToUserManagedUsersFormatter',
+            ],
+            [
+                'field' => 'manages_locations_count',
+                'searchable' => false,
+                'sortable' => true,
+                'switchable' => true,
+                'class' => 'css-location',
+                'title' => trans('admin/users/table.managed_locations'),
+                'visible' => true,
+                'formatter' => 'linkNumberToUserManagedLocationsFormatter',
             ],
             [
                 'field' => 'notes',
@@ -268,9 +319,9 @@ class UserPresenter extends Presenter
                 'formatter' => 'trueFalseFormatter',
             ],
             [
-                'field' => 'two_factor_activated',
+                'field' => 'two_factor_optin',
                 'searchable' => false,
-                'sortable' => false,
+                'sortable' => true,
                 'switchable' => true,
                 'title' => trans('admin/users/general.two_factor_active'),
                 'visible' => false,
@@ -286,11 +337,54 @@ class UserPresenter extends Presenter
                 'formatter' => 'trueFalseFormatter',
             ],
             [
+                'field' => 'autoassign_licenses',
+                'searchable' => false,
+                'sortable' => true,
+                'switchable' => true,
+                'title' => trans('general.autoassign_licenses'),
+                'visible' => false,
+                'formatter' => 'trueFalseFormatter',
+            ],
+            [
+                'field' => 'created_by',
+                'searchable' => false,
+                'sortable' => true,
+                'title' => trans('general.created_by'),
+                'visible' => false,
+                'formatter' => 'usersLinkObjFormatter',
+            ],
+            [
                 'field' => 'created_at',
                 'searchable' => true,
                 'sortable' => true,
                 'switchable' => true,
                 'title' => trans('general.created_at'),
+                'visible' => false,
+                'formatter' => 'dateDisplayFormatter',
+            ], [
+                'field' => 'updated_at',
+                'searchable' => true,
+                'sortable' => true,
+                'switchable' => true,
+                'title' => trans('general.updated_at'),
+                'visible' => false,
+                'formatter' => 'dateDisplayFormatter',
+            ],
+            [
+                'field' => 'start_date',
+                'searchable' => true,
+                'sortable' => true,
+                'switchable' => true,
+                'title' => trans('general.start_date'),
+                'visible' => false,
+                'formatter' => 'dateDisplayFormatter',
+            ],
+            [
+                'field' => 'end_date',
+                'searchable' => true,
+                'sortable' => true,
+                'switchable' => true,
+                'title' => trans('general.end_date'),
                 'visible' => false,
                 'formatter' => 'dateDisplayFormatter',
             ],
@@ -320,8 +414,7 @@ class UserPresenter extends Presenter
     public function emailLink()
     {
         if ($this->email) {
-            return '<a href="mailto:'.$this->email.'">'.$this->email.'</a>'
-                .'<a href="mailto:'.$this->email.'" class="hidden-xs hidden-sm"><i class="far fa-envelope"></i></a>';
+            return '<a href="mailto:'.$this->email.'">'.$this->email.'</a><a href="mailto:'.$this->email.'" class="hidden-xs hidden-sm"><i class="far fa-envelope"></i></a>';
         }
 
         return '';
@@ -355,24 +448,44 @@ class UserPresenter extends Presenter
      */
     public function gravatar()
     {
+
+        // User's specific avatar
         if ($this->avatar) {
+
+            // Check if it's a google avatar or some external avatar
+            if (Str::startsWith($this->avatar, ['http://', 'https://'])) {
+                return $this->avatar;
+            }
+
+            // Otherwise assume it's an uploaded image
             return Storage::disk('public')->url('avatars/'.e($this->avatar));
         }
 
-        if (Setting::getSettings()->load_remote == '1') {
+
+        // If the default is system default
+        if (Setting::getSettings()->default_avatar == 'default.png') {
+            return Storage::disk('public')->url('default.png');
+        }
+
+        // If there is a custom default avatar
+        if (Setting::getSettings()->default_avatar != '') {
+            return Storage::disk('public')->url('avatars/'.e(Setting::getSettings()->default_avatar));
+        }
+
+        // If there is no default and no custom avatar, check for gravatar
+        if ((Setting::getSettings()->load_remote == '1') && (Setting::getSettings()->default_avatar == '')) {
+
             if ($this->model->gravatar != '') {
                 $gravatar = md5(strtolower(trim($this->model->gravatar)));
-
                 return '//gravatar.com/avatar/'.$gravatar;
+
             } elseif ($this->email != '') {
                 $gravatar = md5(strtolower(trim($this->email)));
-
                 return '//gravatar.com/avatar/'.$gravatar;
             }
         }
 
-        // Set a fun, gender-neutral default icon
-        return url('/').'/img/default-sm.png';
+        return false;
     }
 
     /**
@@ -381,7 +494,7 @@ class UserPresenter extends Presenter
      */
     public function nameUrl()
     {
-        return (string) link_to_route('users.show', $this->fullName(), $this->id);
+        return (string) link_to_route('users.show', $this->getFullNameAttribute(), $this->id);
     }
 
     /**
@@ -395,6 +508,6 @@ class UserPresenter extends Presenter
 
     public function glyph()
     {
-        return '<i class="fas fa-user" aria-hidden="true"></i>';
+        return '<x-icon type="user"/>';
     }
 }

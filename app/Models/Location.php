@@ -8,7 +8,7 @@ use App\Models\SnipeModel;
 use App\Models\Traits\Searchable;
 use App\Models\User;
 use App\Presenters\Presentable;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -26,13 +26,14 @@ class Location extends SnipeModel
     protected $table = 'locations';
     protected $rules = [
         'name'          => 'required|min:2|max:255|unique_undeleted',
-        'city'          => 'min:2|max:255|nullable',
-        'country'       => 'min:2|max:255|nullable',
-        'address'       => 'max:80|nullable',
-        'address2'      => 'max:80|nullable',
-        'zip'           => 'min:3|max:10|nullable',
+        'address'       => 'max:191|nullable',
+        'address2'      => 'max:191|nullable',
+        'city'          => 'max:191|nullable',
+        'state'         => 'min:2|max:191|nullable',
+        'country'       => 'min:2|max:191|nullable',
+        'zip'           => 'max:10|nullable',
         'manager_id'    => 'exists:users,id|nullable',
-        'parent_id'     => 'non_circular:locations,id',
+        'parent_id'     => 'nullable|exists:locations,id|non_circular:locations,id',
     ];
 
     protected $casts = [
@@ -41,7 +42,7 @@ class Location extends SnipeModel
     ];
 
     /**
-     * Whether the model should inject it's identifier to the unique
+     * Whether the model should inject its identifier to the unique
      * validation rules before attempting validation. If this property
      * is not set in the model it will default to true.
      *
@@ -65,6 +66,8 @@ class Location extends SnipeModel
         'state',
         'country',
         'zip',
+        'phone',
+        'fax',
         'ldap_ou',
         'currency',
         'manager_id',
@@ -79,7 +82,7 @@ class Location extends SnipeModel
      *
      * @var array
      */
-    protected $searchableAttributes = ['name', 'address', 'city', 'state', 'zip', 'created_at', 'ldap_ou'];
+    protected $searchableAttributes = ['name', 'address', 'city', 'state', 'zip', 'created_at', 'ldap_ou', 'phone', 'fax'];
 
     /**
      * The relations and their attributes that should be included when searching the model.
@@ -90,19 +93,47 @@ class Location extends SnipeModel
       'parent' => ['name'],
     ];
 
+
+    /**
+     * Determine whether or not this location can be deleted.
+     *
+     * This method requires the eager loading of the relationships in order to determine whether
+     * it can be deleted. It's tempting to load those here, but that increases the query load considerably.
+     *
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v3.0]
+     * @return bool
+     */
     public function isDeletable()
     {
+
         return Gate::allows('delete', $this)
-                && ($this->assignedAssets()->count() === 0)
-                && ($this->assets()->count() === 0)
-                && ($this->users()->count() === 0);
+                && ($this->assets_count == 0)
+                && ($this->assigned_assets_count == 0)
+                && ($this->children_count == 0)
+                && ($this->accessories_count == 0)
+                && ($this->users_count == 0);
     }
 
+    /**
+     * Establishes the user -> location relationship
+     *
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v3.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
     public function users()
     {
         return $this->hasMany(\App\Models\User::class, 'location_id');
     }
 
+    /**
+     * Find assets with this location as their location_id
+     *
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v3.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
     public function assets()
     {
         return $this->hasMany(\App\Models\Asset::class, 'location_id')
@@ -113,6 +144,14 @@ class Location extends SnipeModel
             });
     }
 
+
+    /**
+     * Establishes the  asset -> rtd_location relationship
+     *
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v3.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
     public function rtd_assets()
     {
         /* This used to have an ...->orHas() clause that referred to
@@ -122,34 +161,108 @@ class Location extends SnipeModel
            It is arguable that we should have a '...->whereNull('assigned_to')
            bit in there, but that isn't always correct either (in the case
            where a user has no location, for example).
-
-           In all likelyhood, we need to denorm an "effective_location" column
-           into Assets to make this slightly less miserable.
         */
         return $this->hasMany(\App\Models\Asset::class, 'rtd_location_id');
     }
 
+    /**
+     * Establishes the consumable -> location relationship
+     *
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v3.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
+    public function consumables()
+    {
+        return $this->hasMany(\App\Models\Consumable::class, 'location_id');
+    }
+
+    /**
+     * Establishes the component -> location relationship
+     *
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v3.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
+    public function components()
+    {
+        return $this->hasMany(\App\Models\Component::class, 'location_id');
+    }
+
+    /**
+     * Establishes the component -> accessory relationship
+     *
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v3.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
+    public function accessories()
+    {
+        return $this->hasMany(\App\Models\Accessory::class, 'location_id');
+    }
+
+    /**
+     * Find the parent of a location
+     *
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v2.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
     public function parent()
     {
         return $this->belongsTo(self::class, 'parent_id', 'id')
             ->with('parent');
     }
 
+
+    /**
+     * Find the manager of a location
+     *
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v2.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
     public function manager()
     {
         return $this->belongsTo(\App\Models\User::class, 'manager_id');
     }
 
+
+    /**
+     * Find children of a location
+     *
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v2.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
     public function children()
     {
         return $this->hasMany(self::class, 'parent_id')
             ->with('children');
     }
 
-    // I don't think we need this anymore since we de-normed location_id in assets?
+    /**
+     * Establishes the asset -> location assignment relationship
+     *
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v3.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
     public function assignedAssets()
     {
         return $this->morphMany(\App\Models\Asset::class, 'assigned', 'assigned_type', 'assigned_to')->withTrashed();
+    }
+
+    /**
+     * Establishes the accessory -> location assignment relationship
+     *
+     * @author A. Gianotto <snipe@snipe.net>
+     * @since [v3.0]
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
+    public function assignedAccessories()
+    {
+        return $this->morphMany(\App\Models\AccessoryCheckout::class, 'assigned', 'assigned_type', 'assigned_to');
     }
 
     public function setLdapOuAttribute($ldap_ou)
@@ -175,7 +288,7 @@ class Location extends SnipeModel
 
         foreach ($locations_with_children[$parent_id] as $location) {
             $location->use_text = $prefix.' '.$location->name;
-            $location->use_image = ($location->image) ? url('/').'/uploads/locations/'.$location->image : null;
+            $location->use_image = ($location->image) ? config('app.url').'/uploads/locations/'.$location->image : null;
             $results[] = $location;
             //now append the children. (if we have any)
             if (array_key_exists($location->id, $locations_with_children)) {

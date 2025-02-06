@@ -32,8 +32,8 @@
             <div class="panel box box-default">
                 <div class="box-header with-border">
                     <h2 class="box-title">
-                        <i class="fas fa-list-ol"></i> {{ trans('general.asset_tags') }}
-                    </h4>
+                        <x-icon type="asset-tags"/> {{ trans('general.asset_tags') }}
+                    </h2>
                 </div>
                 <div class="box-body">
 
@@ -43,17 +43,19 @@
                         <!-- auto ids -->
                         <div class="form-group">
                             <div class="col-md-5">
-                                {{ Form::label('auto_increment_assets', trans('admin/settings/general.auto_increment_assets')) }}
+                                <strong>{{  trans('admin/settings/general.auto_increment_assets') }}</strong>
                             </div>
                             <div class="col-md-7">
-                                {{ Form::checkbox('auto_increment_assets', '1', old('auto_increment_assets', $setting->auto_increment_assets),array('class' => 'minimal', 'aria-label'=>'auto_increment_assets')) }}
-                                {{ trans('admin/settings/general.enabled') }}
+                                <label class="form-control">
+                                    {{ Form::checkbox('auto_increment_assets', '1', old('auto_increment_assets', $setting->auto_increment_assets),array('aria-label'=>'auto_increment_assets')) }}
+                                    {{ trans('admin/settings/general.enabled') }}
+                                </label>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <div class="col-md-5">
-                                {{ Form::label('next_auto_tag_base', trans('admin/settings/general.next_auto_tag_base')) }}
+                                <label for="next_auto_tag_base">{{ trans('admin/settings/general.next_auto_tag_base') }}</label>
                             </div>
                             <div class="col-md-7">
                                 {{ Form::text('next_auto_tag_base', old('next_auto_tag_base', $setting->next_auto_tag_base), array('class' => 'form-control', 'style'=>'width: 150px;', 'aria-label'=>'next_auto_tag_base')) }}
@@ -65,7 +67,7 @@
                         <!-- auto prefix -->
                         <div class="form-group {{ $errors->has('auto_increment_prefix') ? 'error' : '' }}">
                             <div class="col-md-5">
-                                {{ Form::label('auto_increment_prefix', trans('admin/settings/general.auto_increment_prefix')) }}
+                                <label for="auto_increment_prefix">{{ trans('admin/settings/general.auto_increment_prefix') }}</label>
                             </div>
                             <div class="col-md-7">
                                 @if ($setting->auto_increment_assets == 1)
@@ -80,7 +82,7 @@
                         <!-- auto zerofill -->
                         <div class="form-group {{ $errors->has('zerofill_count') ? 'error' : '' }}">
                             <div class="col-md-5">
-                                {{ Form::label('zerofill_count', trans('admin/settings/general.zerofill_count')) }}
+                                <label for="zerofill_count">{{ trans('admin/settings/general.zerofill_count') }}</label>
                             </div>
                             <div class="col-md-7">
                                 {{ Form::text('zerofill_count', old('zerofill_count', $setting->zerofill_count), array('class' => 'form-control', 'style'=>'width: 150px;', 'aria-label'=>'zerofill_count')) }}
@@ -96,7 +98,7 @@
                         <a class="btn btn-link text-left" href="{{ route('settings.index') }}">{{ trans('button.cancel') }}</a>
                     </div>
                     <div class="text-right col-md-6">
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-check icon-white" aria-hidden="true"></i> {{ trans('general.save') }}</button>
+                        <button type="submit" class="btn btn-primary"><x-icon type="checkmark" /> {{ trans('general.save') }}</button>
                     </div>
 
                 </div>

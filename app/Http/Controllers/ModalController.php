@@ -15,9 +15,9 @@ class ModalController extends Controller
      * @version    v5.3.7-pre
      * @author [Brady Wetherington] [<uberbrady@gmail.com>]
      * @author [A. Gianotto] [<snipe@snipe.net]
-     * @return View
+     * @return \Illuminate\Contracts\View\View
      */
-    function show ($type, $itemId = null) {
+    public function show ($type, $itemId = null) {
 
         // These values should correspond to a file in resources/views/modals/
         $allowed_types = [
@@ -32,7 +32,8 @@ class ModalController extends Controller
             'statuslabel',
             'supplier',
             'upload-file',
-            'user',         
+            'user',
+            'add-note',
         ];
 
 

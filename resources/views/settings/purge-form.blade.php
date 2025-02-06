@@ -18,7 +18,9 @@
         <div class="col-md-8 col-md-offset-2">
             <div class="box box-solid box-danger">
                 <div class="box-header with-border">
-                    <h2 class="box-title"><i class="fas fa-exclamation-triangle"></i> {{ trans('admin/settings/general.purge') }}</h2>
+                    <h2 class="box-title">
+                        <x-icon type="warning"/>
+                        {{ trans('admin/settings/general.purge') }}</h2>
                 </div>
             {{ Form::open(['method' => 'POST', 'files' => false, 'autocomplete' => 'off', 'class' => 'form-horizontal', 'role' => 'form' ]) }}
             <!-- CSRF Token -->
@@ -26,13 +28,13 @@
                 <div class="box-body">
                     <p>{{ trans('admin/settings/general.confirm_purge_help') }}</p>
                     <div class="col-md-3{{ $errors->has('confirm_purge') ? 'error' : '' }}">
-                        {{ Form::label('confirm_purge', trans('admin/settings/general.confirm_purge')) }}
+                        <label for="confirm_purge">{{ trans('admin/settings/general.confirm_purge') }}</label>
                     </div>
                     <div class="col-md-9{{ $errors->has('confirm_purge') ? 'error' : '' }}">
                         @if (config('app.lock_passwords')===true)
-                            {{ Form::text('confirm_purge', Request::old('confirm_purge'), array('class' => 'form-control', 'disabled'=>'true')) }}
+                            {{ Form::text('confirm_purge', old('confirm_purge'), array('class' => 'form-control', 'disabled'=>'true')) }}
                         @else
-                            {{ Form::text('confirm_purge', Request::old('confirm_purge'), array('class' => 'form-control')) }}
+                            {{ Form::text('confirm_purge', old('confirm_purge'), array('class' => 'form-control')) }}
                         @endif
 
                         @if (config('app.lock_passwords')===true)

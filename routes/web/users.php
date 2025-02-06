@@ -4,47 +4,7 @@ use App\Http\Controllers\Users;
 use App\Http\Controllers\Users\UserFilesController;
 use Illuminate\Support\Facades\Route;
 
-    // User Management
-    Route::post(
-        '{userId}/clone',
-        [
-            Users\UsersController::class, 
-            'postCreate'
-        ]
-    );
-
-    Route::post(
-        '{userId}/restore',
-        [
-            Users\UsersController::class, 
-            'getRestore'
-        ]
-    )->name('restore/user');
-
-    Route::get(
-        '{userId}/unsuspend',
-        [
-            Users\UsersController::class, 
-            'getUnsuspend'
-        ]
-    )->name('unsuspend/user');
-
-    Route::post(
-        '{userId}/upload',
-        [
-            Users\UserFilesController::class, 
-            'store'
-        ]
-    )->name('upload/user');
-
-    Route::delete(
-        '{userId}/deletefile/{fileId}',
-        [
-            Users\UserFilesController::class, 
-            'destroy'
-        ]
-    )->name('userfile.destroy');
-
+// User Management
 
 Route::group(['prefix' => 'users', 'middleware' => ['auth']], function () {
 
@@ -78,7 +38,7 @@ Route::group(['prefix' => 'users', 'middleware' => ['auth']], function () {
             Users\UsersController::class, 
             'getClone'
         ]
-    )->name('clone/user');
+    )->name('users.clone.show');
 
     Route::post(
         '{userId}/clone',
@@ -86,15 +46,15 @@ Route::group(['prefix' => 'users', 'middleware' => ['auth']], function () {
             Users\UsersController::class, 
             'postCreate'
         ]
-    )->name('clone/user');
+    )->name('users.clone.store');
 
-    Route::get(
+    Route::post(
         '{userId}/restore',
         [
             Users\UsersController::class, 
             'getRestore'
         ]
-    )->name('restore/user');
+    )->name('users.restore.store');
 
     Route::get(
         '{userId}/unsuspend',
@@ -145,12 +105,28 @@ Route::group(['prefix' => 'users', 'middleware' => ['auth']], function () {
     )->name('users.print');
 
     Route::post(
+        '{userId}/email',
+        [
+            Users\UsersController::class,
+            'emailAssetList'
+        ]
+    )->name('users.email');
+
+    Route::post(
         'bulkedit',
         [
             Users\BulkUsersController::class, 
             'edit'
         ]
     )->name('users/bulkedit');
+
+    Route::post(
+        'merge',
+        [
+            Users\BulkUsersController::class,
+            'merge'
+        ]
+    )->name('users.merge.save');
 
 
     Route::post(
@@ -169,10 +145,12 @@ Route::group(['prefix' => 'users', 'middleware' => ['auth']], function () {
         ]
     )->name('users/bulkeditsave');
 
-
+    // pulling this out of the resource because I need route model binding in the request
+    Route::match(['put', 'patch'], '/{user}', [Users\UsersController::class, 'update'])->name('users.update');
 });
 
 Route::resource('users', Users\UsersController::class, [
     'middleware' => ['auth'],
     'parameters' => ['user' => 'user_id'],
+    'except' => ['update']
 ]);

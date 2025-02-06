@@ -6,39 +6,38 @@ return [
     'archived'  				=> 'Arhivirano',
     'asset'  					=> 'Imovina',
     'bulk_checkout'             => 'Checkout Assets',
-    'bulk_checkin'              => 'Checkin Assets',
+    'bulk_checkin'              => 'Razduži imovinu',
     'checkin'  					=> 'Checkin Asset',
     'checkout'  				=> 'Checkout Asset',
     'clone'  					=> 'Kloniraj imovinu',
     'deployable'  				=> 'Može se razmestiti',
-    'deleted'  					=> 'This asset has been deleted.',
+    'deleted'  					=> 'Imovina je obrisana.',
+    'delete_confirm'            => 'Da li ste sigurni da želite da obrišete ovaj resurs?',
     'edit'  					=> 'Uređivanje imovine',
-    'model_deleted'  			=> 'This Assets model has been deleted. You must restore the model before you can restore the Asset.',
+    'model_deleted'  			=> 'Ovaj Model osnovnog sredstva je izbrisan. Morate da vratite model da bi ste mogli da vratite sredstvo.',
+    'model_invalid'             => 'Ovaj model nije ispravan za ovu imovinu.',
+    'model_invalid_fix'         => 'Imovina mora biti izmenjena korišćenjem ispravnog modela imovine pre pokušaja zaduživanja ili razduživanja, ili popisivanja.',
     'requestable'               => 'Može da se potražuje',
     'requested'				    => 'Zatraženo',
-    'not_requestable'           => 'Not Requestable',
-    'requestable_status_warning' => 'Do not change  requestable status',
+    'not_requestable'           => 'Ne može da se potražuje',
+    'requestable_status_warning' => 'Ne manjajte status mogućnosti potraživanja',
     'restore'  					=> 'Restore Asset',
     'pending'  					=> 'U čekanju',
     'undeployable'  			=> 'Ne može da se razmesti',
+    'undeployable_tooltip'  	=> 'Ova imovina ima oznaku statusa koja nije zaduživa i nije je moguće zadužiti u ovom trenutku.',
     'view'  					=> 'Prikaz imovine',
-    'csv_error' => 'You have an error in your CSV file:',
-    'import_text' => '
-    <p>
-    Upload a CSV that contains asset history. The assets and users MUST already exist in the system, or they will be skipped. Matching assets for history import happens against the asset tag. We will try to find a matching user based on the user\'s name you provide, and the criteria you select below. If you do not select any criteria below, it will simply try to match on the username format you configured in the Admin &gt; General Settings.
-    </p>
-
-    <p>Fields included in the CSV must match the headers: <strong>Asset Tag, Name, Checkout Date, Checkin Date</strong>. Any additional fields will be ignored. </p>
-
-    <p>Checkin Date: blank or future checkin dates will checkout items to associated user.  Excluding the Checkin Date column will create a checkin date with todays date.</p>
+    'csv_error' => 'Postoji greška u tvojoj CSV datoteci:',
+    'import_text' => '<p>Pošaljite CSV koji sadrži istoriju imovine. Imovina i korisnici MORAJU već da postoje u sistemu, ili će biti preskočeni. Poklapanje imovine za uvoz istorije se vrši prema inventarnom broju. Pokušaćemo da pronađemo odgovarajućeg korisnika prema imenu korisnika koji nam dostavite, i prema kriterijumu koji izaberete ispod. Ako ne izaberete kriterijume, pokušaćemo da izvršimo poklapanje prema formatu korisničkog imena koji ste podesili u <code>Administracija &gt; Opšta podešavanja</code>.</p><p>Polja uključena u CSV datoteci koraju da se poklope sa zaglavljima: <strong>Inventarni broj, Naziv, Datum zaduživanja, Datum razduživanja</strong>. Sva ostala polja će biti ignorisana. </p><p>Datum razduživanja: prazno ili datumi razduživanja u budućnosti će zadužiti stavke navedenom korisniku.  Nenavođenje datuma u koloni datuma razduživanja će upisati datum razduživanja sa današnjim datumom.</p>
     ',
-    'csv_import_match_f-l' => 'Try to match users by firstname.lastname (jane.smith) format',
-    'csv_import_match_initial_last' => 'Try to match users by first initial last name (jsmith) format',
-    'csv_import_match_first' => 'Try to match users by first name (jane) format',
-    'csv_import_match_email' => 'Try to match users by email as username',
-    'csv_import_match_username' => 'Try to match users by username',
-    'error_messages' => 'Error messages:',
-    'success_messages' => 'Success messages:',
-    'alert_details' => 'Please see below for details.',
-    'custom_export' => 'Custom Export'
+    'csv_import_match_f-l' => 'Pokušaj da poklopiš korisnike po <strong>ime.prezime</strong> (<code>pera.peric</code>) formatu',
+    'csv_import_match_initial_last' => 'Pokušaj da poklopiš korisnike po <strong>prvi inicijal prezime</strong> (<code>pperic</code>) formatu',
+    'csv_import_match_first' => 'Pokušaj da poklopiš korisnike po <strong>ime</strong> (<code>pera</code>) formatu',
+    'csv_import_match_email' => 'Pokušaj da poklopiš korisnike po <strong>e-pošti</strong> kao korisničkom imenu',
+    'csv_import_match_username' => 'Pokušaj da poklopiš korisnike po <strong>korisničkom imenu</strong>',
+    'error_messages' => 'Poruka o grešci:',
+    'success_messages' => 'Poruke o uspehu:',
+    'alert_details' => 'Za detalje pogledajte ispod.',
+    'custom_export' => 'Uobičajen izvoz',
+    'mfg_warranty_lookup' => 'Pretraga statusa :manufacturer garancije',
+    'user_department' => 'Sektor korisnika',
 ];

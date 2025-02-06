@@ -1,6 +1,9 @@
 <?php
 
 return [
-    'sent'	        => 'Success: If that email address exists in our system, a password recovery email has been sent.',
-    'user'			=> 'Nenhum usuário ativo encontrado com este e-mail.',
+    'sent'	        => 'Se existir um usuário correspondente com um endereço de e-mail válido em nosso sistema, um e-mail de recuperação de senha foi enviado.',
+    'user'			=> 'Se existir um usuário correspondente com um endereço de e-mail válido em nosso sistema, um e-mail de recuperação de senha foi enviado.',
+    'token'         => 'Este token de redefinição de senha é inválido ou expirou, ou não corresponde ao nome de usuário fornecido.',
+    'reset'         => 'Sua senha foi redefinida!',
+    'password_change'  => 'Sua senha foi atualizada!',
 ];

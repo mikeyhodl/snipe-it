@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>{{ trans('admin/locations/general.assigned_location', array('location' => $location->present()->fullName())) }} </title>
+    <title>{{ trans('general.assigned_to', array('name' => $location->present()->fullName())) }} </title>
     <style>
         body {
             font-family: "Arial, Helvetica", sans-serif;
@@ -36,29 +36,28 @@
 
         <h3>
         @if ($snipeSettings->logo!='')
-            <img class="print-logo" src="{{ url('/') }}/uploads/{{ $snipeSettings->logo }}">
+            <img class="print-logo" src="{{ config('app.url') }}/uploads/{{ $snipeSettings->logo }}">
         @endif
         {{ $snipeSettings->site_name }}
         </h3>
     @elseif ($snipeSettings->brand == '2')
         @if ($snipeSettings->logo!='')
-            <img class="print-logo" src="{{ url('/') }}/uploads/{{ $snipeSettings->logo }}">
+            <img class="print-logo" src="{{ config('app.url') }}/uploads/{{ $snipeSettings->logo }}">
         @endif
     @else
       <h3>{{ $snipeSettings->site_name }}</h3>
     @endif
 @endif
 
-<h2>{{ trans('admin/locations/general.asset_management_system') }}</h2>
-<b>{{ trans('admin/locations/general.assigned_to') }}</b> {{ $location->present()->fullName() }}
+<h2>{{ trans('general.assigned_to', array('name' => $location->present()->fullName())) }}</h2>
     @if ($parent)
         {{ $parent->present()->fullName() }}
     @endif
-<br>
+
 @if ($manager)
-    <b>{{ trans('admin/locations/general.manager') }}</b> {{ $manager->present()->fullName() }}<br>
+    <b>{{ trans('general.manager') }}</b> {{ $manager->present()->fullName() }}<br>
 @endif
-<b>{{ trans('admin/locations/general.date') }}</b> {{ date("d/m/Y h:i:s A") }}<br><br>
+<b>{{ trans('general.date') }}</b>  {{ \App\Helpers\Helper::getFormattedDateObject(now(), 'datetime', false) }}<br><br>
 
 @if ($users->count() > 0)
     @php
@@ -127,7 +126,7 @@
     	
     	@foreach ($assets as $asset)
             @php
-                if($snipeSettings->show_archived_in_list != 1 && $asset->assetstatus->archived == 1){
+                if($snipeSettings->show_archived_in_list != 1 && $asset->assetstatus?->archived == 1){
                     continue;
                 }
             @endphp
@@ -140,8 +139,8 @@
         <td>{{ ($asset->model) ? $asset->model->name : '' }}</td>
         <td>{{ $asset->serial }}</td>
         <td>{{ $asset->location->name }}</td>
-        <td>{{ $asset->last_checkout }}</td>
-        <td>{{ $asset->expected_checkin }}</td>
+        <td>{{ \App\Helpers\Helper::getFormattedDateObject( $asset->last_checkout, 'datetime', false) }}</td>
+        <td>{{ \App\Helpers\Helper::getFormattedDateObject( $asset->expected_checkin, 'datetime', false) }}</td>
         </tr>
             @php
                 $counter++
@@ -156,34 +155,23 @@
 <table>
     <tr>
         <td>{{ trans('admin/locations/table.signed_by_asset_auditor') }}</td>
-        <td>___________________________</td>
-        <td></td>
+        <td><br>------------------------------------------------------ &nbsp;&nbsp;&nbsp;<br></td>
         <td>{{ trans('admin/locations/table.date') }}</td>
-        <td>____________________</td>
+        <td><br>------------------------------ &nbsp;&nbsp;&nbsp;<br></td>
     </tr>
-</table>
-<br>
-<br>
-<br>
-<table>
+
     <tr>
         <td>{{ trans('admin/locations/table.signed_by_finance_auditor') }}</td>
-        <td>____________________</td>
-        <td></td>
+        <td><br>------------------------------------------------------ &nbsp;&nbsp;&nbsp;<br></td>
         <td>{{ trans('admin/locations/table.date') }}</td>
-        <td>____________________</td>
+        <td><br>------------------------------ &nbsp;&nbsp;&nbsp;<br></td>
     </tr>
-</table>
-<br>
-<br>
-<br>
-<table>
+
     <tr>
         <td>{{ trans('admin/locations/table.signed_by_location_manager') }}</td>
-        <td>_______________________</td>
-        <td></td>
+        <td><br>------------------------------------------------------ &nbsp;&nbsp;&nbsp;<br></td>
         <td>{{ trans('admin/locations/table.date') }}</td>
-        <td>____________________</td>
+        <td><br>------------------------------ &nbsp;&nbsp;&nbsp;<br></td>
     </tr>
 </table>
 
