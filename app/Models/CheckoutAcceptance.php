@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
 
 class CheckoutAcceptance extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes, Notifiable;
 
     protected $casts = [
         'accepted_at' => 'datetime',
@@ -16,9 +18,24 @@ class CheckoutAcceptance extends Model
     ];
 
     /**
+     * Get the mail recipient from the config
+     *
+     * @return mixed|string|null
+     */
+    public function routeNotificationForMail()
+    {
+        // At this point the endpoint is the same for everything.
+        //  In the future this may want to be adapted for individual notifications.
+        $recipients_string = explode(',', Setting::getSettings()->alert_email);
+        $recipients = array_map('trim', $recipients_string);
+
+        return array_filter($recipients);
+    }
+
+    /**
      * The resource that was is out
      *
-     * @return Illuminate\Database\Eloquent\Relations\MorphTo
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
     public function checkoutable()
     {
@@ -53,24 +70,29 @@ class CheckoutAcceptance extends Model
      */
     public function isCheckedOutTo(User $user)
     {
-        return $this->assignedTo->is($user);
+        return $this->assignedTo?->is($user);
     }
 
     /**
-     * Accept the checkout acceptance
+     * Add a record to the checkout_acceptance table ONLY.
+     * Do not add stuff here that doesn't have a corresponding column in the
+     * checkout_acceptances table or you'll get an error.
      *
      * @param  string $signature_filename
      */
-    public function accept($signature_filename)
+    public function accept($signature_filename, $eula = null, $filename = null, $note = null)
     {
         $this->accepted_at = now();
         $this->signature_filename = $signature_filename;
+        $this->stored_eula = $eula;
+        $this->stored_eula_file = $filename;
+        $this->note = $note;
         $this->save();
 
         /**
          * Update state for the checked out item
          */
-        $this->checkoutable->acceptedCheckout($this->assignedTo, $signature_filename);
+        $this->checkoutable->acceptedCheckout($this->assignedTo, $signature_filename, $filename);
     }
 
     /**
@@ -78,9 +100,10 @@ class CheckoutAcceptance extends Model
      *
      * @param  string $signature_filename
      */
-    public function decline($signature_filename)
+    public function decline($signature_filename, $note = null)
     {
         $this->declined_at = now();
+        $this->note = $note;
         $this->signature_filename = $signature_filename;
         $this->save();
 

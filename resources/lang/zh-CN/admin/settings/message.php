@@ -11,8 +11,11 @@ return [
         'file_deleted'          => '备份文件已成功删除。 ',
         'generated'             => '成功地创建了一个新的备份文件。',
         'file_not_found'        => '在服务器上找不到备份文件。',
-        'restore_warning'       => '是的，还原它。我承认这将覆盖当前数据库中的任何现有数据。 这也将注销您现有的所有用户 (包括您)。',
+        'restore_warning'       => '是的，还原它。我确认这将覆盖当前数据库中的任何现有数据。 这也将注销您现有的所有用户 (包括您)。',
         'restore_confirm'       => '您确定要从 :filename还原您的数据库吗？'
+    ],
+    'restore' => [
+        'success'               => '您的系统备份已恢复。请重新登录。'
     ],
     'purge' => [
         'error'     => '清除过程中出现了错误。 ',
@@ -33,11 +36,15 @@ return [
         'testing_authentication' => '测试 LDAP 身份验证...',
         'authentication_success' => '用户已成功通过LDAP认证！'
     ],
-    'slack' => [
-        'sending' => '正在发送Slack测试消息...',
+    'webhook' => [
+        'sending' => '正在发送 :app 测试消息...',
+        'success' => '您的 :webhook_name 集成工作！',
         'success_pt1' => '成功！请检查 ',
-        'success_pt2' => ' 您的测试消息频道，并且一定要点击下面的“保存”来存储您的设置。',
+        'success_pt2' => ' 测试消息的频道，并且一定要点击下面的“保存”来存储您的设置。',
         '500' => '500 服务器错误。',
-        'error' => '出了错。',
+        'error' => '出错了。:app响应：:error_message',
+        'error_redirect' => '错误：301/302 :endpoint 返回重定向。出于安全原因，我们不跟随重定向。请使用实际端点。',
+        'error_misc' => '出错了:( ',
+        'webhook_fail' => ' webhook 通知失败：请检查以确保URL仍然有效。',
     ]
 ];

@@ -64,6 +64,11 @@ class Statuslabel extends SnipeModel
         return $this->hasMany(\App\Models\Asset::class, 'status_id');
     }
 
+    public function adminuser()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
     /**
      * Gets the status label type
      *
@@ -121,6 +126,18 @@ class Statuslabel extends SnipeModel
     }
 
     /**
+     * Query builder scope for undeployable status types
+     *
+     * @return \Illuminate\Database\Query\Builder Modified query builder
+     */
+    public function scopeUndeployable()
+    {
+        return $this->where('pending', '=', 0)
+            ->where('archived', '=', 0)
+            ->where('deployable', '=', 0);
+    }
+
+    /**
      * Helper function to determine type attributes
      *
      * @author A. Gianotto <snipe@snipe.net>
@@ -148,5 +165,10 @@ class Statuslabel extends SnipeModel
         }
 
         return $statustype;
+    }
+
+    public function scopeOrderByCreatedBy($query, $order)
+    {
+        return $query->leftJoin('users as admin_sort', 'status_labels.created_by', '=', 'admin_sort.id')->select('status_labels.*')->orderBy('admin_sort.first_name', $order)->orderBy('admin_sort.last_name', $order);
     }
 }

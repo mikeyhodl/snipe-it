@@ -6,8 +6,8 @@ use App\Models\Setting;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
-use Input;
-use Log;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Crypt;
 
 /***********************************************
  * TODOS:
@@ -37,7 +37,7 @@ class Ldap extends Model
     public static function connectToLdap()
     {
         $ldap_host = Setting::getSettings()->ldap_server;
-        $ldap_version = Setting::getSettings()->ldap_version;
+        $ldap_version = Setting::getSettings()->ldap_version ?: 3;
         $ldap_server_cert_ignore = Setting::getSettings()->ldap_server_cert_ignore;
         $ldap_use_tls = Setting::getSettings()->ldap_tls;
 
@@ -64,8 +64,8 @@ class Ldap extends Model
         ldap_set_option($connection, LDAP_OPT_NETWORK_TIMEOUT, 20);
 
         if (Setting::getSettings()->ldap_client_tls_cert && Setting::getSettings()->ldap_client_tls_key) {
-            ldap_set_option($connection, LDAP_OPT_X_TLS_CERTFILE, Setting::get_client_side_cert_path());
-            ldap_set_option($connection, LDAP_OPT_X_TLS_KEYFILE, Setting::get_client_side_key_path());
+            ldap_set_option(null, LDAP_OPT_X_TLS_CERTFILE, Setting::get_client_side_cert_path());
+            ldap_set_option(null, LDAP_OPT_X_TLS_KEYFILE, Setting::get_client_side_key_path());
         }
 
         if ($ldap_use_tls=='1') {
@@ -117,10 +117,10 @@ class Ldap extends Model
         $filter = Setting::getSettings()->ldap_filter; //FIXME - this *does* respect the ldap filter, but I believe that AdLdap2 did *not*.
         $filterQuery = "({$filter}({$filterQuery}))";
 
-        \Log::debug('Filter query: '.$filterQuery);
+        Log::debug('Filter query: '.$filterQuery);
 
         if (! $ldapbind = @ldap_bind($connection, $userDn, $password)) {
-            \Log::debug("Status of binding user: $userDn to directory: (directly!) ".($ldapbind ? "success" : "FAILURE"));
+            Log::debug("Status of binding user: $userDn to directory: (directly!) ".($ldapbind ? "success" : "FAILURE"));
             if (! $ldapbind = self::bindAdminToLdap($connection)) {
                 /*
                  * TODO PLEASE:
@@ -135,7 +135,7 @@ class Ldap extends Model
                  * Let's definitely fix this at the next refactor!!!!
                  *
                  */
-                \Log::debug("Status of binding Admin user: $userDn to directory instead: ".($ldapbind ? "success" : "FAILURE"));
+                Log::debug("Status of binding Admin user: $userDn to directory instead: ".($ldapbind ? "success" : "FAILURE"));
                 return false;
             }
         }
@@ -169,23 +169,29 @@ class Ldap extends Model
     {
         $ldap_username = Setting::getSettings()->ldap_uname;
 
-        // Lets return some nicer messages for users who donked their app key, and disable LDAP
-        try {
-            $ldap_pass = \Crypt::decrypt(Setting::getSettings()->ldap_pword);
-        } catch (Exception $e) {
-            throw new Exception('Your app key has changed! Could not decrypt LDAP password using your current app key, so LDAP authentication has been disabled. Login with a local account, update the LDAP password and re-enable it in Admin > Settings.');
-        }
+		if ( $ldap_username ) {
+			// Lets return some nicer messages for users who donked their app key, and disable LDAP
+			try {
+				$ldap_pass = Crypt::decrypt(Setting::getSettings()->ldap_pword);
+			} catch (Exception $e) {
+				throw new Exception('Your app key has changed! Could not decrypt LDAP password using your current app key, so LDAP authentication has been disabled. Login with a local account, update the LDAP password and re-enable it in Admin > Settings.');
+			}
 
-        if (! $ldapbind = @ldap_bind($connection, $ldap_username, $ldap_pass)) {
-            throw new Exception('Could not bind to LDAP: '.ldap_error($connection));
-        }
-        // TODO - this just "falls off the end" but the function states that it should return true or false
-        // unfortunately, one of the use cases for this function is wrong and *needs* for that failure mode to fire
-        // so I don't want to fix this right now.
-        // this method MODIFIES STATE on the passed-in $connection and just returns true or false (or, in this case, undefined)
-        // at the next refactor, this should be appropriately modified to be more consistent.
-    }
-
+			if (! $ldapbind = @ldap_bind($connection, $ldap_username, $ldap_pass)) {
+				throw new Exception('Could not bind to LDAP: '.ldap_error($connection));
+			}
+			// TODO - this just "falls off the end" but the function states that it should return true or false
+			// unfortunately, one of the use cases for this function is wrong and *needs* for that failure mode to fire
+			// so I don't want to fix this right now.
+			// this method MODIFIES STATE on the passed-in $connection and just returns true or false (or, in this case, undefined)
+			// at the next refactor, this should be appropriately modified to be more consistent.
+		} else {
+			// LDAP should also work with anonymous bind (no dn, no password available)
+			if (! $ldapbind = @ldap_bind($connection )) {
+				throw new Exception('Could not bind to LDAP: '.ldap_error($connection));
+			}
+		}
+	}
 
     /**
      * Parse and map LDAP attributes based on settings
@@ -207,18 +213,23 @@ class Ldap extends Model
         $ldap_result_phone = Setting::getSettings()->ldap_phone;
         $ldap_result_jobtitle = Setting::getSettings()->ldap_jobtitle;
         $ldap_result_country = Setting::getSettings()->ldap_country;
+        $ldap_result_location = Setting::getSettings()->ldap_location;
         $ldap_result_dept = Setting::getSettings()->ldap_dept;
+        $ldap_result_manager = Setting::getSettings()->ldap_manager;
         // Get LDAP user data
         $item = [];
-        $item['username'] = isset($ldapattributes[$ldap_result_username][0]) ? $ldapattributes[$ldap_result_username][0] : '';
-        $item['employee_number'] = isset($ldapattributes[$ldap_result_emp_num][0]) ? $ldapattributes[$ldap_result_emp_num][0] : '';
-        $item['lastname'] = isset($ldapattributes[$ldap_result_last_name][0]) ? $ldapattributes[$ldap_result_last_name][0] : '';
-        $item['firstname'] = isset($ldapattributes[$ldap_result_first_name][0]) ? $ldapattributes[$ldap_result_first_name][0] : '';
-        $item['email'] = isset($ldapattributes[$ldap_result_email][0]) ? $ldapattributes[$ldap_result_email][0] : '';
-        $item['telephone'] = isset($ldapattributes[$ldap_result_phone][0]) ? $ldapattributes[$ldap_result_phone][0] : '';
-        $item['jobtitle'] = isset($ldapattributes[$ldap_result_jobtitle][0]) ? $ldapattributes[$ldap_result_jobtitle][0] : '';
-        $item['country'] = isset($ldapattributes[$ldap_result_country][0]) ? $ldapattributes[$ldap_result_country][0] : '';
-        $item['department'] = isset($ldapattributes[$ldap_result_dept][0]) ? $ldapattributes[$ldap_result_dept][0] : '';
+        $item['username'] = $ldapattributes[$ldap_result_username][0] ?? '';
+        $item['employee_number'] = $ldapattributes[$ldap_result_emp_num][0] ?? '';
+        $item['lastname'] = $ldapattributes[$ldap_result_last_name][0] ?? '';
+        $item['firstname'] = $ldapattributes[$ldap_result_first_name][0] ?? '';
+        $item['email'] = $ldapattributes[$ldap_result_email][0] ?? '';
+        $item['telephone'] = $ldapattributes[$ldap_result_phone][0] ?? '';
+        $item['jobtitle'] = $ldapattributes[$ldap_result_jobtitle][0] ?? '';
+        $item['country'] = $ldapattributes[$ldap_result_country][0] ?? '';
+        $item['department'] = $ldapattributes[$ldap_result_dept][0] ?? '';
+        $item['manager'] = $ldapattributes[$ldap_result_manager][0] ?? '';
+        $item['location'] = $ldapattributes[$ldap_result_location][0] ?? '';
+        $item['locale'] = app()->getLocale();
 
         return $item;
     }
@@ -229,9 +240,9 @@ class Ldap extends Model
      * @author [A. Gianotto] [<snipe@snipe.net>]
      * @since [v3.0]
      * @param $ldapatttibutes
-     * @return array|bool
+     * @return User | bool
      */
-    public static function createUserFromLdap($ldapatttibutes)
+    public static function createUserFromLdap($ldapatttibutes, $password)
     {
         $item = self::parseAndMapLdapAttributes($ldapatttibutes);
 
@@ -242,12 +253,11 @@ class Ldap extends Model
             $user->last_name = $item['lastname'];
             $user->username = $item['username'];
             $user->email = $item['email'];
+            $user->locale = $item['locale'];
+            $user->password = $user->noPassword();
 
             if (Setting::getSettings()->ldap_pw_sync == '1') {
-                $user->password = bcrypt(Input::get('password'));
-            } else {
-                $pass = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 25);
-                $user->password = bcrypt($pass);
+                $user->password = bcrypt($password);
             }
 
             $user->activated = 1;
@@ -257,7 +267,7 @@ class Ldap extends Model
             if ($user->save()) {
                 return $user;
             } else {
-                LOG::debug('Could not create user.'.$user->getErrors());
+                Log::debug('Could not create user.'.$user->getErrors());
                 throw new Exception('Could not create user: '.$user->getErrors());
             }
         }
@@ -272,9 +282,11 @@ class Ldap extends Model
      * @since [v3.0]
      * @param $base_dn
      * @param $count
+     * @param $filter
+     * @param $attributes
      * @return array|bool
      */
-    public static function findLdapUsers($base_dn = null, $count = -1)
+    public static function findLdapUsers($base_dn = null, $count = -1, $filter = null, $attributes = [])
     {
         $ldapconn = self::connectToLdap();
         self::bindAdminToLdap($ldapconn);
@@ -282,7 +294,9 @@ class Ldap extends Model
         if (is_null($base_dn)) {
             $base_dn = Setting::getSettings()->ldap_basedn;
         }
-        $filter = Setting::getSettings()->ldap_filter;
+        if($filter === null) {
+            $filter = Setting::getSettings()->ldap_filter;
+        }
 
         // Set up LDAP pagination for very large databases
         $page_size = 500;
@@ -301,14 +315,13 @@ class Ldap extends Model
 
             // HUGE thanks to this article: https://stackoverflow.com/questions/68275972/how-to-get-paged-ldap-queries-in-php-8-and-read-more-than-1000-entries
             // which helped me wrap my head around paged results!
-            \Log::info("ldap conn is: ".$ldapconn." basedn is: $base_dn, filter is: $filter - count is: $count. page size is: $page_size"); //FIXME - remove
             // if a $count is set and it's smaller than $page_size then use that as the page size
             $ldap_controls = [];
             //if($count == -1) { //count is -1 means we have to employ paging to query the entire directory
                 $ldap_controls = [['oid' => LDAP_CONTROL_PAGEDRESULTS, 'iscritical' => false, 'value' => ['size'=> $count == -1||$count>$page_size ? $page_size : $count, 'cookie' => $cookie]]];
             //}
-            $search_results = ldap_search($ldapconn, $base_dn, $filter, [], 0, /* $page_size */ -1, -1, LDAP_DEREF_NEVER, $ldap_controls); // TODO - I hate the @, and I hate that we get a full page even if we ask for 10 records. Can we use an ldap_control?
-            \Log::info("did the search run? I guess so if you got here!");
+            $search_results = ldap_search($ldapconn, $base_dn, $filter, $attributes, 0, /* $page_size */ -1, -1, LDAP_DEREF_NEVER, $ldap_controls); // TODO - I hate the @, and I hate that we get a full page even if we ask for 10 records. Can we use an ldap_control?
+            Log::debug("LDAP search executed successfully.");
             if (! $search_results) {
                 return redirect()->route('users.index')->with('error', trans('admin/users/message.error.ldap_could_not_search').ldap_error($ldapconn)); // TODO this is never called in any routed context - only from the Artisan command. So this redirect will never work.
             }
@@ -322,13 +335,13 @@ class Ldap extends Model
             if (isset($controls[LDAP_CONTROL_PAGEDRESULTS]['value']['cookie'])) {
                 // You need to pass the cookie from the last call to the next one
                 $cookie = $controls[LDAP_CONTROL_PAGEDRESULTS]['value']['cookie'];
-                \Log::debug("okay, at least one more page to go!!!");
+                Log::debug("okay, at least one more page to go!!!");
             } else {
-                \Log::debug("okay, we're out of pages - no cookie (or empty cookie) was passed");
+                Log::debug("okay, we're out of pages - no cookie (or empty cookie) was passed");
                 $cookie = '';
             }
             // Empty cookie means last page
-        
+
             // Get results from page
             $results = ldap_get_entries($ldapconn, $search_results);
             if (! $results) {
@@ -338,7 +351,7 @@ class Ldap extends Model
             // Add results to result set
             $global_count += $results['count'];
             $result_set = array_merge($result_set, $results);
-            \Log::debug("Total count is: $global_count");
+            Log::debug("Total count is: $global_count");
 
         } while ($cookie !== null && $cookie != '' && ($count == -1 || $global_count < $count)); // some servers don't even have pagination, and some will give you more results than you asked for, so just see if you have enough.
 

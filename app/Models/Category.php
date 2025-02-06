@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Gate;
 use Watson\Validating\ValidatingTrait;
+use App\Helpers\Helper;
+use Illuminate\Support\Str;
 
 /**
  * Model for Categories. Categories are a higher-level group
@@ -27,17 +29,17 @@ class Category extends SnipeModel
     use SoftDeletes;
 
     protected $table = 'categories';
-    protected $hidden = ['user_id', 'deleted_at'];
+    protected $hidden = ['created_by', 'deleted_at'];
 
     protected $casts = [
-        'user_id'      => 'integer',
+        'created_by'      => 'integer',
     ];
 
     /**
      * Category validation rules
      */
     public $rules = [
-        'user_id' => 'numeric|nullable',
+        'created_by' => 'numeric|nullable',
         'name'   => 'required|min:1|max:255|two_column_unique_undeleted:category_type',
         'require_acceptance'   => 'boolean',
         'use_default_eula'   => 'boolean',
@@ -68,7 +70,7 @@ class Category extends SnipeModel
         'name',
         'require_acceptance',
         'use_default_eula',
-        'user_id',
+        'created_by',
     ];
 
     use Searchable;
@@ -96,8 +98,10 @@ class Category extends SnipeModel
      */
     public function isDeletable()
     {
+
         return Gate::allows('delete', $this)
-                && ($this->itemCount() == 0);
+                && ($this->itemCount() == 0)
+                && ($this->deleted_at == '');
     }
 
     /**
@@ -149,7 +153,10 @@ class Category extends SnipeModel
     }
 
     /**
-     * Get the number of items in the category
+     * Get the number of items in the category. This should NEVER be used in
+     * a collection of categories, as you'll end up with an n+1 query problem.
+     *
+     * It should only be used in a single category context.
      *
      * @author [A. Gianotto] [<snipe@snipe.net>]
      * @since [v2.0]
@@ -157,20 +164,26 @@ class Category extends SnipeModel
      */
     public function itemCount()
     {
-        switch ($this->category_type) {
-            case 'asset':
-                return $this->assets()->count();
-            case 'accessory':
-                return $this->accessories()->count();
-            case 'component':
-                return $this->components()->count();
-            case 'consumable':
-                return $this->consumables()->count();
-            case 'license':
-                return $this->licenses()->count();
+
+        if (isset($this->{Str::plural($this->category_type).'_count'})) {
+            return $this->{Str::plural($this->category_type).'_count'};
         }
 
-        return '0';
+        switch ($this->category_type) {
+            case 'asset':
+                return $this->assets->count();
+            case 'accessory':
+                return $this->accessories->count();
+            case 'component':
+                return $this->components->count();
+            case 'consumable':
+                return $this->consumables->count();
+            case 'license':
+                return $this->licenses->count();
+            default:
+                return 0;
+        }
+
     }
 
     /**
@@ -182,7 +195,25 @@ class Category extends SnipeModel
      */
     public function assets()
     {
-        return $this->hasManyThrough(\App\Models\Asset::class, \App\Models\AssetModel::class, 'category_id', 'model_id');
+        return $this->hasManyThrough(Asset::class, \App\Models\AssetModel::class, 'category_id', 'model_id');
+    }
+
+    /**
+     * Establishes the category -> assets relationship but also takes into consideration
+     * the setting to show archived in lists.
+     *
+     * We could have complicated the assets() method above, but keeping this separate
+     * should give us more flexibility if we need to return actually archived assets
+     * by their category.
+     *
+     * @author [A. Gianotto] [<snipe@snipe.net>]
+     * @since [v6.1.0]
+     * @see \App\Models\Asset::scopeAssetsForShow()
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     */
+    public function showableAssets()
+    {
+        return $this->hasManyThrough(Asset::class, \App\Models\AssetModel::class, 'category_id', 'model_id')->AssetsForShow();
     }
 
     /**
@@ -197,6 +228,11 @@ class Category extends SnipeModel
         return $this->hasMany(\App\Models\AssetModel::class, 'category_id');
     }
 
+    public function adminuser()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
     /**
      * Checks for a category-specific EULA, and if that doesn't exist,
      * checks for a settings level EULA
@@ -207,15 +243,34 @@ class Category extends SnipeModel
      */
     public function getEula()
     {
-        $Parsedown = new \Parsedown();
 
         if ($this->eula_text) {
-            return $Parsedown->text(e($this->eula_text));
+            return Helper::parseEscapedMarkedown($this->eula_text);
         } elseif ((Setting::getSettings()->default_eula_text) && ($this->use_default_eula == '1')) {
-            return $Parsedown->text(e(Setting::getSettings()->default_eula_text));
+            return Helper::parseEscapedMarkedown(Setting::getSettings()->default_eula_text);
         } else {
             return null;
         }
+    }
+
+    /**
+     * -----------------------------------------------
+     * BEGIN MUTATORS
+     * -----------------------------------------------
+     **/
+
+    /**
+     * This sets the checkin_value to a boolean 0 or 1. This accounts for forms or API calls that
+     * explicitly pass the checkin_email field but it has a null or empty value.
+     *
+     * This will also correctly parse a 1/0 if "true"/"false" is passed.
+     *
+     * @param $value
+     * @return void
+     */
+    public function setCheckinEmailAttribute($value)
+    {
+        $this->attributes['checkin_email'] = (int) filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
 
     /**
@@ -235,5 +290,10 @@ class Category extends SnipeModel
     public function scopeRequiresAcceptance($query)
     {
         return $query->where('require_acceptance', '=', true);
+    }
+
+    public function scopeOrderByCreatedBy($query, $order)
+    {
+        return $query->leftJoin('users as admin_sort', 'categories.created_by', '=', 'admin_sort.id')->select('categories.*')->orderBy('admin_sort.first_name', $order)->orderBy('admin_sort.last_name', $order);
     }
 }
