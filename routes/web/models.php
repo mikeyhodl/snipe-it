@@ -1,29 +1,46 @@
 <?php
 
 use App\Http\Controllers\AssetModelsController;
+use App\Http\Controllers\AssetModelsFilesController;
 use App\Http\Controllers\BulkAssetModelsController;
 use Illuminate\Support\Facades\Route;
+use Tabuna\Breadcrumbs\Trail;
 
 // Asset Model Management
 
 
 Route::group(['prefix' => 'models', 'middleware' => ['auth']], function () {
 
+    Route::post('{model}/upload',
+        [AssetModelsFilesController::class, 'store']
+    )->name('upload/models')->withTrashed();
+
+    Route::get('{model}/showfile/{fileId}/{download?}',
+        [AssetModelsFilesController::class, 'show']
+    )->name('show/modelfile')->withTrashed();
+
+    Route::delete('{model}/showfile/{fileId}/delete',
+        [AssetModelsFilesController::class, 'destroy']
+    )->name('delete/modelfile')->withTrashed();
+
     Route::get(
-        '{modelId}/clone',
+        '{model}/clone',
         [
             AssetModelsController::class, 
             'getClone'
         ]
-    )->name('clone/model');
+    )->name('models.clone.create')->withTrashed()
+        ->breadcrumbs(fn (Trail $trail) =>
+        $trail->parent('models.index')
+            ->push(trans('admin/models/table.clone'), route('models.index')));
 
     Route::post(
-        '{modelId}/clone',
+        '{model}/clone',
         [
             AssetModelsController::class, 
             'postCreate'
         ]
-    )->name('clone/model');
+    )->name('models.clone.store')->withTrashed();
 
     Route::get(
         '{modelId}/view',
@@ -39,7 +56,7 @@ Route::group(['prefix' => 'models', 'middleware' => ['auth']], function () {
             AssetModelsController::class, 
             'getRestore'
         ]
-    )->name('restore/model');
+    )->name('models.restore.store');
 
     Route::get(
         '{modelId}/custom_fields',
@@ -74,9 +91,9 @@ Route::group(['prefix' => 'models', 'middleware' => ['auth']], function () {
     )->name('models.bulkdelete.store');
 
 
+
 });
 
 Route::resource('models', AssetModelsController::class, [
     'middleware' => ['auth'],
-    'parameters' => ['model' => 'model_id'],
-]);
+])->withTrashed();
