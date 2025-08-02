@@ -2,6 +2,8 @@
 
 namespace App\Presenters;
 
+use App\Helpers\Helper;
+
 /**
  * Class AssetModelPresenter
  */
@@ -13,6 +15,8 @@ class AssetModelPresenter extends Presenter
             [
                 'field' => 'checkbox',
                 'checkbox' => true,
+                'titleTooltip' => trans('general.select_all_none'),
+                'printIgnore' => true,
             ],
             [
                 'field' => 'id',
@@ -33,6 +37,7 @@ class AssetModelPresenter extends Presenter
                 'field' => 'name',
                 'searchable' => true,
                 'sortable' => true,
+                'switchable' => false,
                 'visible' => true,
                 'title' => trans('general.name'),
                 'formatter' => 'modelsLinkFormatter',
@@ -64,12 +69,36 @@ class AssetModelPresenter extends Presenter
                 'visible' => true,
             ],
             [
+                'field' => 'min_amt',
+                'searchable' => false,
+                'sortable' => true,
+                'switchable' => true,
+                'title' => trans('mail.min_QTY'),
+                'visible' => true,
+                'formatter' => 'minAmtFormatter',
+                'class' => 'text-right text-padding-number-cell',
+            ],
+
+            [
                 'field' => 'assets_count',
                 'searchable' => false,
                 'sortable' => true,
                 'switchable' => true,
                 'title' => trans('admin/models/table.numassets'),
                 'visible' => true,
+                'class' => 'text-right text-padding-number-cell',
+                'footerFormatter' => 'qtySumFormatter',
+            ],
+
+            [
+                'field' => 'remaining',
+                'searchable' => false,
+                'sortable' => false,
+                'switchable' => true,
+                'title' => trans('general.remaining'),
+                'visible' => true,
+                'class' => 'text-right text-padding-number-cell',
+                'footerFormatter' => 'qtySumFormatter',
             ],
             [
                 'field' => 'depreciation',
@@ -86,7 +115,7 @@ class AssetModelPresenter extends Presenter
                 'sortable' => true,
                 'switchable' => true,
                 'title' => trans('general.category'),
-                'visible' => false,
+                'visible' => true,
                 'formatter' => 'categoriesLinkObjFormatter',
             ],
             [
@@ -94,7 +123,7 @@ class AssetModelPresenter extends Presenter
                 'searchable' => false,
                 'sortable' => true,
                 'switchable' => true,
-                'title' => trans('general.eol'),
+                'title' => trans('admin/hardware/form.eol_rate'),
                 'visible' => true,
             ],
             [
@@ -121,21 +150,30 @@ class AssetModelPresenter extends Presenter
                 'switchable' => true,
                 'title' => trans('general.notes'),
                 'visible' => false,
+                'formatter' => 'notesFormatter',
             ],
             [
+                'field' => 'created_by',
+                'searchable' => false,
+                'sortable' => true,
+                'title' => trans('general.created_by'),
+                'visible' => false,
+                'formatter' => 'usersLinkObjFormatter',
+            ], [
                 'field' => 'created_at',
                 'searchable' => true,
                 'sortable' => true,
-                'visible' => false,
+                'switchable' => true,
                 'title' => trans('general.created_at'),
+                'visible' => false,
                 'formatter' => 'dateDisplayFormatter',
-            ],
-            [
+            ], [
                 'field' => 'updated_at',
                 'searchable' => true,
                 'sortable' => true,
-                'visible' => false,
+                'switchable' => true,
                 'title' => trans('general.updated_at'),
+                'visible' => false,
                 'formatter' => 'dateDisplayFormatter',
             ],
 
@@ -148,6 +186,7 @@ class AssetModelPresenter extends Presenter
             'switchable' => false,
             'title' => trans('table.actions'),
             'formatter' => 'modelsActionsFormatter',
+            'printIgnore' => true,
         ];
 
         return json_encode($layout);
@@ -159,10 +198,8 @@ class AssetModelPresenter extends Presenter
      */
     public function note()
     {
-        $Parsedown = new \Parsedown();
-
         if ($this->model->note) {
-            return $Parsedown->text($this->model->note);
+            return Helper::parseEscapedMarkedown($this->model->note);
         }
     }
 
@@ -210,7 +247,7 @@ class AssetModelPresenter extends Presenter
     public function imageUrl()
     {
         if (! empty($this->image)) {
-            return '<img src="'.url('/').'/uploads/models/'.$this->image.'" alt="'.$this->name.'" height="50" width="50">';
+            return '<img src="'.config('app.url').'/uploads/models/'.$this->image.'" alt="'.$this->name.'" height="50" width="50">';
         }
 
         return '';
@@ -223,7 +260,7 @@ class AssetModelPresenter extends Presenter
     public function imageSrc()
     {
         if (! empty($this->image)) {
-            return url('/').'/uploads/models/'.$this->image;
+            return config('app.url').'/uploads/models/'.$this->image;
         }
 
         return '';
