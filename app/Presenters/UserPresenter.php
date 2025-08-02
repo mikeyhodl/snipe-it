@@ -180,7 +180,7 @@ class UserPresenter extends Presenter
                 'switchable' => false,
                 'title' => trans('admin/users/table.username'),
                 'visible' => true,
-                'formatter' => 'usersLinkFormatter',
+                'formatter' => 'usernameRoleLinkFormatter',
             ],
             [
                 'field' => 'employee_num',

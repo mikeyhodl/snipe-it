@@ -960,17 +960,18 @@ dir="{{ Helper::determineLanguageDirection() }}">
 
         <!-- end main container -->
 
-        <div class="modal modal-danger fade" id="dataConfirmModal" tabindex="-1" role="dialog"
-             aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal modal-danger fade" id="dataConfirmModal" tabindex="-1" role="dialog" aria-labelledby="dataConfirmModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h2 class="modal-title" id="myModalLabel">&nbsp;</h2>
+                        <h2 class="modal-title" id="dataConfirmModalLabel">
+                            <span class="modal-header-icon"></span>&nbsp;
+                        </h2>
                     </div>
                     <div class="modal-body"></div>
                     <div class="modal-footer">
-                        <form method="post" id="deleteForm" role="form">
+                        <form method="post" id="deleteForm" role="form" action="">
                             {{ csrf_field() }}
                             {{ method_field('DELETE') }}
 
