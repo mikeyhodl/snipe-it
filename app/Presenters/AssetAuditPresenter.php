@@ -18,6 +18,12 @@ class AssetAuditPresenter extends Presenter
     {
         $layout = [
              [
+                'field' => 'checkbox',
+                'checkbox' => true,
+                'titleTooltip' => trans('general.select_all_none'),
+                 'printIgnore' => true,
+             ],
+             [
                 'field' => 'id',
                 'searchable' => false,
                 'sortable' => true,
@@ -40,13 +46,13 @@ class AssetAuditPresenter extends Presenter
                 'visible' => true,
                 'formatter' => 'hardwareLinkFormatter',
             ], [
-                'field' => 'image',
+                'field' => 'file',
                 'searchable' => false,
                 'sortable' => true,
                 'switchable' => true,
                 'title' => trans('admin/hardware/table.image'),
                 'visible' => false,
-                'formatter' => 'imageFormatter',
+                'formatter' => 'auditImageFormatter',
             ], [
                 'field' => 'asset_tag',
                 'searchable' => true,
@@ -244,7 +250,7 @@ class AssetAuditPresenter extends Presenter
 
         foreach ($fields as $field) {
             $layout[] = [
-                'field' => 'custom_fields.'.$field->convertUnicodeDbSlug(),
+                'field' => 'custom_fields.'.$field->db_column,
                 'searchable' => true,
                 'sortable' => true,
                 'visible' => false,
@@ -261,6 +267,7 @@ class AssetAuditPresenter extends Presenter
             'switchable' => false,
             'title' => trans('table.actions'),
             'formatter' => 'hardwareAuditFormatter',
+            'printIgnore' => true,
         ];
 
         return json_encode($layout);
