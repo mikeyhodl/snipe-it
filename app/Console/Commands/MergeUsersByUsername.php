@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Events\UserMerged;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -41,10 +42,20 @@ class MergeUsersByUsername extends Command
     {
         // Get the list of users who have an email address as their username
         $users = User::where('username', 'LIKE', '%@%')->whereNull('deleted_at')->get();
+        $this->info($users->count().' total non-deleted users whose usernames contain a @ symbol.');
+
 
         foreach ($users as $user) {
-            $parts = explode('@', $user->username);
-            $bad_users = User::where('username', '=', $parts[0])->whereNull('deleted_at')->with('assets', 'manager', 'userlog', 'licenses', 'consumables', 'accessories', 'managedLocations')->get();
+            $parts = explode('@', trim($user->username));
+            $this->info('Checking against username '.trim($parts[0]).'.');
+
+
+            $bad_users = User::where('username', '=', trim($parts[0]))
+                ->whereNull('deleted_at')
+                ->with('assets', 'manager', 'userlog', 'licenses', 'consumables', 'accessories', 'managedLocations','uploads', 'acceptances')
+                ->get();
+
+
 
             foreach ($bad_users as $bad_user) {
                 $this->info($bad_user->username.' ('.$bad_user->id.')  will be merged into '.$user->username.'  ('.$user->id.') ');
@@ -95,10 +106,26 @@ class MergeUsersByUsername extends Command
                     $managedLocation->save();
                 }
 
+                foreach ($bad_user->uploads as $upload) {
+                    $this->info('Updating upload log record '.$upload->id.' to user '.$user->id);
+                    $upload->item_id = $user->id;
+                    $upload->save();
+                }
+
+                foreach ($bad_user->acceptances as $acceptance) {
+                    $this->info('Updating acceptance log record '.$acceptance->id.' to user '.$user->id);
+                    $acceptance->item_id = $user->id;
+                    $acceptance->save();
+                }
+
                 // Mark the user as deleted
                 $this->info('Marking the user as deleted');
                 $bad_user->deleted_at = Carbon::now()->timestamp;
                 $bad_user->save();
+
+                event(new UserMerged($bad_user, $user, null));
+
+
             }
         }
     }
