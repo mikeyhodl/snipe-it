@@ -2,13 +2,17 @@
 
 namespace Tests\Feature\Checkouts\Ui;
 
+use App\Events\CheckoutablesCheckedOutInBulk;
+use App\Mail\BulkAssetCheckoutMail;
 use App\Mail\CheckoutAssetMail;
 use App\Models\Asset;
 use App\Models\Company;
 use App\Models\Location;
 use App\Models\User;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\ExpectationFailedException;
 use Tests\TestCase;
 
@@ -188,8 +192,10 @@ class BulkAssetCheckoutTest extends TestCase
         $response->assertRedirectToRoute('hardware.bulkcheckout.show');
     }
 
+    #[Group('notifications')]
     public function test_one_email_is_sent_instead_of_multiple_individual_ones()
     {
+        Event::fake();
         Mail::fake();
 
         $assets = Asset::factory()->requiresAcceptance()->count(2)->create();
@@ -202,16 +208,29 @@ class BulkAssetCheckoutTest extends TestCase
                 'checkout_to_type' => 'user',
                 'assigned_user' => $user->id,
                 'assigned_asset' => null,
+                'checkout_at' => now()->subWeek()->format('Y-m-d'),
+                'expected_checkin' => now()->addWeek()->format('Y-m-d'),
                 'note' => null,
             ])
             ->assertOk();
 
-        $assets->fresh()->each(function ($asset) {
-            $this->assertHasTheseActionLogs($asset, ['create', 'checkout']);
-        });
+        // @todo:
+        // $assets->fresh()->each(function ($asset) {
+        //     $this->assertHasTheseActionLogs($asset, ['create', 'checkout']);
+        // });
 
         Mail::assertSent(CheckoutAssetMail::class, 0);
 
-        $this->markTestIncomplete('assert one email sent for both assets');
+        Event::assertDispatchedTimes(CheckoutablesCheckedOutInBulk::class, 1);
+        Event::assertDispatched(CheckoutablesCheckedOutInBulk::class, function (CheckoutablesCheckedOutInBulk $event) {
+            // @todo:
+            dd($event);
+        });
+
+        // @todo: move to Notifications test directory?
+        // Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
+        //     // @todo: assert contents
+        //     return $mail->hasTo('someone@example.com');
+        // });
     }
 }

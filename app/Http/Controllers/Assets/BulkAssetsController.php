@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Assets;
 
+use App\Events\CheckoutablesCheckedOutInBulk;
 use App\Helpers\Helper;
 use App\Http\Controllers\CheckInOutRequest;
 use App\Http\Controllers\Controller;
@@ -720,6 +721,15 @@ class BulkAssetsController extends Controller
             });
 
             if (! $errors) {
+                CheckoutablesCheckedOutInBulk::dispatch(
+                    $assets,
+                    $target,
+                    $admin,
+                    $checkout_at,
+                    $expected_checkin,
+                    e($request->get('note')),
+                );
+
                 // Redirect to the new asset page
                 return redirect()->to('hardware')->with('success', trans_choice('admin/hardware/message.multi-checkout.success', $asset_ids));
             }
