@@ -12,6 +12,7 @@ use App\Models\Setting;
 use App\View\Label;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -631,6 +632,8 @@ class BulkAssetsController extends Controller
      */
     public function storeCheckout(AssetCheckoutRequest $request) : RedirectResponse | ModelNotFoundException
     {
+        Context::add('action', 'bulk_asset_checkout');
+
         $this->authorize('checkout', Asset::class);
 
         try {
