@@ -187,4 +187,31 @@ class BulkAssetCheckoutTest extends TestCase
         // ensure redirected back
         $response->assertRedirectToRoute('hardware.bulkcheckout.show');
     }
+
+    public function test_one_email_is_sent_instead_of_multiple_individual_ones()
+    {
+        Mail::fake();
+
+        $assets = Asset::factory()->requiresAcceptance()->count(2)->create();
+        $user = User::factory()->create(['email' => 'someone@example.com']);
+
+        $this->actingAs(User::factory()->checkoutAssets()->viewAssets()->create())
+            ->followingRedirects()
+            ->post(route('hardware.bulkcheckout.store'), [
+                'selected_assets' => $assets->pluck('id')->toArray(),
+                'checkout_to_type' => 'user',
+                'assigned_user' => $user->id,
+                'assigned_asset' => null,
+                'note' => null,
+            ])
+            ->assertOk();
+
+        $assets->fresh()->each(function ($asset) {
+            $this->assertHasTheseActionLogs($asset, ['create', 'checkout']);
+        });
+
+        Mail::assertSent(CheckoutAssetMail::class, 0);
+
+        $this->markTestIncomplete('assert one email sent for both assets');
+    }
 }
