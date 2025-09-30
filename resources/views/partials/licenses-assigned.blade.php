@@ -1,6 +1,6 @@
 <script nonce="{{ csrf_token() }}">
-
-    // create the assigned assets listing box for the right side of the screen
+    let canViewKeys = @json(Gate::check('viewKeys', $license));
+    // create the assigned licenses listing box for the right side of the screen
     $(function() {
         $('#assigned_user').on("change",function () {
             var userid = $('#assigned_user option:selected').val();
@@ -45,10 +45,11 @@
                                 } else {
                                     table_html += license.name;
                                 }
-
-                                table_html += '</a></td>';
-                                table_html += '<td class="col-md-4">' + license.product_key + '</td>';
-                                table_html += "</tr>";
+                                    table_html += '</a></td>';
+                                if (canViewKeys) {
+                                    table_html += '<td class="col-md-4">' + license.product_key + '</td>';
+                                }
+                                    table_html += "</tr>";
                             }
                         } else {
                             table_html += '<tr><td colspan="4">{{ trans('admin/users/message.user_has_no_assets_assigned') }}</td></tr>';
