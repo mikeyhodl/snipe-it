@@ -199,14 +199,15 @@ class BulkAssetCheckoutTest extends TestCase
         Mail::fake();
 
         $assets = Asset::factory()->requiresAcceptance()->count(2)->create();
-        $user = User::factory()->create(['email' => 'someone@example.com']);
+        $target = User::factory()->create(['email' => 'someone@example.com']);
 
-        $this->actingAs(User::factory()->checkoutAssets()->viewAssets()->create())
+        $admin = User::factory()->checkoutAssets()->viewAssets()->create();
+        $this->actingAs($admin)
             ->followingRedirects()
             ->post(route('hardware.bulkcheckout.store'), [
                 'selected_assets' => $assets->pluck('id')->toArray(),
                 'checkout_to_type' => 'user',
-                'assigned_user' => $user->id,
+                'assigned_user' => $target->id,
                 'assigned_asset' => null,
                 'checkout_at' => now()->subWeek()->format('Y-m-d'),
                 'expected_checkin' => now()->addWeek()->format('Y-m-d'),
@@ -222,15 +223,29 @@ class BulkAssetCheckoutTest extends TestCase
         Mail::assertSent(CheckoutAssetMail::class, 0);
 
         Event::assertDispatchedTimes(CheckoutablesCheckedOutInBulk::class, 1);
-        Event::assertDispatched(CheckoutablesCheckedOutInBulk::class, function (CheckoutablesCheckedOutInBulk $event) {
-            // @todo:
-            dd($event);
+        Event::assertDispatched(CheckoutablesCheckedOutInBulk::class, function (CheckoutablesCheckedOutInBulk $event) use ($target, $admin, $assets) {
+            foreach ($assets as $asset) {
+                if ($event->assets->doesntContain($asset)) {
+                    return false;
+                }
+            }
+
+            if ($target->id !== $event->target->id) {
+                return false;
+            }
+
+            if ($admin->id !== $event->admin->id) {
+                return false;
+            }
+
+            return true;
         });
 
         // @todo: move to Notifications test directory?
-        // Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
-        //     // @todo: assert contents
-        //     return $mail->hasTo('someone@example.com');
-        // });
+        Mail::assertSent(BulkAssetCheckoutMail::class, 1);
+        Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
+            // @todo: assert contents
+            return $mail->hasTo('someone@example.com');
+        });
     }
 }
