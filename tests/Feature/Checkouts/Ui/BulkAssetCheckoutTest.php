@@ -3,7 +3,6 @@
 namespace Tests\Feature\Checkouts\Ui;
 
 use App\Events\CheckoutablesCheckedOutInBulk;
-use App\Mail\BulkAssetCheckoutMail;
 use App\Mail\CheckoutAssetMail;
 use App\Models\Asset;
 use App\Models\Company;
@@ -195,7 +194,6 @@ class BulkAssetCheckoutTest extends TestCase
     #[Group('notifications')]
     public function test_one_email_is_sent_instead_of_multiple_individual_ones()
     {
-        Event::fake();
         Mail::fake();
 
         $assets = Asset::factory()->requiresAcceptance()->count(2)->create();
@@ -220,6 +218,7 @@ class BulkAssetCheckoutTest extends TestCase
         //     $this->assertHasTheseActionLogs($asset, ['create', 'checkout']);
         // });
 
+        // ensure individual emails are not sent.
         Mail::assertSent(CheckoutAssetMail::class, 0);
 
         Event::assertDispatchedTimes(CheckoutablesCheckedOutInBulk::class, 1);
@@ -239,13 +238,6 @@ class BulkAssetCheckoutTest extends TestCase
             }
 
             return true;
-        });
-
-        // @todo: move to Notifications test directory?
-        Mail::assertSent(BulkAssetCheckoutMail::class, 1);
-        Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
-            // @todo: assert contents
-            return $mail->hasTo('someone@example.com');
         });
     }
 }

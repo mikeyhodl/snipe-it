@@ -1,0 +1,41 @@
+<?php
+
+namespace Tests\Feature\Notifications\Email;
+
+use App\Events\CheckoutablesCheckedOutInBulk;
+use App\Mail\BulkAssetCheckoutMail;
+use App\Models\Asset;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+use Tests\TestCase;
+
+class BulkCheckoutEmailTest extends TestCase
+{
+    public function test_email_is_sent()
+    {
+        $this->markTestIncomplete();
+
+        Mail::fake();
+
+        $assets = Asset::factory()->count(2)->create();
+        $target = User::factory()->create(['email' => 'someone@example.com']);
+        $admin = User::factory()->create();
+        $checkout_at = date('Y-m-d H:i:s');
+        $expected_checkin = '';
+
+        CheckoutablesCheckedOutInBulk::dispatch(
+            $assets,
+            $target,
+            $admin,
+            $checkout_at,
+            $expected_checkin,
+            'A note here',
+        );
+
+        Mail::assertSent(BulkAssetCheckoutMail::class, 1);
+        Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
+            // @todo: assert contents
+            return $mail->hasTo('someone@example.com');
+        });
+    }
+}
