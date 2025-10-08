@@ -1,6 +1,4 @@
 <x-mail::message>
-# Introduction
-
 {{ $introduction }}
 
 **{{ trans('general.administrator') }}**: {{ $admin->display_name }}
