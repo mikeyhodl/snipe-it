@@ -3,9 +3,11 @@
 
 {{ $introduction }}
 
-<x-mail::button :url="''">
-Button Text
-</x-mail::button>
+@if ($requires_acceptance == 1)
+One or more items require acceptance.<br>
+
+**[✔ Click here to review the terms of use and accept the items]({{ $acceptance_url }})**
+@endif
 
 {{ trans('mail.best_regards') }}<br>
 

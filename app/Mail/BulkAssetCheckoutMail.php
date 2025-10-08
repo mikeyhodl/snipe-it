@@ -15,9 +15,8 @@ class BulkAssetCheckoutMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
+    public bool $requires_acceptance;
+
     public function __construct(
         public Collection $assets,
         public Model $target,
@@ -25,12 +24,9 @@ class BulkAssetCheckoutMail extends Mailable
         public string $checkout_at,
         public string $expected_checkin,
     ) {
-        //
+        $this->requires_acceptance = $this->requiresAcceptance();
     }
 
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -39,24 +35,18 @@ class BulkAssetCheckoutMail extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
             markdown: 'mail.markdown.bulk-asset-checkout-mail',
             with: [
                 'introduction' => $this->getIntroduction(),
+                'requires_acceptance' => $this->requiresAcceptance(),
+                'acceptance_url' => $this->acceptanceUrl(),
             ],
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
     public function attachments(): array
     {
         return [];
@@ -66,5 +56,21 @@ class BulkAssetCheckoutMail extends Mailable
     {
         // @todo:
         return 'The following assets have been checked out to you:';
+    }
+
+    private function requiresAcceptance(): bool
+    {
+        return (bool) $this->assets->reduce(
+            fn($count, $asset) => $count + $asset->requireAcceptance()
+        );
+    }
+
+    private function acceptanceUrl()
+    {
+        if ($this->assets->count() > 1) {
+            return route('account.accept');
+        }
+
+        return route('account.accept.item', $this->assets->first());
     }
 }
