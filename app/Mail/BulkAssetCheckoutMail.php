@@ -45,7 +45,7 @@ class BulkAssetCheckoutMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.bulk-asset-checkout-mail',
+            markdown: 'mail.markdown.bulk-asset-checkout-mail',
             with: [
                 'introduction' => $this->getIntroduction(),
             ],
