@@ -34,6 +34,7 @@ class BulkAssetCheckoutMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+        // @todo: translate
             subject: 'Bulk Asset Checkout Mail',
         );
     }
@@ -45,6 +46,9 @@ class BulkAssetCheckoutMail extends Mailable
     {
         return new Content(
             markdown: 'mail.bulk-asset-checkout-mail',
+            with: [
+                'introduction' => $this->getIntroduction(),
+            ],
         );
     }
 
@@ -56,5 +60,11 @@ class BulkAssetCheckoutMail extends Mailable
     public function attachments(): array
     {
         return [];
+    }
+
+    private function getIntroduction(): string
+    {
+        // @todo:
+        return 'The following assets have been checked out to you:';
     }
 }
