@@ -7,6 +7,7 @@
 Button Text
 </x-mail::button>
 
-Thanks,<br>
-{{ config('app.name') }}
+{{ trans('mail.best_regards') }}<br>
+
+{{ $snipeSettings->site_name }}
 </x-mail::message>
