@@ -2,11 +2,14 @@
 
 namespace App\Mail;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Collection;
 
 class BulkAssetCheckoutMail extends Mailable
 {
@@ -15,8 +18,13 @@ class BulkAssetCheckoutMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
-    {
+    public function __construct(
+        public Collection $assets,
+        public Model $target,
+        public User $admin,
+        public string $checkout_at,
+        public string $expected_checkin,
+    ) {
         //
     }
 

@@ -3,6 +3,8 @@
 namespace App\Listeners;
 
 use App\Events\CheckoutablesCheckedOutInBulk;
+use App\Mail\BulkAssetCheckoutMail;
+use Illuminate\Support\Facades\Mail;
 
 class CheckoutablesCheckedOutInBulkListener
 {
@@ -17,6 +19,12 @@ class CheckoutablesCheckedOutInBulkListener
 
     public function handle(CheckoutablesCheckedOutInBulk $event): void
     {
-        //
+        Mail::to($event->target)->send(new BulkAssetCheckoutMail(
+            $event->assets,
+            $event->target,
+            $event->admin,
+            $event->checkout_at,
+            $event->expected_checkin,
+        ));
     }
 }
