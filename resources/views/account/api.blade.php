@@ -1,23 +1,16 @@
 @extends('layouts/default')
-
 {{-- Page title --}}
 @section('title')
     {{ trans('account/general.personal_api_keys') }}
     @parent
 @stop
-
 {{-- Page content --}}
 @section('content')
-
-
         <div class="row">
             <div class="col-md-8">
 
                  @if (!config('app.lock_passwords'))
-                    <passport-personal-access-tokens
-                        token-url="{{ url('oauth/personal-access-tokens') }}"
-                        scopes-url="{{ url('oauth/scopes') }}">
-                    </passport-personal-access-tokens>
+                    <livewire:personal-access-tokens />
                  @else
                      <p class="help-block">{{ trans('general.feature_disabled') }}</p>
                 @endif
@@ -28,22 +21,17 @@
                 </div>
 
                 <p>{{ trans('account/general.api_base_url') }}<br>
-                    <code>{{ url('/api/v1') }}{{!! trans('account/general.api_base_url_endpoint') !!}}</code></p>
+                    <code>{{ url('/api/v1') }}{!! trans('account/general.api_base_url_endpoint') !!}</code></p>
 
                 <p>{{ trans('account/general.api_token_expiration_time') }}
                     <strong>{{ config('passport.expiration_years') }} {{ trans('general.years') }} </strong>.</p>
 
 
-                <p>{{!! trans('account/general.api_reference') !!}}</p>
+                <p>{!! trans('account/general.api_reference') !!}</p>
             </div>
         </div>
 
 @stop
 
 @section('moar_scripts')
-<script nonce="{{ csrf_token() }}">
-    new Vue({
-        el: "#app",
-    });
-</script>
 @endsection

@@ -6,6 +6,7 @@
  |--------------------------------------------------------------------------
 */
 
+
 return [
 
     'Global' => [
@@ -97,9 +98,17 @@ return [
             'display'    => true,
         ],
 
+
         [
             'permission' => 'assets.view.requestable',
             'label'      => 'View Requestable Assets',
+            'note'       => '',
+            'display'    => true,
+        ],
+
+        [
+            'permission' => 'assets.view.encrypted_custom_fields',
+            'label'      => 'View and Modify Encrypted Custom Fields',
             'note'       => '',
             'display'    => true,
         ],
@@ -143,6 +152,13 @@ return [
             'note'       => '',
             'display'    => true,
         ],
+        [
+            'permission' => 'accessories.files',
+            'label'      => 'View and Modify Accessory Files',
+            'note'       => '',
+            'display'    => true,
+        ],
+
     ],
 
     'Consumables' => [
@@ -176,7 +192,14 @@ return [
             'note'       => '',
             'display'    => true,
         ],
+        [
+            'permission' => 'consumables.files',
+            'label'      => 'View and Modify Consumable Files',
+            'note'       => '',
+            'display'    => true,
+        ],
     ],
+
 
     'Licenses' => [
         [
@@ -210,6 +233,12 @@ return [
             'display'    => true,
         ],
         [
+            'permission' => 'licenses.checkin',
+            'label'      => 'Checkin ',
+            'note'       => '',
+            'display'    => true,
+        ],
+        [
             'permission' => 'licenses.keys',
             'label'      => 'View License Keys',
             'note'       => '',
@@ -222,6 +251,7 @@ return [
             'display'    => true,
         ],
     ],
+
 
     'Components' => [
         [
@@ -260,6 +290,12 @@ return [
             'note'       => '',
             'display'    => true,
         ],
+        [
+            'permission' => 'components.files',
+            'label'      => 'View and Modify Component Files',
+            'note'       => '',
+            'display'    => true,
+        ],
 
     ],
 
@@ -285,13 +321,6 @@ return [
         [
             'permission' => 'kits.delete',
             'label'      => 'Delete ',
-            'note'       => '',
-            'display'    => true,
-        ],
-
-        [
-            'permission' => 'kits.checkout',
-            'label'      => 'Checkout ',
             'note'       => '',
             'display'    => true,
         ],
@@ -488,6 +517,7 @@ return [
         ],
     ],
 
+
     'Manufacturers' => [
         [
             'permission' => 'manufacturers.view',
@@ -596,6 +626,9 @@ return [
         ],
     ],
 
+
+
+
     'Self' => [
         [
             'permission' => 'self.two_factor',
@@ -622,6 +655,13 @@ return [
             'permission' => 'self.checkout_assets',
             'label'      => 'Self-Checkout',
             'note'       => 'This user may check out assets that are marked for self-checkout.',
+            'display'    => true,
+        ],
+
+        [
+            'permission' => 'self.view_purchase_cost',
+            'label'      => 'View Purchase-Cost Column',
+            'note'       => 'This user can see the purchase cost column of items assigned to them.',
             'display'    => true,
         ],
 
