@@ -21,6 +21,8 @@ One or more items require acceptance.<br>
 **[✔ Click here to review the terms of use and accept the items]({{ $acceptance_url }})**
 @endif
 
+<hr>
+
 **{{ trans('general.administrator') }}**: {{ $admin->display_name }}
 
 @if ((isset($expected_checkin)) && ($expected_checkin!=''))
