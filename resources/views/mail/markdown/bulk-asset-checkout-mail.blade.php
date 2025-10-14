@@ -43,6 +43,9 @@ One or more items require acceptance.<br>
 @if (isset($asset->assetstatus))
 | **{{ trans('general.status') }}** | {{ $asset->assetstatus->name }} |
 @endif
+@if ((isset($asset->expected_checkin)) && ($asset->expected_checkin!=''))
+| **{{ trans('mail.expecting_checkin_date') }}** | {{ $asset->expected_checkin }} |
+@endif
 | <hr> | <hr> |
 @endforeach
 </x-mail::table>
