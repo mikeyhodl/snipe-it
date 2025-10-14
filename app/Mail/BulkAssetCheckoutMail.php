@@ -58,14 +58,18 @@ class BulkAssetCheckoutMail extends Mailable
             return 'Assets checked out';
         }
 
-        // @todo: translate
         return trans('mail.Asset_Checkout_Notification', ['tag' => $this->assets->first()->asset_tag]);
     }
 
     private function getIntroduction(): string
     {
-        // @todo:
-        return 'Assets have been checked out to you.';
+        if ($this->assets->count() > 1) {
+            // @todo: translate
+            return 'Assets have been checked out to you.';
+        }
+
+        // @todo: translate
+        return 'An asset has been checked out to you.';
     }
 
     private function requiresAcceptance(): bool
