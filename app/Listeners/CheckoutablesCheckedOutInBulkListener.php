@@ -25,6 +25,7 @@ class CheckoutablesCheckedOutInBulkListener
             $event->admin,
             $event->checkout_at,
             $event->expected_checkin,
+            $event->note,
         ));
     }
 }

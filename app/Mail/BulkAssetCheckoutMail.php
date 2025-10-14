@@ -23,6 +23,7 @@ class BulkAssetCheckoutMail extends Mailable
         public User $admin,
         public string $checkout_at,
         public string $expected_checkin,
+        public string $note,
     ) {
         $this->requires_acceptance = $this->requiresAcceptance();
     }

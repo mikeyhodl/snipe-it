@@ -27,6 +27,10 @@ One or more items require acceptance.<br>
 **{{ trans('mail.expecting_checkin_date') }}**: {{ Helper::getFormattedDateObject($expected_checkin, 'date', false) }}
 @endif
 
+@if ($note)
+**{{ trans('mail.additional_notes') }}**: {{ $note }}
+@endif
+
 <x-mail::table>
 |        |        |
 | ------------- | ------------- |
