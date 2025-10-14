@@ -55,7 +55,7 @@ class BulkAssetCheckoutMail extends Mailable
     private function getIntroduction(): string
     {
         // @todo:
-        return 'The following assets have been checked out to you:';
+        return 'Assets have been checked out to you.';
     }
 
     private function requiresAcceptance(): bool
