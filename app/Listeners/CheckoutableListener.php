@@ -437,6 +437,7 @@ class CheckoutableListener
          */
 
         if (Context::get('action') === 'bulk_asset_checkout') {
+            // @todo: maybe we should see if there is only one asset being checked out and allow this to proceed if it is?
             return false;
         }
 
