@@ -23,6 +23,10 @@ One or more items require acceptance.<br>
 
 **{{ trans('general.administrator') }}**: {{ $admin->display_name }}
 
+@if ((isset($expected_checkin)) && ($expected_checkin!=''))
+**{{ trans('mail.expecting_checkin_date') }}**: {{ Helper::getFormattedDateObject($expected_checkin, 'date', false) }}
+@endif
+
 <x-mail::table>
 |        |        |
 | ------------- | ------------- |
@@ -42,9 +46,6 @@ One or more items require acceptance.<br>
 @endif
 @if (isset($asset->assetstatus))
 | **{{ trans('general.status') }}** | {{ $asset->assetstatus->name }} |
-@endif
-@if ((isset($asset->expected_checkin)) && ($asset->expected_checkin!=''))
-| **{{ trans('mail.expecting_checkin_date') }}** | {{ $asset->expected_checkin }} |
 @endif
 | <hr> | <hr> |
 @endforeach
