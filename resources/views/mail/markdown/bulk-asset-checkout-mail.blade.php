@@ -23,14 +23,18 @@ One or more items require acceptance.<br>
 
 <hr>
 
-**{{ trans('general.administrator') }}**: {{ $admin->display_name }}
-
 @if ((isset($expected_checkin)) && ($expected_checkin!=''))
 **{{ trans('mail.expecting_checkin_date') }}**: {{ Helper::getFormattedDateObject($expected_checkin, 'date', false) }}
 @endif
 
 @if ($note)
 **{{ trans('mail.additional_notes') }}**: {{ $note }}
+@endif
+
+@if ($eula)
+<x-mail::panel>
+    {{ $eula }}
+</x-mail::panel>
 @endif
 
 <x-mail::table>
@@ -56,6 +60,8 @@ One or more items require acceptance.<br>
 | <hr> | <hr> |
 @endforeach
 </x-mail::table>
+
+**{{ trans('general.administrator') }}**: {{ $admin->display_name }}
 
 {{ trans('mail.best_regards') }}<br>
 

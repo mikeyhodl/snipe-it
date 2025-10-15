@@ -43,6 +43,7 @@ class BulkAssetCheckoutMail extends Mailable
                 'introduction' => $this->getIntroduction(),
                 'requires_acceptance' => $this->requiresAcceptance(),
                 'acceptance_url' => $this->acceptanceUrl(),
+                'eula' => $this->getEula(),
             ],
         );
     }
@@ -87,5 +88,22 @@ class BulkAssetCheckoutMail extends Mailable
         }
 
         return route('account.accept.item', $this->assets->first());
+    }
+
+    private function getEula()
+    {
+        // if assets do not have the same category then return early...
+        $categories = $this->assets->pluck('model.category.id')->unique();
+
+        if ($categories->count() > 1) {
+            return;
+        }
+
+        // if assets do have the same category then return the shared EULA
+        if ($categories->count() === 1) {
+            return $this->assets->first()->getEula();
+        }
+
+        // @todo: if the categories use the default eula then return that
     }
 }
