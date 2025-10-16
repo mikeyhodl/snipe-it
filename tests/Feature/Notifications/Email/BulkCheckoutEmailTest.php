@@ -6,14 +6,23 @@ use App\Events\CheckoutablesCheckedOutInBulk;
 use App\Mail\BulkAssetCheckoutMail;
 use App\Models\Asset;
 use App\Models\User;
+use App\Notifications\CheckoutAssetNotification;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class BulkCheckoutEmailTest extends TestCase
 {
+    public static function scenarios()
+    {
+        // 'User has email address set
+        // 'User does not have address set'
+        // 'CC email is set'
+        // 'webhook is set'
+    }
+
     public function test_email_is_sent()
     {
-        $this->markTestIncomplete();
+        // $this->markTestIncomplete();
 
         Mail::fake();
 
@@ -31,6 +40,8 @@ class BulkCheckoutEmailTest extends TestCase
             $expected_checkin,
             'A note here',
         );
+
+        Mail::assertNotSent(CheckoutAssetNotification::class);
 
         Mail::assertSent(BulkAssetCheckoutMail::class, 1);
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
