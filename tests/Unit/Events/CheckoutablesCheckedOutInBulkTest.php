@@ -4,6 +4,7 @@ namespace Tests\Unit\Events;
 
 use App\Events\CheckoutablesCheckedOutInBulk;
 use App\Mail\BulkAssetCheckoutMail;
+use App\Models\Actionlog;
 use App\Models\Asset;
 use App\Models\User;
 use App\Notifications\CheckoutAssetNotification;
@@ -29,20 +30,6 @@ class CheckoutablesCheckedOutInBulkTest extends TestCase
         $this->admin = User::factory()->create();
         $this->checkout_at = date('Y-m-d H:i:s');
         $this->expected_checkin = '';
-    }
-
-    public function test_action_log_entries()
-    {
-        $this->markTestIncomplete();
-
-        $this->dispatchEvent();
-
-        $this->assets->each(function ($asset) {
-            $asset->assignedTo()->is($this->target);
-            $asset->last_checkout = $this->checkout_at;
-            $asset->expected_checkin = $this->expected_checkin;
-            $this->assertHasTheseActionLogs($asset, ['create', 'checkout']); //Note: '$this' gets auto-bound in closures, so this does work.
-        });
     }
 
     public function test_checkout_acceptance_creation()

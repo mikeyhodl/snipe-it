@@ -36,7 +36,7 @@ class BulkAssetCheckoutTest extends TestCase
     {
         Mail::fake();
 
-        Event::fake();
+        Event::fake([CheckoutablesCheckedOutInBulk::class]);
 
         $assets = Asset::factory()->requiresAcceptance()->count(2)->create();
         $user = User::factory()->create(['email' => 'someone@example.com']);
@@ -61,7 +61,6 @@ class BulkAssetCheckoutTest extends TestCase
 
         Event::assertDispatched(CheckoutablesCheckedOutInBulk::class);
 
-        // @todo: move to another test case
         $assets->each(function ($asset) use ($expectedCheckin, $checkoutAt, $user) {
             $asset->assignedTo()->is($user);
             $asset->last_checkout = $checkoutAt;
