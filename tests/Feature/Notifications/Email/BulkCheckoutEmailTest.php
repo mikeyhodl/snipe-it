@@ -22,7 +22,7 @@ class BulkCheckoutEmailTest extends TestCase
 
     public function test_email_is_sent()
     {
-        // $this->markTestIncomplete();
+        $this->settings->enableAdminCC('cc@example.com');
 
         Mail::fake();
 
@@ -43,10 +43,16 @@ class BulkCheckoutEmailTest extends TestCase
 
         Mail::assertNotSent(CheckoutAssetNotification::class);
 
-        Mail::assertSent(BulkAssetCheckoutMail::class, 1);
+        Mail::assertSent(BulkAssetCheckoutMail::class, 2);
+
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
             // @todo: assert contents
             return $mail->hasTo('someone@example.com');
+        });
+
+        Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
+            // @todo: assert contents
+            return $mail->hasTo('cc@example.com');
         });
     }
 }
