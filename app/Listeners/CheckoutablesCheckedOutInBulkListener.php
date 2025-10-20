@@ -19,6 +19,7 @@ class CheckoutablesCheckedOutInBulkListener
 
     public function handle(CheckoutablesCheckedOutInBulk $event): void
     {
+        // @todo: only send if user has email address
         Mail::to($event->target)->send(new BulkAssetCheckoutMail(
             $event->assets,
             $event->target,
@@ -27,5 +28,8 @@ class CheckoutablesCheckedOutInBulkListener
             $event->expected_checkin,
             $event->note,
         ));
+
+        // @todo: create and attach acceptance? Might be handled in CheckoutableListener::getCheckoutAcceptance() already.
+        
     }
 }
