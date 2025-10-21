@@ -3,6 +3,7 @@
 namespace Tests\Feature\Checkouts\Ui;
 
 use App\Events\CheckoutablesCheckedOutInBulk;
+use App\Mail\BulkAssetCheckoutMail;
 use App\Mail\CheckoutAssetMail;
 use App\Models\Asset;
 use App\Models\Company;
@@ -70,8 +71,8 @@ class BulkAssetCheckoutTest extends TestCase
             ]);
         });
 
-        Mail::assertSent(CheckoutAssetMail::class, 2);
-        Mail::assertSent(CheckoutAssetMail::class, function (CheckoutAssetMail $mail) {
+        Mail::assertSent(CheckoutAssetMail::class, 0);
+        Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
             return $mail->hasTo('someone@example.com');
         });
     }
