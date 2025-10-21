@@ -36,8 +36,6 @@ class BulkAssetCheckoutTest extends TestCase
     {
         Mail::fake();
 
-        Event::fake([CheckoutablesCheckedOutInBulk::class]);
-
         $assets = Asset::factory()->requiresAcceptance()->count(2)->create();
         $user = User::factory()->create(['email' => 'someone@example.com']);
 
@@ -59,16 +57,19 @@ class BulkAssetCheckoutTest extends TestCase
 
         $assets = $assets->fresh();
 
-        Event::assertDispatched(CheckoutablesCheckedOutInBulk::class);
-
         $assets->each(function ($asset) use ($expectedCheckin, $checkoutAt, $user) {
             $asset->assignedTo()->is($user);
             $asset->last_checkout = $checkoutAt;
             $asset->expected_checkin = $expectedCheckin;
             $this->assertHasTheseActionLogs($asset, ['create', 'checkout']); //Note: '$this' gets auto-bound in closures, so this does work.
+            $this->assertDatabaseHas('checkout_acceptances', [
+                'checkoutable_type' => Asset::class,
+                'checkoutable_id' => $asset->id,
+                'assigned_to_id' => $user->id,
+                'qty' => 1,
+            ]);
         });
 
-        // @todo: move to another test case
         Mail::assertSent(CheckoutAssetMail::class, 2);
         Mail::assertSent(CheckoutAssetMail::class, function (CheckoutAssetMail $mail) {
             return $mail->hasTo('someone@example.com');
