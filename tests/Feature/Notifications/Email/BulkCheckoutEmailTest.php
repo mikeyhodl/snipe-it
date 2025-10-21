@@ -22,6 +22,8 @@ class BulkCheckoutEmailTest extends TestCase
     {
         parent::setUp();
 
+        Mail::fake();
+
         $this->assets = Asset::factory()->count(2)->create();
         $this->target = User::factory()->create(['email' => 'someone@example.com']);
         $this->admin = User::factory()->create();
@@ -38,11 +40,25 @@ class BulkCheckoutEmailTest extends TestCase
         // 'webhook is set'
     }
 
+    public function test_email_is_sent_to_user()
+    {
+        $this->settings->disableAdminCC();
+
+        $this->dispatchEvent();
+
+        Mail::assertNotSent(CheckoutAssetMail::class);
+
+        Mail::assertSent(BulkAssetCheckoutMail::class, 1);
+
+        Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
+            // @todo: assert contents
+            return $mail->hasTo($this->target->email);
+        });
+    }
+
     public function test_email_is_sent_to_cc_address()
     {
         $this->settings->enableAdminCC('cc@example.com');
-
-        Mail::fake();
 
         $this->dispatchEvent();
 
