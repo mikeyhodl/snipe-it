@@ -58,8 +58,6 @@ class BulkCheckoutEmailTest extends TestCase
 
     public function test_email_is_not_sent_when_user_does_not_have_email_address()
     {
-        $this->markTestIncomplete();
-
         $this->settings->disableAdminCC();
 
         $this->target = User::factory()->create(['email' => null]);
