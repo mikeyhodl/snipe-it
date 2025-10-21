@@ -71,7 +71,7 @@ class BulkAssetCheckoutTest extends TestCase
             ]);
         });
 
-        Mail::assertSent(CheckoutAssetMail::class, 0);
+        Mail::assertNotSent(CheckoutAssetMail::class);
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
             return $mail->hasTo('someone@example.com');
         });
