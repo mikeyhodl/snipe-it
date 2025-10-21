@@ -56,6 +56,21 @@ class BulkCheckoutEmailTest extends TestCase
         });
     }
 
+    public function test_email_is_not_sent_when_user_does_not_have_email_address()
+    {
+        $this->markTestIncomplete();
+
+        $this->settings->disableAdminCC();
+
+        $this->target = User::factory()->create(['email' => null]);
+
+        $this->dispatchEvent();
+
+        Mail::assertNotSent(CheckoutAssetMail::class);
+
+        Mail::assertNotSent(BulkAssetCheckoutMail::class);
+    }
+
     public function test_email_is_sent_to_cc_address()
     {
         $this->settings->enableAdminCC('cc@example.com');
