@@ -30,6 +30,8 @@ class CheckoutablesCheckedOutInBulkListener
             ));
         }
 
+        // @todo: check CheckoutableListener::onCheckedOut() for implementation
+
         // @todo: create and attach acceptance? Might be handled in CheckoutableListener::getCheckoutAcceptance() already.
     }
 }

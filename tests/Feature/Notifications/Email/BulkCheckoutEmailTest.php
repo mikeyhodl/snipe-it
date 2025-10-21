@@ -36,7 +36,9 @@ class BulkCheckoutEmailTest extends TestCase
     {
         // 'User has email address set
         // 'User does not have address set'
-        // 'CC email is set'
+        // 'CC email is set and acceptance is not null (shouldSendEmailToAlertAddress())'
+        // 'CC email is set and acceptance is null (admin_cc_always setting)'
+        //
         // 'webhook is set'
     }
 
