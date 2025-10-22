@@ -31,17 +31,6 @@ class BulkCheckoutEmailTest extends TestCase
         $this->expected_checkin = '';
     }
 
-    // @todo:
-    public static function scenarios()
-    {
-        // 'User has email address set
-        // 'User does not have address set'
-        // 'CC email is set and acceptance is not null (shouldSendEmailToAlertAddress())'
-        // 'CC email is set and acceptance is null (admin_cc_always setting)'
-        //
-        // 'webhook is set'
-    }
-
     public function test_email_is_sent_to_user()
     {
         $this->settings->disableAdminCC();
