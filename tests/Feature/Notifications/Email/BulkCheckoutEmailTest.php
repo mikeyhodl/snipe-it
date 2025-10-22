@@ -23,6 +23,7 @@ class BulkCheckoutEmailTest extends TestCase
         Mail::fake();
 
         $this->settings->disableAdminCC();
+        $this->settings->disableAdminCCAlways();
 
         $this->assets = Asset::factory()->requiresAcceptance()->count(2)->create();
         $this->target = User::factory()->create(['email' => 'someone@example.com']);
