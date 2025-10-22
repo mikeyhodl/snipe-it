@@ -86,6 +86,22 @@ class BulkCheckoutEmailTest extends TestCase
         });
     }
 
+    public function test_email_is_sent_to_cc_address_when_admin_cc_always_enabled()
+    {
+        $this->settings->enableAdminCC('cc@example.com');
+        $this->settings->enableAdminCCAlways();
+
+        $this->assets = Asset::factory()->count(2)->create();
+
+        $this->dispatchEvent();
+
+        Mail::assertNotSent(CheckoutAssetMail::class);
+
+        Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
+            return $mail->hasTo('cc@example.com');
+        });
+    }
+
     public function test_webbook_is_sent()
     {
         $this->markTestIncomplete();

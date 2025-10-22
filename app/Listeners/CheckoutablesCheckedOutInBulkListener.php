@@ -4,6 +4,8 @@ namespace App\Listeners;
 
 use App\Events\CheckoutablesCheckedOutInBulk;
 use App\Mail\BulkAssetCheckoutMail;
+use App\Models\Setting;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 
 class CheckoutablesCheckedOutInBulkListener
@@ -19,7 +21,10 @@ class CheckoutablesCheckedOutInBulkListener
 
     public function handle(CheckoutablesCheckedOutInBulk $event): void
     {
-        if ($event->target->email) {
+        $shouldSendEmailToUser = $this->shouldSendCheckoutEmailToUser($event->assets);
+        $shouldSendEmailToAlertAddress = $this->shouldSendEmailToAlertAddress();
+
+        if ($shouldSendEmailToUser && $event->target->email) {
             Mail::to($event->target)->send(new BulkAssetCheckoutMail(
                 $event->assets,
                 $event->target,
@@ -30,6 +35,44 @@ class CheckoutablesCheckedOutInBulkListener
             ));
         }
 
-        // @todo: check CheckoutableListener::onCheckedOut() for implementation
+        if ($shouldSendEmailToAlertAddress && Setting::getSettings()->admin_cc_email) {
+            Mail::to(Setting::getSettings()->admin_cc_email)->send(new BulkAssetCheckoutMail(
+                $event->assets,
+                $event->target,
+                $event->admin,
+                $event->checkout_at,
+                $event->expected_checkin,
+                $event->note,
+            ));
+        }
+    }
+
+    private function shouldSendCheckoutEmailToUser(Collection $assets): bool
+    {
+        // @todo: how to handle assets having eula?
+
+        return $this->requiresAcceptance($assets);
+    }
+
+    private function shouldSendEmailToAlertAddress(): bool
+    {
+        $setting = Setting::getSettings();
+
+        if (!$setting) {
+            return false;
+        }
+
+        if ($setting->admin_cc_always) {
+            return true;
+        }
+
+        return (bool) $setting->admin_cc_email;
+    }
+
+    private function requiresAcceptance(Collection $assets): bool
+    {
+        return (bool) $assets->reduce(
+            fn($count, $asset) => $count + $asset->requireAcceptance()
+        );
     }
 }
