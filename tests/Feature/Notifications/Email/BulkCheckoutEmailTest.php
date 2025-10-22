@@ -15,7 +15,6 @@ class BulkCheckoutEmailTest extends TestCase
     private $assets;
     private $target;
     private $admin;
-    private $checkout_at;
 
     protected function setUp(): void
     {
@@ -28,7 +27,6 @@ class BulkCheckoutEmailTest extends TestCase
         $this->assets = Asset::factory()->requiresAcceptance()->count(2)->create();
         $this->target = User::factory()->create(['email' => 'someone@example.com']);
         $this->admin = User::factory()->create();
-        $this->checkout_at = date('Y-m-d H:i:s');
     }
 
     public function test_email_is_sent_to_user()
@@ -120,7 +118,7 @@ class BulkCheckoutEmailTest extends TestCase
             $this->assets,
             $this->target,
             $this->admin,
-            $this->checkout_at,
+            date('Y-m-d H:i:s'),
             '',
             'A note here',
         );
