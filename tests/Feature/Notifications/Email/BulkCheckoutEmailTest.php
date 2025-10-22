@@ -24,7 +24,9 @@ class BulkCheckoutEmailTest extends TestCase
 
         Mail::fake();
 
-        $this->assets = Asset::factory()->count(2)->create();
+        $this->settings->disableAdminCC();
+
+        $this->assets = Asset::factory()->requiresAcceptance()->count(2)->create();
         $this->target = User::factory()->create(['email' => 'someone@example.com']);
         $this->admin = User::factory()->create();
         $this->checkout_at = date('Y-m-d H:i:s');
@@ -33,8 +35,6 @@ class BulkCheckoutEmailTest extends TestCase
 
     public function test_email_is_sent_to_user()
     {
-        $this->settings->disableAdminCC();
-
         $this->dispatchEvent();
 
         Mail::assertNotSent(CheckoutAssetMail::class);
@@ -48,8 +48,6 @@ class BulkCheckoutEmailTest extends TestCase
 
     public function test_email_is_not_sent_when_user_does_not_have_email_address()
     {
-        $this->settings->disableAdminCC();
-
         $this->target = User::factory()->create(['email' => null]);
 
         $this->dispatchEvent();
@@ -61,7 +59,12 @@ class BulkCheckoutEmailTest extends TestCase
 
     public function test_email_is_not_sent_if_assets_do_not_require_acceptance()
     {
-        $this->markTestIncomplete();
+        $this->assets = Asset::factory()->count(2)->create();
+
+        $this->dispatchEvent();
+
+        Mail::assertNotSent(CheckoutAssetMail::class);
+        Mail::assertNotSent(BulkAssetCheckoutMail::class);
     }
 
     public function test_email_is_sent_to_cc_address()
