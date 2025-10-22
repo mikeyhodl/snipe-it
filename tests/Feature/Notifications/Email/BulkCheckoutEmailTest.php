@@ -27,12 +27,12 @@ class BulkCheckoutEmailTest extends TestCase
 
         $this->assets = Asset::factory()->requiresAcceptance()->count(2)->create();
         $this->target = User::factory()->create(['email' => 'someone@example.com']);
-        $this->admin = User::factory()->create();
+        $this->admin = User::factory()->checkoutAssets()->viewAssets()->create();
     }
 
     public function test_email_is_sent_to_user()
     {
-        $this->dispatchEvent();
+        $this->sendRequest();
 
         Mail::assertNotSent(CheckoutAssetMail::class);
 
@@ -47,7 +47,7 @@ class BulkCheckoutEmailTest extends TestCase
     {
         $this->target = User::factory()->create(['email' => null]);
 
-        $this->dispatchEvent();
+        $this->sendRequest();
 
         Mail::assertNotSent(CheckoutAssetMail::class);
         Mail::assertNotSent(BulkAssetCheckoutMail::class);
@@ -57,7 +57,7 @@ class BulkCheckoutEmailTest extends TestCase
     {
         $this->assets = Asset::factory()->count(2)->create();
 
-        $this->dispatchEvent();
+        $this->sendRequest();
 
         Mail::assertNotSent(CheckoutAssetMail::class);
         Mail::assertNotSent(BulkAssetCheckoutMail::class);
@@ -67,7 +67,7 @@ class BulkCheckoutEmailTest extends TestCase
     {
         $this->settings->enableAdminCC('cc@example.com');
 
-        $this->dispatchEvent();
+        $this->sendRequest();
 
         Mail::assertNotSent(CheckoutAssetMail::class);
 
@@ -89,7 +89,7 @@ class BulkCheckoutEmailTest extends TestCase
 
         $this->assets = Asset::factory()->count(2)->create();
 
-        $this->dispatchEvent();
+        $this->sendRequest();
 
         Mail::assertNotSent(CheckoutAssetMail::class);
         Mail::assertNotSent(BulkAssetCheckoutMail::class);
@@ -102,7 +102,7 @@ class BulkCheckoutEmailTest extends TestCase
 
         $this->assets = Asset::factory()->count(2)->create();
 
-        $this->dispatchEvent();
+        $this->sendRequest();
 
         Mail::assertNotSent(CheckoutAssetMail::class);
 
@@ -113,15 +113,19 @@ class BulkCheckoutEmailTest extends TestCase
         });
     }
 
-    private function dispatchEvent(): void
+    private function sendRequest()
     {
-        CheckoutablesCheckedOutInBulk::dispatch(
-            $this->assets,
-            $this->target,
-            $this->admin,
-            date('Y-m-d H:i:s'),
-            '',
-            'A note here',
-        );
+        $this->actingAs($this->admin)
+            ->followingRedirects()
+            ->post(route('hardware.bulkcheckout.store'), [
+                'selected_assets' => $this->assets->pluck('id')->toArray(),
+                'checkout_to_type' => 'user',
+                'assigned_user' => $this->target->id,
+                'assigned_asset' => null,
+                'checkout_at' => now()->subWeek()->format('Y-m-d'),
+                'expected_checkin' => now()->addWeek()->format('Y-m-d'),
+                'note' => null,
+            ])
+            ->assertOk();
     }
 }
