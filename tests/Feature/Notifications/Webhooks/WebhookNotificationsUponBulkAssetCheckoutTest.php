@@ -5,6 +5,7 @@ namespace Tests\Feature\Notifications\Webhooks;
 use App\Events\CheckoutablesCheckedOutInBulk;
 use App\Models\Asset;
 use App\Models\User;
+use App\Notifications\CheckoutAssetNotification;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
@@ -32,6 +33,9 @@ class WebhookNotificationsUponBulkAssetCheckoutTest extends TestCase
             $expected_checkin,
             'A note here',
         );
+
+        Notification::assertNothingSentTo(CheckoutAssetNotification::class);
+        Notification::assertSentTimes(BulkAssetCheckoutNotification::class, 1);
 
         $this->assertSlackNotificationSent(BulkAssetCheckoutNotification::class);
     }
