@@ -16,7 +16,6 @@ class BulkCheckoutEmailTest extends TestCase
     private $target;
     private $admin;
     private $checkout_at;
-    private $expected_checkin;
 
     protected function setUp(): void
     {
@@ -30,7 +29,6 @@ class BulkCheckoutEmailTest extends TestCase
         $this->target = User::factory()->create(['email' => 'someone@example.com']);
         $this->admin = User::factory()->create();
         $this->checkout_at = date('Y-m-d H:i:s');
-        $this->expected_checkin = '';
     }
 
     public function test_email_is_sent_to_user()
@@ -46,18 +44,17 @@ class BulkCheckoutEmailTest extends TestCase
         });
     }
 
-    public function test_email_is_not_sent_when_user_does_not_have_email_address()
+    public function test_email_is_not_sent_to_user_when_user_does_not_have_email_address()
     {
         $this->target = User::factory()->create(['email' => null]);
 
         $this->dispatchEvent();
 
         Mail::assertNotSent(CheckoutAssetMail::class);
-
         Mail::assertNotSent(BulkAssetCheckoutMail::class);
     }
 
-    public function test_email_is_not_sent_if_assets_do_not_require_acceptance()
+    public function test_email_is_not_sent_to_user_if_assets_do_not_require_acceptance()
     {
         $this->assets = Asset::factory()->count(2)->create();
 
@@ -86,7 +83,20 @@ class BulkCheckoutEmailTest extends TestCase
         });
     }
 
-    public function test_email_is_sent_to_cc_address_when_admin_cc_always_enabled()
+    public function test_email_is_not_sent_to_cc_address_when_assets_do_not_require_acceptance()
+    {
+        $this->settings->enableAdminCC('cc@example.com');
+        $this->settings->disableAdminCCAlways();
+
+        $this->assets = Asset::factory()->count(2)->create();
+
+        $this->dispatchEvent();
+
+        Mail::assertNotSent(CheckoutAssetMail::class);
+        Mail::assertNotSent(BulkAssetCheckoutMail::class);
+    }
+
+    public function test_email_is_sent_to_cc_address_when_assets_do_not_require_acceptance_but_admin_cc_always_enabled()
     {
         $this->settings->enableAdminCC('cc@example.com');
         $this->settings->enableAdminCCAlways();
@@ -96,6 +106,8 @@ class BulkCheckoutEmailTest extends TestCase
         $this->dispatchEvent();
 
         Mail::assertNotSent(CheckoutAssetMail::class);
+
+        Mail::assertSent(BulkAssetCheckoutMail::class, 1);
 
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
             return $mail->hasTo('cc@example.com');
@@ -109,7 +121,7 @@ class BulkCheckoutEmailTest extends TestCase
             $this->target,
             $this->admin,
             $this->checkout_at,
-            $this->expected_checkin,
+            '',
             'A note here',
         );
     }

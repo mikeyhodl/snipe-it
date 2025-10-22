@@ -22,7 +22,7 @@ class CheckoutablesCheckedOutInBulkListener
     public function handle(CheckoutablesCheckedOutInBulk $event): void
     {
         $shouldSendEmailToUser = $this->shouldSendCheckoutEmailToUser($event->assets);
-        $shouldSendEmailToAlertAddress = $this->shouldSendEmailToAlertAddress();
+        $shouldSendEmailToAlertAddress = $this->shouldSendEmailToAlertAddress($event->assets);
 
         if ($shouldSendEmailToUser && $event->target->email) {
             Mail::to($event->target)->send(new BulkAssetCheckoutMail(
@@ -54,7 +54,7 @@ class CheckoutablesCheckedOutInBulkListener
         return $this->requiresAcceptance($assets);
     }
 
-    private function shouldSendEmailToAlertAddress(): bool
+    private function shouldSendEmailToAlertAddress(Collection $assets): bool
     {
         $setting = Setting::getSettings();
 
@@ -64,6 +64,10 @@ class CheckoutablesCheckedOutInBulkListener
 
         if ($setting->admin_cc_always) {
             return true;
+        }
+
+        if (!$this->requiresAcceptance($assets)) {
+            return false;
         }
 
         return (bool) $setting->admin_cc_email;
