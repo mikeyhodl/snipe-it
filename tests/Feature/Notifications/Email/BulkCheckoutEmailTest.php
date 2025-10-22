@@ -102,11 +102,6 @@ class BulkCheckoutEmailTest extends TestCase
         });
     }
 
-    public function test_webbook_is_sent()
-    {
-        $this->markTestIncomplete();
-    }
-
     private function dispatchEvent(): void
     {
         CheckoutablesCheckedOutInBulk::dispatch(
