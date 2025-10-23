@@ -7,8 +7,10 @@ use App\Mail\CheckoutAssetMail;
 use App\Models\Asset;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
 
+#[Group('notifications')]
 class BulkCheckoutEmailTest extends TestCase
 {
     private $assets;
