@@ -5,7 +5,9 @@ namespace App\Listeners;
 use App\Events\CheckoutablesCheckedOutInBulk;
 use App\Mail\BulkAssetCheckoutMail;
 use App\Models\Setting;
+use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class CheckoutablesCheckedOutInBulkListener
@@ -25,25 +27,37 @@ class CheckoutablesCheckedOutInBulkListener
         $shouldSendEmailToAlertAddress = $this->shouldSendEmailToAlertAddress($event->assets);
 
         if ($shouldSendEmailToUser && $event->target->email) {
-            Mail::to($event->target)->send(new BulkAssetCheckoutMail(
-                $event->assets,
-                $event->target,
-                $event->admin,
-                $event->checkout_at,
-                $event->expected_checkin,
-                $event->note,
-            ));
+            try {
+                Mail::to($event->target)->send(new BulkAssetCheckoutMail(
+                    $event->assets,
+                    $event->target,
+                    $event->admin,
+                    $event->checkout_at,
+                    $event->expected_checkin,
+                    $event->note,
+                ));
+
+                Log::info('BulkAssetCheckoutMail sent to checkout target');
+            } catch (Exception $e) {
+                Log::debug("Exception caught during BulkAssetCheckoutMail to target: " . $e->getMessage());
+            }
         }
 
         if ($shouldSendEmailToAlertAddress && Setting::getSettings()->admin_cc_email) {
-            Mail::to(Setting::getSettings()->admin_cc_email)->send(new BulkAssetCheckoutMail(
-                $event->assets,
-                $event->target,
-                $event->admin,
-                $event->checkout_at,
-                $event->expected_checkin,
-                $event->note,
-            ));
+            try {
+                Mail::to(Setting::getSettings()->admin_cc_email)->send(new BulkAssetCheckoutMail(
+                    $event->assets,
+                    $event->target,
+                    $event->admin,
+                    $event->checkout_at,
+                    $event->expected_checkin,
+                    $event->note,
+                ));
+
+                Log::info('BulkAssetCheckoutMail sent to admin_cc_email');
+            } catch (Exception $e) {
+                Log::debug("Exception caught during BulkAssetCheckoutMail to admin_cc_email: " . $e->getMessage());
+            }
         }
     }
 
@@ -79,4 +93,5 @@ class CheckoutablesCheckedOutInBulkListener
             fn($count, $asset) => $count + $asset->requireAcceptance()
         );
     }
+
 }
