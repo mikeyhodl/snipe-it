@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Notifications\Email;
 
-use App\Events\CheckoutablesCheckedOutInBulk;
 use App\Mail\BulkAssetCheckoutMail;
 use App\Mail\CheckoutAssetMail;
 use App\Models\Asset;
