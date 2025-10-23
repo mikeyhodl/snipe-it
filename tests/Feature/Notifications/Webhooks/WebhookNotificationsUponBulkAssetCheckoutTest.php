@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Notifications\Webhooks;
 
-use App\Events\CheckoutablesCheckedOutInBulk;
 use App\Models\Asset;
 use App\Models\User;
 use App\Notifications\CheckoutAssetNotification;
@@ -13,30 +12,26 @@ class WebhookNotificationsUponBulkAssetCheckoutTest extends TestCase
 {
     public function test_webbook_is_sent_upon_bulk_asset_checkout()
     {
-        $this->markTestIncomplete();
-
         Notification::fake();
 
         $this->settings->enableSlackWebhook();
 
         $assets = Asset::factory()->requiresAcceptance()->count(2)->create();
-        $target = User::factory()->create(['email' => 'someone@example.com']);
-        $admin = User::factory()->create();
-        $checkout_at = date('Y-m-d H:i:s');
-        $expected_checkin = '';
 
-        CheckoutablesCheckedOutInBulk::dispatch(
-            $assets,
-            $target,
-            $admin,
-            $checkout_at,
-            $expected_checkin,
-            'A note here',
-        );
+        $this->actingAs(User::factory()->checkoutAssets()->viewAssets()->create())
+            ->followingRedirects()
+            ->post(route('hardware.bulkcheckout.store'), [
+                'selected_assets' => $assets->pluck('id')->toArray(),
+                'checkout_to_type' => 'user',
+                'assigned_user' => User::factory()->create(['email' => 'someone@example.com'])->id,
+                'assigned_asset' => null,
+                'checkout_at' => now()->subWeek()->format('Y-m-d'),
+                'expected_checkin' => now()->addWeek()->format('Y-m-d'),
+                'note' => null,
+            ])
+            ->assertOk();
 
-        Notification::assertNothingSentTo(CheckoutAssetNotification::class);
-        Notification::assertSentTimes(BulkAssetCheckoutNotification::class, 1);
-
-        $this->assertSlackNotificationSent(BulkAssetCheckoutNotification::class);
+        $this->assertSlackNotificationSent(CheckoutAssetNotification::class);
+        Notification::assertSentTimes(CheckoutAssetNotification::class, 2);
     }
 }
