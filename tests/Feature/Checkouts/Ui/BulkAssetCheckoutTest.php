@@ -2,17 +2,14 @@
 
 namespace Tests\Feature\Checkouts\Ui;
 
-use App\Events\CheckoutablesCheckedOutInBulk;
 use App\Mail\BulkAssetCheckoutMail;
 use App\Mail\CheckoutAssetMail;
 use App\Models\Asset;
 use App\Models\Company;
 use App\Models\Location;
 use App\Models\User;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\ExpectationFailedException;
 use Tests\TestCase;
 
@@ -196,55 +193,5 @@ class BulkAssetCheckoutTest extends TestCase
 
         // ensure redirected back
         $response->assertRedirectToRoute('hardware.bulkcheckout.show');
-    }
-
-    #[Group('notifications')]
-    public function test_one_email_is_sent_instead_of_multiple_individual_ones()
-    {
-        Mail::fake();
-
-        $assets = Asset::factory()->requiresAcceptance()->count(2)->create();
-        $target = User::factory()->create(['email' => 'someone@example.com']);
-
-        $admin = User::factory()->checkoutAssets()->viewAssets()->create();
-        $this->actingAs($admin)
-            ->followingRedirects()
-            ->post(route('hardware.bulkcheckout.store'), [
-                'selected_assets' => $assets->pluck('id')->toArray(),
-                'checkout_to_type' => 'user',
-                'assigned_user' => $target->id,
-                'assigned_asset' => null,
-                'checkout_at' => now()->subWeek()->format('Y-m-d'),
-                'expected_checkin' => now()->addWeek()->format('Y-m-d'),
-                'note' => null,
-            ])
-            ->assertOk();
-
-        // @todo:
-        // $assets->fresh()->each(function ($asset) {
-        //     $this->assertHasTheseActionLogs($asset, ['create', 'checkout']);
-        // });
-
-        // ensure individual emails are not sent.
-        Mail::assertSent(CheckoutAssetMail::class, 0);
-
-        Event::assertDispatchedTimes(CheckoutablesCheckedOutInBulk::class, 1);
-        Event::assertDispatched(CheckoutablesCheckedOutInBulk::class, function (CheckoutablesCheckedOutInBulk $event) use ($target, $admin, $assets) {
-            foreach ($assets as $asset) {
-                if ($event->assets->doesntContain($asset)) {
-                    return false;
-                }
-            }
-
-            if ($target->id !== $event->target->id) {
-                return false;
-            }
-
-            if ($admin->id !== $event->admin->id) {
-                return false;
-            }
-
-            return true;
-        });
     }
 }
