@@ -61,12 +61,20 @@
 .btn, .btn:hover {
 
 
+  &.btn-default, .btn-default:link {
+    &:hover {
+      color: darken(@navy, 10%)
+    }
+    &:visited {
+      color: darken(@navy, 10%)
+    }
+  }
+
   &.btn-primary, .btn-primary:link {
     background-color: darken(@navy, 10%);
     border-color: darken(@navy, 20%);
     color: #fff;
   }
-
 
   &a.btn-primary:hover {
     background-color: darken(@navy, 20%);
@@ -84,7 +92,13 @@
     color: #fff;
   }
 }
-
+a.btn.btn-link.text-left{
+  color:@navy;
+  border: 1px solid #000;
+}
+a.btn.btn-link.text-left:hover{
+  color:@navy;
+}
 
 a {
   color: @navy;
@@ -102,10 +116,11 @@ a.btn {
   &:hover {
     color: #fff;
     text-decoration: underline;
-
   }
   &:visited {
     color: #fff;
+    text-decoration: none;
+
   }
 }
 
@@ -142,7 +157,7 @@ a.btn {
   color: #FFF!important;
 }
 
-btn-success {
+.btn-success {
   background-color: darken(@green, 30%);
 }
 
@@ -165,6 +180,7 @@ input::-ms-input-placeholder { /* IE 10+ */
 .callout.callout-info {
   background-color: darken(@blue, 20%)!important;
 }
+
 
 .fixed-table-container tbody .selected td {
   background-color: #fff8af;
