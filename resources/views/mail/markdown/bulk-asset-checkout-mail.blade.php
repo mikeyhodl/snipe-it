@@ -57,6 +57,11 @@ One or more items require acceptance.<br>
 @if (isset($asset->assetstatus))
 | **{{ trans('general.status') }}** | {{ $asset->assetstatus->name }} |
 @endif
+@foreach($asset->fields as $field)
+@if ($asset->{ $field->db_column_name() } != '')
+| **{{ $field->name }}** | {{ $asset->{ $field->db_column_name() } }} |
+@endif
+@endforeach
 | <hr> | <hr> |
 @endforeach
 </x-mail::table>

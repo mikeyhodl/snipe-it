@@ -2,6 +2,8 @@
 
 namespace App\Mail;
 
+use App\Models\Asset;
+use App\Models\CustomField;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Database\Eloquent\Model;
@@ -26,6 +28,8 @@ class BulkAssetCheckoutMail extends Mailable
         public string $note,
     ) {
         $this->requires_acceptance = $this->requiresAcceptance();
+
+        $this->loadCustomFieldsOnAssets();
     }
 
     public function envelope(): Envelope
@@ -74,13 +78,6 @@ class BulkAssetCheckoutMail extends Mailable
         return 'An asset has been checked out to you.';
     }
 
-    private function requiresAcceptance(): bool
-    {
-        return (bool) $this->assets->reduce(
-            fn($count, $asset) => $count + $asset->requireAcceptance()
-        );
-    }
-
     private function acceptanceUrl()
     {
         if ($this->assets->count() > 1) {
@@ -105,5 +102,25 @@ class BulkAssetCheckoutMail extends Mailable
         }
 
         // @todo: if the categories use the default eula then return that
+    }
+
+    private function loadCustomFieldsOnAssets(): void
+    {
+        $this->assets = $this->assets->map(function (Asset $asset) {
+            $fields = $asset->model?->fieldset?->fields->filter(function (CustomField $field) {
+                return $field->show_in_email && !$field->field_encrypted;
+            });
+
+            $asset->setRelation('fields', $fields);
+
+            return $asset;
+        });
+    }
+
+    private function requiresAcceptance(): bool
+    {
+        return (bool) $this->assets->reduce(
+            fn($count, $asset) => $count + $asset->requireAcceptance()
+        );
     }
 }
