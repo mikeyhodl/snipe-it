@@ -4,6 +4,8 @@ namespace App\Listeners;
 
 use App\Events\CheckoutablesCheckedOutInBulk;
 use App\Mail\BulkAssetCheckoutMail;
+use App\Models\Asset;
+use App\Models\Location;
 use App\Models\Setting;
 use Exception;
 use Illuminate\Support\Collection;
@@ -26,9 +28,11 @@ class CheckoutablesCheckedOutInBulkListener
         $shouldSendEmailToUser = $this->shouldSendCheckoutEmailToUser($event->assets);
         $shouldSendEmailToAlertAddress = $this->shouldSendEmailToAlertAddress($event->assets);
 
-        if ($shouldSendEmailToUser && $event->target->email) {
+        $notifiableUser = $this->getNotifiableUser($event);
+
+        if ($shouldSendEmailToUser && $notifiableUser) {
             try {
-                Mail::to($event->target)->send(new BulkAssetCheckoutMail(
+                Mail::to($notifiableUser)->send(new BulkAssetCheckoutMail(
                     $event->assets,
                     $event->target,
                     $event->admin,
@@ -94,4 +98,19 @@ class CheckoutablesCheckedOutInBulkListener
         );
     }
 
+    private function getNotifiableUser(CheckoutablesCheckedOutInBulk $event)
+    {
+        $target = $event->target;
+
+        if ($target instanceof Asset) {
+            $target->load('assignedTo');
+            return $target->assignedto;
+        }
+
+        if ($target instanceof Location) {
+            return $target->manager;
+        }
+
+        return $target;
+    }
 }
