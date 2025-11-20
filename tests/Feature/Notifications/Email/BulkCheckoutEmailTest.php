@@ -96,7 +96,7 @@ class BulkCheckoutEmailTest extends TestCase
 
     public function test_email_is_not_sent_to_user_if_assets_do_not_require_acceptance()
     {
-        $this->assets = Asset::factory()->count(2)->create();
+        $this->assets = Asset::factory()->doesNotRequireAcceptance()->count(2)->create();
 
         $this->sendRequest();
 
