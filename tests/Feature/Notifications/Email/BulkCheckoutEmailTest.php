@@ -5,6 +5,7 @@ namespace Tests\Feature\Notifications\Email;
 use App\Mail\BulkAssetCheckoutMail;
 use App\Mail\CheckoutAssetMail;
 use App\Models\Asset;
+use App\Models\Location;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use PHPUnit\Framework\Attributes\Group;
@@ -41,6 +42,44 @@ class BulkCheckoutEmailTest extends TestCase
 
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
             return $mail->hasTo($this->target->email);
+        });
+    }
+
+    public function test_email_is_sent_to_location_manager()
+    {
+        // todo: migrate this into a data provider?
+
+        $manager = User::factory()->create();
+
+        $this->target = Location::factory()->for($manager, 'manager')->create();
+
+        $this->sendRequest();
+
+        Mail::assertNotSent(CheckoutAssetMail::class);
+
+        Mail::assertSent(BulkAssetCheckoutMail::class, 1);
+
+        Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) use ($manager) {
+            return $mail->hasTo($manager->email);
+        });
+    }
+
+    public function test_email_is_sent_to_user_asset_is_checked_out_to()
+    {
+        // todo: migrate this into a data provider?
+
+        $user = User::factory()->create();
+
+        $this->target = Asset::factory()->assignedToUser($user)->create();
+
+        $this->sendRequest();
+
+        Mail::assertNotSent(CheckoutAssetMail::class);
+
+        Mail::assertSent(BulkAssetCheckoutMail::class, 1);
+
+        Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) use ($user) {
+            return $mail->hasTo($user->email);
         });
     }
 
@@ -116,11 +155,17 @@ class BulkCheckoutEmailTest extends TestCase
 
     private function sendRequest()
     {
+        $types = [
+            User::class => 'user',
+            Location::class => 'location',
+            Asset::class => 'asset',
+        ];
+
         $this->actingAs($this->admin)
             ->followingRedirects()
             ->post(route('hardware.bulkcheckout.store'), [
                 'selected_assets' => $this->assets->pluck('id')->toArray(),
-                'checkout_to_type' => 'user',
+                'checkout_to_type' => $types[get_class($this->target)],
                 'assigned_user' => $this->target->id,
                 'assigned_asset' => null,
                 'checkout_at' => now()->subWeek()->format('Y-m-d'),
