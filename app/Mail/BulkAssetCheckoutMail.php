@@ -46,7 +46,8 @@ class BulkAssetCheckoutMail extends Mailable
             markdown: 'mail.markdown.bulk-asset-checkout-mail',
             with: [
                 'introduction' => $this->getIntroduction(),
-                'requires_acceptance' => $this->requiresAcceptance(),
+                'requires_acceptance' => $this->requires_acceptance,
+                'requires_acceptance_wording' => $this->getRequiresAcceptanceWording(),
                 'acceptance_url' => $this->acceptanceUrl(),
                 'eula' => $this->getEula(),
             ],
@@ -70,7 +71,12 @@ class BulkAssetCheckoutMail extends Mailable
 
     private function getIntroduction(): string
     {
-        if ($this->target instanceof Location && $this->assets->count() > 1) {
+        if ($this->target instanceof Location) {
+            if ($this->assets->count() === 1) {
+                // @todo: translate
+                return "An asset have been checked out to {$this->target->name}.";
+            }
+
             // @todo: translate
             return "Assets have been checked out to {$this->target->name}.";
         }
@@ -128,5 +134,26 @@ class BulkAssetCheckoutMail extends Mailable
         return (bool) $this->assets->reduce(
             fn($count, $asset) => $count + $asset->requireAcceptance()
         );
+    }
+
+    private function getRequiresAcceptanceWording(): array
+    {
+        if (!$this->requiresAcceptance()) {
+            return [];
+        }
+
+        if ($this->assets->count() > 1) {
+            return [
+                // todo: translate
+                'One or more items require acceptance.',
+                "**[✔ Click here to review the terms of use and accept the items]({$this->acceptanceUrl()})**",
+            ];
+        }
+
+        return [
+            // todo: translate
+            'The checked out item requires acceptance.',
+            "**[✔ Click here to review the terms of use and accept the item]({$this->acceptanceUrl()})**",
+        ];
     }
 }

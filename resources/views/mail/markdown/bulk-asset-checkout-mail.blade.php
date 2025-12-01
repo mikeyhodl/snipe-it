@@ -17,8 +17,9 @@
 {{ $introduction }}
 
 @if ($requires_acceptance)
-One or more items require acceptance.<br>
-**[✔ Click here to review the terms of use and accept the items]({{ $acceptance_url }})**
+@foreach($requires_acceptance_wording as $line)
+{{ $line }}<br>
+@endforeach
 @endif
 
 <hr>
