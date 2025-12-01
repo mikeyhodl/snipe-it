@@ -7,6 +7,7 @@ use App\Mail\BulkAssetCheckoutMail;
 use App\Models\Asset;
 use App\Models\Location;
 use App\Models\Setting;
+use App\Models\User;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -25,10 +26,10 @@ class CheckoutablesCheckedOutInBulkListener
 
     public function handle(CheckoutablesCheckedOutInBulk $event): void
     {
-        $shouldSendEmailToUser = $this->shouldSendCheckoutEmailToUser($event->assets);
-        $shouldSendEmailToAlertAddress = $this->shouldSendEmailToAlertAddress($event->assets);
-
         $notifiableUser = $this->getNotifiableUser($event);
+
+        $shouldSendEmailToUser = $this->shouldSendCheckoutEmailToUser($notifiableUser, $event->assets);
+        $shouldSendEmailToAlertAddress = $this->shouldSendEmailToAlertAddress($event->assets);
 
         if ($shouldSendEmailToUser && $notifiableUser) {
             try {
@@ -65,8 +66,12 @@ class CheckoutablesCheckedOutInBulkListener
         }
     }
 
-    private function shouldSendCheckoutEmailToUser(Collection $assets): bool
+    private function shouldSendCheckoutEmailToUser(?User $user, Collection $assets): bool
     {
+        if (!$user->email) {
+            return false;
+        }
+
         // @todo: how to handle assets having eula?
 
         return $this->requiresAcceptance($assets);
