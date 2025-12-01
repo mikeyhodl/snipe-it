@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\Asset;
 use App\Models\CustomField;
+use App\Models\Location;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Database\Eloquent\Model;
@@ -69,6 +70,11 @@ class BulkAssetCheckoutMail extends Mailable
 
     private function getIntroduction(): string
     {
+        if ($this->target instanceof Location && $this->assets->count() > 1) {
+            // @todo: translate
+            return "Assets have been checked out to {$this->target->name}.";
+        }
+
         if ($this->assets->count() > 1) {
             // @todo: translate
             return 'Assets have been checked out to you.';

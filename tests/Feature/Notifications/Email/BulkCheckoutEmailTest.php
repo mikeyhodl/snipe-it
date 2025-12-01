@@ -63,7 +63,7 @@ class BulkCheckoutEmailTest extends TestCase
 
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) use ($manager) {
             return $mail->hasTo($manager->email)
-                && $mail->assertSeeInText('items have been checked out to ' . $this->target->name);
+                && $mail->assertSeeInText('Assets have been checked out to ' . $this->target->name);
         });
     }
 
