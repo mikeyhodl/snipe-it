@@ -74,6 +74,11 @@ class CheckoutablesCheckedOutInBulkListener
 
         // @todo: how to handle assets having eula?
 
+        // todo: add from CheckoutableListener:
+        // if ($this->checkoutableCategoryShouldSendEmail($checkoutable)) {
+        //     return true;
+        // }
+
         return $this->requiresAcceptance($assets);
     }
 
