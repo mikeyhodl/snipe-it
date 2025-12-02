@@ -72,12 +72,9 @@ class CheckoutablesCheckedOutInBulkListener
             return false;
         }
 
-        // @todo: how to handle assets having eula?
-
-        // todo: add from CheckoutableListener:
-        // if ($this->checkoutableCategoryShouldSendEmail($checkoutable)) {
-        //     return true;
-        // }
+        if ($this->hasAssetWithEula($assets)) {
+            return true;
+        }
 
         return $this->requiresAcceptance($assets);
     }
@@ -99,6 +96,18 @@ class CheckoutablesCheckedOutInBulkListener
         }
 
         return (bool) $setting->admin_cc_email;
+    }
+
+    private function hasAssetWithEula(Collection $assets): bool
+    {
+        foreach ($assets as $asset) {
+            // todo: this doesn't work yet
+            if ($asset->eula) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function requiresAcceptance(Collection $assets): bool
