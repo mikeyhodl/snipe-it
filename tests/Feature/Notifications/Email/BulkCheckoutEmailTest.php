@@ -106,6 +106,16 @@ class BulkCheckoutEmailTest extends TestCase
         Mail::assertNotSent(BulkAssetCheckoutMail::class);
     }
 
+    public function test_email_is_sent_when_assets_do_not_require_acceptance_but_have_a_eula()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_email_is_sent_when_assets_do_not_require_acceptance_but_category_is_set_to_send_email()
+    {
+        $this->markTestIncomplete();
+    }
+
     public function test_email_is_sent_to_cc_address()
     {
         $this->settings->enableAdminCC('cc@example.com');
