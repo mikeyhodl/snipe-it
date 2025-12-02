@@ -18,7 +18,7 @@ use Tests\TestCase;
 class BulkCheckoutEmailTest extends TestCase
 {
     private Collection $assets;
-    private Model $target;
+    private Model $assignee;
 
     protected function setUp(): void
     {
@@ -30,7 +30,7 @@ class BulkCheckoutEmailTest extends TestCase
         $this->settings->disableAdminCCAlways();
 
         $this->assets = Asset::factory()->requiresAcceptance()->count(2)->create();
-        $this->target = User::factory()->create(['email' => 'someone@example.com']);
+        $this->assignee = User::factory()->create(['email' => 'someone@example.com']);
     }
 
     public function test_email_is_sent_to_user()
@@ -42,7 +42,7 @@ class BulkCheckoutEmailTest extends TestCase
         Mail::assertSent(BulkAssetCheckoutMail::class, 1);
 
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
-            return $mail->hasTo($this->target->email)
+            return $mail->hasTo($this->assignee->email)
                 && $mail->assertSeeInText('Assets have been checked out to you');
         });
     }
@@ -51,7 +51,7 @@ class BulkCheckoutEmailTest extends TestCase
     {
         $manager = User::factory()->create();
 
-        $this->target = Location::factory()->for($manager, 'manager')->create();
+        $this->assignee = Location::factory()->for($manager, 'manager')->create();
 
         $this->sendRequest();
 
@@ -61,7 +61,7 @@ class BulkCheckoutEmailTest extends TestCase
 
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) use ($manager) {
             return $mail->hasTo($manager->email)
-                && $mail->assertSeeInText('Assets have been checked out to ' . $this->target->name);
+                && $mail->assertSeeInText('Assets have been checked out to ' . $this->assignee->name);
         });
     }
 
@@ -69,7 +69,7 @@ class BulkCheckoutEmailTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->target = Asset::factory()->assignedToUser($user)->create();
+        $this->assignee = Asset::factory()->assignedToUser($user)->create();
 
         $this->sendRequest();
 
@@ -84,7 +84,7 @@ class BulkCheckoutEmailTest extends TestCase
 
     public function test_email_is_not_sent_to_user_when_user_does_not_have_email_address()
     {
-        $this->target = User::factory()->create(['email' => null]);
+        $this->assignee = User::factory()->create(['email' => null]);
 
         $this->sendRequest();
 
@@ -129,7 +129,7 @@ class BulkCheckoutEmailTest extends TestCase
         Mail::assertSent(BulkAssetCheckoutMail::class, 1);
 
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
-            return $mail->hasTo($this->target->email)
+            return $mail->hasTo($this->assignee->email)
                 && $mail->assertSeeInText('Assets have been checked out to you')
                 && $mail->assertDontSeeInText('Click here to review the terms of use and accept');
         });
@@ -154,7 +154,7 @@ class BulkCheckoutEmailTest extends TestCase
         Mail::assertSent(BulkAssetCheckoutMail::class, 1);
 
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
-            return $mail->hasTo($this->target->email)
+            return $mail->hasTo($this->assignee->email)
                 && $mail->assertSeeInText('Assets have been checked out to you')
                 && $mail->assertDontSeeInText('review the terms');
         });
@@ -171,7 +171,7 @@ class BulkCheckoutEmailTest extends TestCase
         Mail::assertSent(BulkAssetCheckoutMail::class, 2);
 
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
-            return $mail->hasTo($this->target->email);
+            return $mail->hasTo($this->assignee->email);
         });
 
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
@@ -226,18 +226,18 @@ class BulkCheckoutEmailTest extends TestCase
 
     private function sendRequest()
     {
-        $assigned = match (get_class($this->target)) {
+        $assigned = match (get_class($this->assignee)) {
             User::class => [
                 'checkout_to_type' => 'user',
-                'assigned_user' => $this->target->id,
+                'assigned_user' => $this->assignee->id,
             ],
             Location::class => [
                 'checkout_to_type' => 'location',
-                'assigned_location' => $this->target->id,
+                'assigned_location' => $this->assignee->id,
             ],
             Asset::class => [
                 'checkout_to_type' => 'asset',
-                'assigned_asset' => $this->target->id,
+                'assigned_asset' => $this->assignee->id,
             ],
             default => [],
         };
