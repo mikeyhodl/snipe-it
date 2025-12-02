@@ -101,6 +101,14 @@ class BulkCheckoutEmailTest extends TestCase
     {
         $this->assets = Asset::factory()->doesNotRequireAcceptance()->count(2)->create();
 
+        $category = Category::factory()
+            ->doesNotRequireAcceptance()
+            ->doesNotSendCheckinEmail()
+            ->withNoLocalOrGlobalEula()
+            ->create();
+
+        $this->assets->each(fn($asset) => $asset->model->category()->associate($category)->save());
+
         $this->sendRequest();
 
         Mail::assertNotSent(CheckoutAssetMail::class);
