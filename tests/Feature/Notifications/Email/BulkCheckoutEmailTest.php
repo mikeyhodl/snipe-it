@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 use PHPUnit\Framework\Attributes\Group;
-use RuntimeException;
 use Tests\TestCase;
 
 #[Group('notifications')]
@@ -50,8 +49,6 @@ class BulkCheckoutEmailTest extends TestCase
 
     public function test_email_is_sent_to_location_manager()
     {
-        // todo: migrate this into a data provider?
-
         $manager = User::factory()->create();
 
         $this->target = Location::factory()->for($manager, 'manager')->create();
@@ -70,8 +67,6 @@ class BulkCheckoutEmailTest extends TestCase
 
     public function test_email_is_sent_to_user_asset_is_checked_out_to()
     {
-        // todo: migrate this into a data provider?
-
         $user = User::factory()->create();
 
         $this->target = Asset::factory()->assignedToUser($user)->create();
