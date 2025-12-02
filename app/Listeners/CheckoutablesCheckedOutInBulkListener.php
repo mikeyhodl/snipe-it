@@ -76,6 +76,10 @@ class CheckoutablesCheckedOutInBulkListener
             return true;
         }
 
+        if ($this->hasAssetWithCategorySettingToSendEmail($assets)) {
+            return true;
+        }
+
         return $this->requiresAcceptance($assets);
     }
 
@@ -102,6 +106,17 @@ class CheckoutablesCheckedOutInBulkListener
     {
         foreach ($assets as $asset) {
             if ($asset->getEula()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasAssetWithCategorySettingToSendEmail(Collection $assets): bool
+    {
+        foreach ($assets as $asset) {
+            if ($asset->checkin_email()) {
                 return true;
             }
         }

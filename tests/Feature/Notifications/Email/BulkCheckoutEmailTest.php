@@ -132,9 +132,29 @@ class BulkCheckoutEmailTest extends TestCase
         });
     }
 
-    public function test_email_is_sent_when_assets_do_not_require_acceptance_but_category_is_set_to_send_email()
+    public function test_email_is_sent_when_assets_do_not_require_acceptance_or_have_a_eula_but_category_is_set_to_send_email()
     {
-        $this->markTestIncomplete();
+        $this->assets = Asset::factory()->count(2)->create();
+
+        $category = Category::factory()
+            ->doesNotRequireAcceptance()
+            ->withNoLocalOrGlobalEula()
+            ->sendsCheckinEmail()
+            ->create();
+
+        $this->assets->each(fn($asset) => $asset->model->category()->associate($category)->save());
+
+        $this->sendRequest();
+
+        Mail::assertNotSent(CheckoutAssetMail::class);
+
+        Mail::assertSent(BulkAssetCheckoutMail::class, 1);
+
+        Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
+            return $mail->hasTo($this->target->email)
+                && $mail->assertSeeInText('Assets have been checked out to you')
+                && $mail->assertDontSeeInText('review the terms');
+        });
     }
 
     public function test_email_is_sent_to_cc_address()
