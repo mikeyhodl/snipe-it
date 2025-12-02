@@ -231,40 +231,30 @@ class BulkCheckoutEmailTest extends TestCase
 
     private function sendRequest()
     {
+        $assigned = match (get_class($this->target)) {
+            User::class => [
+                'checkout_to_type' => 'user',
+                'assigned_user' => $this->target->id,
+            ],
+            Location::class => [
+                'checkout_to_type' => 'location',
+                'assigned_location' => $this->target->id,
+            ],
+            Asset::class => [
+                'checkout_to_type' => 'asset',
+                'assigned_asset' => $this->target->id,
+            ],
+            default => [],
+        };
+
         $this->actingAs($this->admin)
             ->followingRedirects()
-            ->post(route('hardware.bulkcheckout.store'), array_merge([
+            ->post(route('hardware.bulkcheckout.store'), [
                 'selected_assets' => $this->assets->pluck('id')->toArray(),
                 'checkout_at' => now()->subWeek()->format('Y-m-d'),
                 'expected_checkin' => now()->addWeek()->format('Y-m-d'),
                 'note' => null,
-            ], $this->getAssignedArray()))
+                ] + $assigned)
             ->assertOk();
-    }
-
-    private function getAssignedArray(): array
-    {
-        if ($this->target instanceof User) {
-            return [
-                'checkout_to_type' => 'user',
-                'assigned_user' => $this->target->id,
-            ];
-        }
-
-        if ($this->target instanceof Location) {
-            return [
-                'checkout_to_type' => 'location',
-                'assigned_location' => $this->target->id,
-            ];
-        }
-
-        if ($this->target instanceof Asset) {
-            return [
-                'checkout_to_type' => 'asset',
-                'assigned_asset' => $this->target->id,
-            ];
-        }
-
-        throw new RuntimeException('invalid target type');
     }
 }
