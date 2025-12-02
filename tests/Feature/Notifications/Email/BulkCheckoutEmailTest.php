@@ -8,6 +8,8 @@ use App\Models\Asset;
 use App\Models\Category;
 use App\Models\Location;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 use PHPUnit\Framework\Attributes\Group;
 use RuntimeException;
@@ -16,9 +18,8 @@ use Tests\TestCase;
 #[Group('notifications')]
 class BulkCheckoutEmailTest extends TestCase
 {
-    private $assets;
-    private $target;
-    private $admin;
+    private Collection $assets;
+    private Model $target;
 
     protected function setUp(): void
     {
@@ -31,7 +32,6 @@ class BulkCheckoutEmailTest extends TestCase
 
         $this->assets = Asset::factory()->requiresAcceptance()->count(2)->create();
         $this->target = User::factory()->create(['email' => 'someone@example.com']);
-        $this->admin = User::factory()->checkoutAssets()->viewAssets()->create();
     }
 
     public function test_email_is_sent_to_user()
@@ -247,7 +247,7 @@ class BulkCheckoutEmailTest extends TestCase
             default => [],
         };
 
-        $this->actingAs($this->admin)
+        $this->actingAs(User::factory()->checkoutAssets()->viewAssets()->create())
             ->followingRedirects()
             ->post(route('hardware.bulkcheckout.store'), [
                 'selected_assets' => $this->assets->pluck('id')->toArray(),
