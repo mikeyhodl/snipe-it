@@ -214,4 +214,19 @@ class CategoryFactory extends Factory
             'require_acceptance' => false,
         ]);
     }
+
+    public function doesNotSendCheckinEmail()
+    {
+        return $this->state([
+            'checkin_email' => false,
+        ]);
+    }
+
+    public function hasLocalEula()
+    {
+        return $this->state([
+            'use_default_eula' => false,
+            'eula_text' => 'Some EULA text here',
+        ]);
+    }
 }

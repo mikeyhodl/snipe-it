@@ -109,15 +109,15 @@ class BulkCheckoutEmailTest extends TestCase
 
     public function test_email_is_sent_when_assets_do_not_require_acceptance_but_have_a_eula()
     {
-        $this->assets = Asset::factory()->doesNotRequireAcceptance()->count(2)->create();
+        $this->assets = Asset::factory()->count(2)->create();
 
-        $category = Category::factory()->doesNotRequireAcceptance()->create([
-            'use_default_eula' => false,
-            'eula_text' => 'Some EULA text here',
-            'checkin_email' => false,
-        ]);
+        $category = Category::factory()
+            ->doesNotRequireAcceptance()
+            ->doesNotSendCheckinEmail()
+            ->hasLocalEula()
+            ->create();
 
-        $this->assets->first()->model->category()->associate($category)->save();
+        $this->assets->each(fn($asset) => $asset->model->category()->associate($category)->save());
 
         $this->sendRequest();
 
