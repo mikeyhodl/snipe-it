@@ -101,8 +101,7 @@ class CheckoutablesCheckedOutInBulkListener
     private function hasAssetWithEula(Collection $assets): bool
     {
         foreach ($assets as $asset) {
-            // todo: this doesn't work yet
-            if ($asset->eula) {
+            if ($asset->getEula()) {
                 return true;
             }
         }

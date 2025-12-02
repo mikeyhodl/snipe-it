@@ -109,8 +109,6 @@ class BulkCheckoutEmailTest extends TestCase
 
     public function test_email_is_sent_when_assets_do_not_require_acceptance_but_have_a_eula()
     {
-        // $this->markTestIncomplete();
-
         $this->assets = Asset::factory()->doesNotRequireAcceptance()->count(2)->create();
 
         $category = Category::factory()->doesNotRequireAcceptance()->create([
@@ -129,7 +127,6 @@ class BulkCheckoutEmailTest extends TestCase
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
             return $mail->hasTo($this->target->email)
                 && $mail->assertSeeInText('Assets have been checked out to you')
-                // todo: test this properly
                 && $mail->assertDontSeeInText('Click here to review the terms of use and accept');
         });
 
