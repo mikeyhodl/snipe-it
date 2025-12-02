@@ -58,7 +58,6 @@
 @if (isset($asset->assetstatus))
 | **{{ trans('general.status') }}** | {{ $asset->assetstatus->name }} |
 @endif
-
 @if($asset->fields)
 @foreach($asset->fields as $field)
 @if ($asset->{ $field->db_column_name() } != '')
@@ -66,7 +65,6 @@
 @endif
 @endforeach
 @endif
-
 | <hr> | <hr> |
 @endforeach
 </x-mail::table>
