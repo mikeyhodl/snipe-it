@@ -115,27 +115,6 @@ class BulkCheckoutEmailTest extends TestCase
         Mail::assertNotSent(BulkAssetCheckoutMail::class);
     }
 
-    public function test_email_is_not_sent_to_cc_address_if_assets_do_not_require_acceptance()
-    {
-        $this->settings->enableAdminCC('cc@example.com');
-        $this->settings->disableAdminCCAlways();
-
-        $this->assets = Asset::factory()->count(2)->create();
-
-        $category = Category::factory()
-            ->doesNotRequireAcceptance()
-            ->doesNotSendCheckinEmail()
-            ->withNoLocalOrGlobalEula()
-            ->create();
-
-        $this->assets->each(fn($asset) => $asset->model->category()->associate($category)->save());
-
-        $this->sendRequest();
-
-        Mail::assertNotSent(CheckoutAssetMail::class);
-        Mail::assertNotSent(BulkAssetCheckoutMail::class);
-    }
-
     public function test_email_is_sent_when_assets_do_not_require_acceptance_but_have_a_eula()
     {
         $this->assets = Asset::factory()->count(2)->create();
@@ -221,6 +200,27 @@ class BulkCheckoutEmailTest extends TestCase
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
             return $mail->hasTo('cc@example.com');
         });
+    }
+
+    public function test_email_is_not_sent_to_cc_address_if_assets_do_not_require_acceptance()
+    {
+        $this->settings->enableAdminCC('cc@example.com');
+        $this->settings->disableAdminCCAlways();
+
+        $this->assets = Asset::factory()->count(2)->create();
+
+        $category = Category::factory()
+            ->doesNotRequireAcceptance()
+            ->doesNotSendCheckinEmail()
+            ->withNoLocalOrGlobalEula()
+            ->create();
+
+        $this->assets->each(fn($asset) => $asset->model->category()->associate($category)->save());
+
+        $this->sendRequest();
+
+        Mail::assertNotSent(CheckoutAssetMail::class);
+        Mail::assertNotSent(BulkAssetCheckoutMail::class);
     }
 
     private function sendRequest()
