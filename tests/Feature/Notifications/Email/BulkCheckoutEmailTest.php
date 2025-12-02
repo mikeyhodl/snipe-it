@@ -160,9 +160,11 @@ class BulkCheckoutEmailTest extends TestCase
         });
     }
 
-    public function test_email_is_sent_to_cc_address()
+    public function test_email_is_sent_to_cc_address_when_assets_require_acceptance()
     {
-        $this->settings->enableAdminCC('cc@example.com');
+        $this->assets = Asset::factory()->requiresAcceptance()->count(2)->create();
+
+        $this->settings->enableAdminCC('cc@example.com')->disableAdminCCAlways();
 
         $this->sendRequest();
 
@@ -181,8 +183,7 @@ class BulkCheckoutEmailTest extends TestCase
 
     public function test_email_is_sent_to_cc_address_when_assets_do_not_require_acceptance_or_have_eula_but_admin_cc_always_enabled()
     {
-        $this->settings->enableAdminCC('cc@example.com');
-        $this->settings->enableAdminCCAlways();
+        $this->settings->enableAdminCC('cc@example.com')->enableAdminCCAlways();
 
         $this->assets = Asset::factory()->doesNotRequireAcceptance()->count(2)->create();
 
@@ -205,10 +206,9 @@ class BulkCheckoutEmailTest extends TestCase
 
     public function test_email_is_not_sent_to_cc_address_if_assets_do_not_require_acceptance()
     {
-        $this->settings->enableAdminCC('cc@example.com');
-        $this->settings->disableAdminCCAlways();
+        $this->settings->enableAdminCC('cc@example.com')->disableAdminCCAlways();
 
-        $this->assets = Asset::factory()->count(2)->create();
+        $this->assets = Asset::factory()->doesNotRequireAcceptance()->count(2)->create();
 
         $category = Category::factory()
             ->doesNotRequireAcceptance()
