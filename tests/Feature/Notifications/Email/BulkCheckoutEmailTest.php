@@ -114,6 +114,7 @@ class BulkCheckoutEmailTest extends TestCase
         $category = Category::factory()->doesNotRequireAcceptance()->create([
             'use_default_eula' => false,
             'eula_text' => 'Some EULA text here',
+            'checkin_email' => false,
         ]);
 
         $this->assets->first()->model->category()->associate($category)->save();
@@ -129,26 +130,11 @@ class BulkCheckoutEmailTest extends TestCase
                 && $mail->assertSeeInText('Assets have been checked out to you')
                 && $mail->assertDontSeeInText('Click here to review the terms of use and accept');
         });
-
     }
 
     public function test_email_is_sent_when_assets_do_not_require_acceptance_but_category_is_set_to_send_email()
     {
         $this->markTestIncomplete();
-
-        $this->assets = Asset::factory()->doesNotRequireAcceptance()->count(2)->create();
-
-        $this->sendRequest();
-
-        Mail::assertNotSent(CheckoutAssetMail::class);
-
-        Mail::assertSent(BulkAssetCheckoutMail::class, 1);
-
-        Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
-            return $mail->hasTo($this->target->email)
-                && $mail->assertSeeInText('Assets have been checked out to you');
-        });
-
     }
 
     public function test_email_is_sent_to_cc_address()
