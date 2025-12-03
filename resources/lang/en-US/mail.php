@@ -79,6 +79,7 @@ return [
     'new_item_checked' => 'A new item has been checked out under your name, details are below.|:count new items have been checked out under your name, details are below.',
     'new_item_checked_with_acceptance' => 'A new item has been checked out under your name that requires acceptance, details are below.|:count new items have been checked out under your name that requires acceptance, details are below.',
     'new_item_checked_location' => 'A new item has been checked out to :location, details are below.|:count new items have been checked out to :location, details are below.',
+    'items_checked_out_require_acceptance' => 'The checked out item requires acceptance.|One or more items require acceptance.',
     'recent_item_checked' => 'An item was recently checked out under your name that requires acceptance, details are below.',
     'notes' => 'Notes',
     'password' => 'Password',

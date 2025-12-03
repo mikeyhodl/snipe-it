@@ -62,8 +62,7 @@ class BulkAssetCheckoutMail extends Mailable
     private function getSubject(): string
     {
         if ($this->assets->count() > 1) {
-            // @todo: translate
-            return 'Assets checked out';
+            return ucfirst(trans('general.assets_checked_out_count'));
         }
 
         return trans('mail.Asset_Checkout_Notification', ['tag' => $this->assets->first()->asset_tag]);
@@ -72,22 +71,10 @@ class BulkAssetCheckoutMail extends Mailable
     private function getIntroduction(): string
     {
         if ($this->target instanceof Location) {
-            if ($this->assets->count() === 1) {
-                // @todo: translate
-                return "An asset have been checked out to {$this->target->name}.";
-            }
-
-            // @todo: translate
-            return "Assets have been checked out to {$this->target->name}.";
+            return trans_choice('mail.new_item_checked_location', $this->assets->count(), ['location' => $this->target->name]);
         }
 
-        if ($this->assets->count() > 1) {
-            // @todo: translate
-            return 'Assets have been checked out to you.';
-        }
-
-        // @todo: translate
-        return 'An asset has been checked out to you.';
+        return trans_choice('mail.new_item_checked', $this->assets->count());
     }
 
     private function acceptanceUrl()
@@ -145,14 +132,14 @@ class BulkAssetCheckoutMail extends Mailable
         if ($this->assets->count() > 1) {
             return [
                 // todo: translate
-                'One or more items require acceptance.',
+                trans_choice('mail.items_checked_out_require_acceptance', $this->assets->count()),
                 "**[✔ Click here to review the terms of use and accept the items]({$this->acceptanceUrl()})**",
             ];
         }
 
         return [
             // todo: translate
-            'The checked out item requires acceptance.',
+            trans_choice('mail.items_checked_out_require_acceptance', $this->assets->count()),
             "**[✔ Click here to review the terms of use and accept the item]({$this->acceptanceUrl()})**",
         ];
     }
