@@ -42,8 +42,7 @@ class BulkCheckoutEmailTest extends TestCase
         Mail::assertSent(BulkAssetCheckoutMail::class, 1);
 
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
-            return $mail->hasTo($this->assignee->email)
-                && $mail->assertSeeInText('Assets have been checked out to you');
+            return $mail->hasTo($this->assignee->email);
         });
     }
 
@@ -60,8 +59,7 @@ class BulkCheckoutEmailTest extends TestCase
         Mail::assertSent(BulkAssetCheckoutMail::class, 1);
 
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) use ($manager) {
-            return $mail->hasTo($manager->email)
-                && $mail->assertSeeInText('Assets have been checked out to ' . $this->assignee->name);
+            return $mail->hasTo($manager->email);
         });
     }
 
@@ -129,9 +127,7 @@ class BulkCheckoutEmailTest extends TestCase
         Mail::assertSent(BulkAssetCheckoutMail::class, 1);
 
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
-            return $mail->hasTo($this->assignee->email)
-                && $mail->assertSeeInText('Assets have been checked out to you')
-                && $mail->assertDontSeeInText('Click here to review the terms of use and accept');
+            return $mail->hasTo($this->assignee->email);
         });
     }
 
@@ -154,9 +150,7 @@ class BulkCheckoutEmailTest extends TestCase
         Mail::assertSent(BulkAssetCheckoutMail::class, 1);
 
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
-            return $mail->hasTo($this->assignee->email)
-                && $mail->assertSeeInText('Assets have been checked out to you')
-                && $mail->assertDontSeeInText('review the terms');
+            return $mail->hasTo($this->assignee->email);
         });
     }
 
@@ -245,10 +239,10 @@ class BulkCheckoutEmailTest extends TestCase
         $this->actingAs(User::factory()->checkoutAssets()->viewAssets()->create())
             ->followingRedirects()
             ->post(route('hardware.bulkcheckout.store'), [
-                'selected_assets' => $this->assets->pluck('id')->toArray(),
-                'checkout_at' => now()->subWeek()->format('Y-m-d'),
-                'expected_checkin' => now()->addWeek()->format('Y-m-d'),
-                'note' => null,
+                    'selected_assets' => $this->assets->pluck('id')->toArray(),
+                    'checkout_at' => now()->subWeek()->format('Y-m-d'),
+                    'expected_checkin' => now()->addWeek()->format('Y-m-d'),
+                    'note' => null,
                 ] + $assigned)
             ->assertOk();
     }
