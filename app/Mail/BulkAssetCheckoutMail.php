@@ -73,6 +73,33 @@ class BulkAssetCheckoutMail extends Mailable
         return trans('mail.Asset_Checkout_Notification', ['tag' => $this->assets->first()->asset_tag]);
     }
 
+    private function loadCustomFieldsOnAssets(): void
+    {
+        $this->assets = $this->assets->map(function (Asset $asset) {
+            $fields = $asset->model?->fieldset?->fields->filter(function (CustomField $field) {
+                return $field->show_in_email && !$field->field_encrypted;
+            });
+
+            $asset->setRelation('fields', $fields);
+
+            return $asset;
+        });
+    }
+
+    private function loadEulasOnAssets(): void
+    {
+        $this->assets = $this->assets->map(function (Asset $asset) {
+            $asset->eula = $asset->getEula();
+
+            return $asset;
+        });
+    }
+
+    private function groupAssetsByCategory(): Collection
+    {
+        return $this->assets->groupBy(fn($asset) => $asset->model->category->id);
+    }
+
     private function getIntroduction(): string
     {
         if ($this->target instanceof Location) {
@@ -105,33 +132,6 @@ class BulkAssetCheckoutMail extends Mailable
         if ($categories->count() === 1) {
             return $this->assets->first()->getEula();
         }
-    }
-
-    private function loadCustomFieldsOnAssets(): void
-    {
-        $this->assets = $this->assets->map(function (Asset $asset) {
-            $fields = $asset->model?->fieldset?->fields->filter(function (CustomField $field) {
-                return $field->show_in_email && !$field->field_encrypted;
-            });
-
-            $asset->setRelation('fields', $fields);
-
-            return $asset;
-        });
-    }
-
-    private function loadEulasOnAssets(): void
-    {
-        $this->assets = $this->assets->map(function (Asset $asset) {
-            $asset->eula = $asset->getEula();
-
-            return $asset;
-        });
-    }
-
-    private function groupAssetsByCategory(): Collection
-    {
-        return $this->assets->groupBy(fn($asset) => $asset->model->category->id);
     }
 
     private function requiresAcceptance(): bool
