@@ -92,9 +92,10 @@ class BulkAssetCheckoutMail extends Mailable
 
     private function getSingularEula()
     {
-        // if assets do not have the same category then return early...
+        // get unique categories from all assets
         $categories = $this->assets->pluck('model.category.id')->unique();
 
+        // if assets do not have the same category then return early...
         if ($categories->count() > 1) {
             return null;
         }
