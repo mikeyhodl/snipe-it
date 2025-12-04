@@ -76,6 +76,7 @@
 </x-mail::table>
 
 @if (!$singular_eula && $group->first()->eula)
+<hr>
 {{ $group->first()->eula }}
 @endif
 
