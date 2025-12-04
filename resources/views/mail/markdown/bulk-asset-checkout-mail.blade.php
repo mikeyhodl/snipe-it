@@ -32,6 +32,12 @@
 **{{ trans('mail.additional_notes') }}**: {{ $note }}
 @endif
 
+@if ($eula)
+<x-mail::panel>
+    {{ $eula }}
+</x-mail::panel>
+@endif
+
 <x-mail::table>
 |        |        |
 | ------------- | ------------- |
