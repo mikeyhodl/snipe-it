@@ -428,7 +428,6 @@ class CheckoutableListener
 
     private function shouldSendCheckoutEmailToUser(Model $checkoutable): bool
     {
-        // @todo: update comment
         /**
          * Send an email if we didn't get here from a bulk checkout
          * and any of the following conditions are met:
@@ -438,7 +437,6 @@ class CheckoutableListener
          */
 
         if (Context::get('action') === 'bulk_asset_checkout') {
-            // @todo: maybe we should see if there is only one asset being checked out and allow this to proceed if it is?
             return false;
         }
 
