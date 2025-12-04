@@ -34,7 +34,7 @@
 
 @if ($singular_eula)
 <x-mail::panel>
-    {{ $singular_eula }}
+{{ $singular_eula }}
 </x-mail::panel>
 @endif
 @foreach($assetsByCategory as $group)
