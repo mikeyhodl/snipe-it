@@ -33,8 +33,9 @@ class BulkAssetCheckoutMail extends Mailable
         $this->requires_acceptance = $this->requiresAcceptance();
 
         $this->loadCustomFieldsOnAssets();
-        $this->loadEulaOnAssets();
-        $this->sortAssetsByCategory();
+        $this->loadEulasOnAssets();
+
+        $this->assetsByCategory = $this->groupAssetsByCategory();
     }
 
     public function envelope(): Envelope
@@ -119,7 +120,7 @@ class BulkAssetCheckoutMail extends Mailable
         });
     }
 
-    private function loadEulaOnAssets(): void
+    private function loadEulasOnAssets(): void
     {
         $this->assets = $this->assets->map(function (Asset $asset) {
             $asset->eula = $asset->getEula();
@@ -128,9 +129,9 @@ class BulkAssetCheckoutMail extends Mailable
         });
     }
 
-    private function sortAssetsByCategory(): void
+    private function groupAssetsByCategory(): Collection
     {
-        $this->assetsByCategory = $this->assets->groupBy(fn($asset) => $asset->model->category->id);
+        return $this->assets->groupBy(fn($asset) => $asset->model->category->id);
     }
 
     private function requiresAcceptance(): bool
