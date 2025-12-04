@@ -147,18 +147,13 @@ class BulkAssetCheckoutMail extends Mailable
             return [];
         }
 
-        if ($this->assets->count() > 1) {
-            return [
-                // todo: translate
-                trans_choice('mail.items_checked_out_require_acceptance', $this->assets->count()),
-                "**[✔ Click here to review the terms of use and accept the items]({$this->getAcceptanceUrl()})**",
-            ];
-        }
-
         return [
-            // todo: translate
             trans_choice('mail.items_checked_out_require_acceptance', $this->assets->count()),
-            "**[✔ Click here to review the terms of use and accept the item]({$this->getAcceptanceUrl()})**",
+            sprintf(
+                '**[✔ %s](%s)**',
+                trans_choice('mail.click_here_to_review_terms_and_accept_item', $this->assets->count()),
+                $this->getAcceptanceUrl(),
+            ),
         ];
     }
 }

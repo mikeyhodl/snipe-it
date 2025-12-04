@@ -86,6 +86,7 @@ return [
     'password_reset' => 'Password Reset',
     'read_the_terms' => 'Please read the terms of use below.',
     'read_the_terms_and_click' => 'Please read the terms of use below, and click on the link at the bottom to confirm that you read and agree to the terms of use, and have received the asset.',
+    'click_here_to_review_terms_and_accept_item' => 'Click here to review the terms of use and accept the item|Click here to review the terms of use and accept the items',
     'requested' => 'Requested',
     'reset_link' => 'Your Password Reset Link',
     'reset_password' => 'Click here to reset your password:',
