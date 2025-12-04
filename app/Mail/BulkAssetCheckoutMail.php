@@ -53,7 +53,7 @@ class BulkAssetCheckoutMail extends Mailable
                 'introduction' => $this->getIntroduction(),
                 'requires_acceptance' => $this->requires_acceptance,
                 'requires_acceptance_wording' => $this->getRequiresAcceptanceWording(),
-                'acceptance_url' => $this->acceptanceUrl(),
+                'acceptance_url' => $this->getAcceptanceUrl(),
                 'singular_eula' => $this->getSingularEula(),
             ],
         );
@@ -109,7 +109,7 @@ class BulkAssetCheckoutMail extends Mailable
         return trans_choice('mail.new_item_checked', $this->assets->count());
     }
 
-    private function acceptanceUrl()
+    private function getAcceptanceUrl()
     {
         if ($this->assets->count() > 1) {
             return route('account.accept');
@@ -151,14 +151,14 @@ class BulkAssetCheckoutMail extends Mailable
             return [
                 // todo: translate
                 trans_choice('mail.items_checked_out_require_acceptance', $this->assets->count()),
-                "**[✔ Click here to review the terms of use and accept the items]({$this->acceptanceUrl()})**",
+                "**[✔ Click here to review the terms of use and accept the items]({$this->getAcceptanceUrl()})**",
             ];
         }
 
         return [
             // todo: translate
             trans_choice('mail.items_checked_out_require_acceptance', $this->assets->count()),
-            "**[✔ Click here to review the terms of use and accept the item]({$this->acceptanceUrl()})**",
+            "**[✔ Click here to review the terms of use and accept the item]({$this->getAcceptanceUrl()})**",
         ];
     }
 }
