@@ -40,7 +40,7 @@
 @foreach($assetsByCategory as $group)
 <x-mail::panel>
 
-{{ $group->first()->model->category->name }}
+**{{ $group->first()->model->category->name }}**
 
 <x-mail::table>
 |        |        |
