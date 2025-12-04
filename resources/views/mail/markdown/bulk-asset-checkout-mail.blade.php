@@ -20,9 +20,8 @@
 @foreach($requires_acceptance_wording as $line)
 {{ $line }}<br>
 @endforeach
-@endif
-
 <hr>
+@endif
 
 @if ((isset($expected_checkin)) && ($expected_checkin!=''))
 **{{ trans('mail.expecting_checkin_date') }}**: {{ Helper::getFormattedDateObject($expected_checkin, 'date', false) }}
@@ -38,6 +37,8 @@
 </x-mail::panel>
 @endif
 @foreach($assetsByCategory as $group)
+<x-mail::panel>
+{{ $group->first()->model->category->name }}
 <x-mail::table>
 |        |        |
 | ------------- | ------------- |
@@ -68,11 +69,10 @@
 | <hr> | <hr> |
 @endforeach
 </x-mail::table>
-@if (!$singular_eula)
-<x-mail::panel>
+@if (!$singular_eula && $group->first()->eula)
 {{ $group->first()->eula }}
-</x-mail::panel>
 @endif
+</x-mail::panel>
 @endforeach
 
 **{{ trans('general.administrator') }}**: {{ $admin->display_name }}
