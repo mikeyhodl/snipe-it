@@ -36,9 +36,12 @@
 {{ $singular_eula }}
 </x-mail::panel>
 @endif
+
 @foreach($assetsByCategory as $group)
 <x-mail::panel>
+
 {{ $group->first()->model->category->name }}
+
 <x-mail::table>
 |        |        |
 | ------------- | ------------- |
@@ -69,9 +72,11 @@
 | <hr> | <hr> |
 @endforeach
 </x-mail::table>
+
 @if (!$singular_eula && $group->first()->eula)
 {{ $group->first()->eula }}
 @endif
+
 </x-mail::panel>
 @endforeach
 
