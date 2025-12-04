@@ -20,6 +20,8 @@ class BulkAssetCheckoutMail extends Mailable
 
     public bool $requires_acceptance;
 
+    public Collection $assetsByCategory;
+
     public function __construct(
         public Collection $assets,
         public Model $target,
@@ -31,6 +33,8 @@ class BulkAssetCheckoutMail extends Mailable
         $this->requires_acceptance = $this->requiresAcceptance();
 
         $this->loadCustomFieldsOnAssets();
+        $this->loadEulaOnAssets();
+        $this->sortAssetsByCategory();
     }
 
     public function envelope(): Envelope
@@ -49,7 +53,7 @@ class BulkAssetCheckoutMail extends Mailable
                 'requires_acceptance' => $this->requires_acceptance,
                 'requires_acceptance_wording' => $this->getRequiresAcceptanceWording(),
                 'acceptance_url' => $this->acceptanceUrl(),
-                'eula' => $this->getEula(),
+                'singular_eula' => $this->getSingularEula(),
             ],
         );
     }
@@ -86,21 +90,19 @@ class BulkAssetCheckoutMail extends Mailable
         return route('account.accept.item', $this->assets->first());
     }
 
-    private function getEula()
+    private function getSingularEula()
     {
         // if assets do not have the same category then return early...
         $categories = $this->assets->pluck('model.category.id')->unique();
 
         if ($categories->count() > 1) {
-            return;
+            return null;
         }
 
         // if assets do have the same category then return the shared EULA
         if ($categories->count() === 1) {
             return $this->assets->first()->getEula();
         }
-
-        // @todo: if the categories use the default eula then return that
     }
 
     private function loadCustomFieldsOnAssets(): void
@@ -114,6 +116,20 @@ class BulkAssetCheckoutMail extends Mailable
 
             return $asset;
         });
+    }
+
+    private function loadEulaOnAssets(): void
+    {
+        $this->assets = $this->assets->map(function (Asset $asset) {
+            $asset->eula = $asset->getEula();
+
+            return $asset;
+        });
+    }
+
+    private function sortAssetsByCategory(): void
+    {
+        $this->assetsByCategory = $this->assets->groupBy(fn($asset) => $asset->model->category->id);
     }
 
     private function requiresAcceptance(): bool

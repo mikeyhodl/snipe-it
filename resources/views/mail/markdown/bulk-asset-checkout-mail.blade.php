@@ -32,16 +32,16 @@
 **{{ trans('mail.additional_notes') }}**: {{ $note }}
 @endif
 
-@if ($eula)
+@if ($singular_eula)
 <x-mail::panel>
-    {{ $eula }}
+    {{ $singular_eula }}
 </x-mail::panel>
 @endif
-
+@foreach($assetsByCategory as $group)
 <x-mail::table>
 |        |        |
 | ------------- | ------------- |
-@foreach($assets as $asset)
+@foreach($group as $asset)
 | **{{ trans('general.asset_tag') }}** | <a href="{{ route('hardware.show', $asset->id) }}">{{ $asset->display_name }}</a><br><small>{{trans('mail.serial').': '.$asset->serial}}</small> |
 @if (isset($asset->model?->category))
 | **{{ trans('general.category') }}** | {{ $asset->model->category->name }} |
@@ -68,6 +68,12 @@
 | <hr> | <hr> |
 @endforeach
 </x-mail::table>
+@if (!$singular_eula)
+<x-mail::panel>
+{{ $group->first()->eula }}
+</x-mail::panel>
+@endif
+@endforeach
 
 **{{ trans('general.administrator') }}**: {{ $admin->display_name }}
 
