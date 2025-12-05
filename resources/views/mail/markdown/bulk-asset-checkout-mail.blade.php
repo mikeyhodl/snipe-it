@@ -31,12 +31,6 @@
 **{{ trans('mail.additional_notes') }}**: {{ $note }}
 @endif
 
-@if ($singular_eula)
-<x-mail::panel>
-{{ $singular_eula }}
-</x-mail::panel>
-@endif
-
 @foreach($assetsByCategory as $group)
 <x-mail::panel>
 
@@ -82,6 +76,12 @@
 
 </x-mail::panel>
 @endforeach
+
+@if ($singular_eula)
+<x-mail::panel>
+{{ $singular_eula }}
+</x-mail::panel>
+@endif
 
 **{{ trans('general.administrator') }}**: {{ $admin->display_name }}
 
