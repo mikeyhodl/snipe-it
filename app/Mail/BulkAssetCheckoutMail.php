@@ -52,8 +52,8 @@ class BulkAssetCheckoutMail extends Mailable
             with: [
                 'introduction' => $this->getIntroduction(),
                 'requires_acceptance' => $this->requires_acceptance,
-                'requires_acceptance_wording' => $this->getRequiresAcceptanceWording(),
-                'acceptance_url' => $this->getAcceptanceUrl(),
+                'requires_acceptance_info' => $this->getRequiresAcceptanceInfo(),
+                'requires_acceptance_prompt' => $this->getRequiresAcceptancePrompt(),
                 'singular_eula' => $this->getSingularEula(),
             ],
         );
@@ -109,13 +109,31 @@ class BulkAssetCheckoutMail extends Mailable
         return trans_choice('mail.new_item_checked', $this->assets->count());
     }
 
-    private function getAcceptanceUrl()
+    private function getRequiresAcceptanceInfo(): ?string
     {
-        if ($this->assets->count() > 1) {
-            return route('account.accept');
+        if (!$this->requiresAcceptance()) {
+            return null;
         }
 
-        return route('account.accept.item', $this->assets->first());
+        return trans_choice('mail.items_checked_out_require_acceptance', $this->assets->count());
+    }
+
+    private function getRequiresAcceptancePrompt(): ?string
+    {
+        if (!$this->requiresAcceptance()) {
+            return null;
+        }
+
+        $acceptanceUrl = $this->assets->count() === 1
+            ? route('account.accept.item', $this->assets->first())
+            : route('account.accept');
+
+        return
+            sprintf(
+                '**[✔ %s](%s)**',
+                trans_choice('mail.click_here_to_review_terms_and_accept_item', $this->assets->count()),
+                $acceptanceUrl,
+            );
     }
 
     private function getSingularEula()
@@ -139,21 +157,5 @@ class BulkAssetCheckoutMail extends Mailable
         return (bool) $this->assets->reduce(
             fn($count, $asset) => $count + $asset->requireAcceptance()
         );
-    }
-
-    private function getRequiresAcceptanceWording(): array
-    {
-        if (!$this->requiresAcceptance()) {
-            return [];
-        }
-
-        return [
-            trans_choice('mail.items_checked_out_require_acceptance', $this->assets->count()),
-            sprintf(
-                '**[✔ %s](%s)**',
-                trans_choice('mail.click_here_to_review_terms_and_accept_item', $this->assets->count()),
-                $this->getAcceptanceUrl(),
-            ),
-        ];
     }
 }

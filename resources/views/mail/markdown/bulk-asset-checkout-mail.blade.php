@@ -17,9 +17,9 @@
 {{ $introduction }}
 
 @if ($requires_acceptance)
-@foreach($requires_acceptance_wording as $line)
-{{ $line }}<br>
-@endforeach
+{{ $requires_acceptance_info }}
+
+{{ $requires_acceptance_prompt }}
 <hr>
 @endif
 
@@ -81,6 +81,10 @@
 <x-mail::panel>
 {{ $singular_eula }}
 </x-mail::panel>
+@endif
+
+@if ($requires_acceptance)
+{{ $requires_acceptance_prompt }}
 @endif
 
 **{{ trans('general.administrator') }}**: {{ $admin->display_name }}
