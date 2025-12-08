@@ -215,17 +215,17 @@ class CategoryFactory extends Factory
         ]);
     }
 
-    public function doesNotSendCheckinEmail()
-    {
-        return $this->state([
-            'checkin_email' => false,
-        ]);
-    }
-
     public function sendsCheckinEmail()
     {
         return $this->state([
             'checkin_email' => true,
+        ]);
+    }
+
+    public function doesNotSendCheckinEmail()
+    {
+        return $this->state([
+            'checkin_email' => false,
         ]);
     }
 
