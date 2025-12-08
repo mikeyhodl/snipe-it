@@ -80,7 +80,7 @@ class CheckoutablesCheckedOutInBulkListener
             return true;
         }
 
-        return $this->requiresAcceptance($assets);
+        return $this->hasAssetThatRequiresAcceptance($assets);
     }
 
     private function shouldSendEmailToAlertAddress(Collection $assets): bool
@@ -95,7 +95,7 @@ class CheckoutablesCheckedOutInBulkListener
             return true;
         }
 
-        if (!$this->requiresAcceptance($assets)) {
+        if (!$this->hasAssetThatRequiresAcceptance($assets)) {
             return false;
         }
 
@@ -124,7 +124,7 @@ class CheckoutablesCheckedOutInBulkListener
         return false;
     }
 
-    private function requiresAcceptance(Collection $assets): bool
+    private function hasAssetThatRequiresAcceptance(Collection $assets): bool
     {
         return (bool) $assets->reduce(
             fn($count, $asset) => $count + $asset->requireAcceptance()
