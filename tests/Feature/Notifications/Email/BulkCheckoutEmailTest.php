@@ -30,17 +30,16 @@ class BulkCheckoutEmailTest extends TestCase
         $this->settings->disableAdminCCAlways();
 
         $this->assets = Asset::factory()->requiresAcceptance()->count(2)->create();
-        $this->assignee = User::factory()->create(['email' => 'someone@example.com']);
+        $this->assignee = User::factory()->create();
     }
 
     public function test_sent_to_user()
     {
         $this->sendRequest();
 
-        Mail::assertNotSent(CheckoutAssetMail::class);
+        $this->assertSingularCheckoutEmailNotSent();
 
         Mail::assertSent(BulkAssetCheckoutMail::class, 1);
-
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
             return $mail->hasTo($this->assignee->email);
         });
@@ -54,10 +53,9 @@ class BulkCheckoutEmailTest extends TestCase
 
         $this->sendRequest();
 
-        Mail::assertNotSent(CheckoutAssetMail::class);
+        $this->assertSingularCheckoutEmailNotSent();
 
         Mail::assertSent(BulkAssetCheckoutMail::class, 1);
-
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) use ($manager) {
             return $mail->hasTo($manager->email);
         });
@@ -71,10 +69,9 @@ class BulkCheckoutEmailTest extends TestCase
 
         $this->sendRequest();
 
-        Mail::assertNotSent(CheckoutAssetMail::class);
+        $this->assertSingularCheckoutEmailNotSent();
 
         Mail::assertSent(BulkAssetCheckoutMail::class, 1);
-
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) use ($user) {
             return $mail->hasTo($user->email);
         });
@@ -86,7 +83,7 @@ class BulkCheckoutEmailTest extends TestCase
 
         $this->sendRequest();
 
-        Mail::assertNotSent(CheckoutAssetMail::class);
+        $this->assertSingularCheckoutEmailNotSent();
         Mail::assertNotSent(BulkAssetCheckoutMail::class);
     }
 
@@ -104,7 +101,7 @@ class BulkCheckoutEmailTest extends TestCase
 
         $this->sendRequest();
 
-        Mail::assertNotSent(CheckoutAssetMail::class);
+        $this->assertSingularCheckoutEmailNotSent();
         Mail::assertNotSent(BulkAssetCheckoutMail::class);
     }
 
@@ -122,10 +119,9 @@ class BulkCheckoutEmailTest extends TestCase
 
         $this->sendRequest();
 
-        Mail::assertNotSent(CheckoutAssetMail::class);
+        $this->assertSingularCheckoutEmailNotSent();
 
         Mail::assertSent(BulkAssetCheckoutMail::class, 1);
-
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
             return $mail->hasTo($this->assignee->email);
         });
@@ -145,10 +141,9 @@ class BulkCheckoutEmailTest extends TestCase
 
         $this->sendRequest();
 
-        Mail::assertNotSent(CheckoutAssetMail::class);
+        $this->assertSingularCheckoutEmailNotSent();
 
         Mail::assertSent(BulkAssetCheckoutMail::class, 1);
-
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
             return $mail->hasTo($this->assignee->email);
         });
@@ -162,7 +157,7 @@ class BulkCheckoutEmailTest extends TestCase
 
         $this->sendRequest();
 
-        Mail::assertNotSent(CheckoutAssetMail::class);
+        $this->assertSingularCheckoutEmailNotSent();
 
         Mail::assertSent(BulkAssetCheckoutMail::class, 2);
 
@@ -191,7 +186,7 @@ class BulkCheckoutEmailTest extends TestCase
 
         $this->sendRequest();
 
-        Mail::assertNotSent(CheckoutAssetMail::class);
+        $this->assertSingularCheckoutEmailNotSent();
 
         Mail::assertSent(BulkAssetCheckoutMail::class, function (BulkAssetCheckoutMail $mail) {
             return $mail->hasTo('cc@example.com');
@@ -214,7 +209,7 @@ class BulkCheckoutEmailTest extends TestCase
 
         $this->sendRequest();
 
-        Mail::assertNotSent(CheckoutAssetMail::class);
+        $this->assertSingularCheckoutEmailNotSent();
         Mail::assertNotSent(BulkAssetCheckoutMail::class);
     }
 
@@ -233,6 +228,7 @@ class BulkCheckoutEmailTest extends TestCase
                 'checkout_to_type' => 'asset',
                 'assigned_asset' => $this->assignee->id,
             ],
+            // we shouldn't get here...
             default => [],
         };
 
@@ -245,5 +241,12 @@ class BulkCheckoutEmailTest extends TestCase
                     'note' => null,
                 ] + $assigned)
             ->assertOk();
+    }
+
+    private function assertSingularCheckoutEmailNotSent(): static
+    {
+        Mail::assertNotSent(CheckoutAssetMail::class);
+
+        return $this;
     }
 }
