@@ -18,14 +18,14 @@ class WebhookNotificationsUponBulkAssetCheckoutTest extends TestCase
 
         $this->settings->enableSlackWebhook();
 
-        $assets = Asset::factory()->requiresAcceptance()->count(2)->create();
+        $assets = Asset::factory()->count(2)->create();
 
         $this->actingAs(User::factory()->checkoutAssets()->viewAssets()->create())
             ->followingRedirects()
             ->post(route('hardware.bulkcheckout.store'), [
                 'selected_assets' => $assets->pluck('id')->toArray(),
                 'checkout_to_type' => 'user',
-                'assigned_user' => User::factory()->create(['email' => 'someone@example.com'])->id,
+                'assigned_user' => User::factory()->create()->id,
                 'assigned_asset' => null,
                 'checkout_at' => now()->subWeek()->format('Y-m-d'),
                 'expected_checkin' => now()->addWeek()->format('Y-m-d'),
