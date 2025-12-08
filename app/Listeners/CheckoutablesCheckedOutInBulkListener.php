@@ -9,6 +9,7 @@ use App\Models\Location;
 use App\Models\Setting;
 use App\Models\User;
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -131,7 +132,7 @@ class CheckoutablesCheckedOutInBulkListener
         );
     }
 
-    private function getNotifiableUser(CheckoutablesCheckedOutInBulk $event)
+    private function getNotifiableUser(CheckoutablesCheckedOutInBulk $event): ?Model
     {
         $target = $event->target;
 
