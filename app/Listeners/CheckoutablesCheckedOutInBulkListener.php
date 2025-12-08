@@ -68,7 +68,7 @@ class CheckoutablesCheckedOutInBulkListener
 
     private function shouldSendCheckoutEmailToUser(?User $user, Collection $assets): bool
     {
-        if (!$user->email) {
+        if (!$user?->email) {
             return false;
         }
 
