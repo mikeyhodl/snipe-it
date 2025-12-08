@@ -127,9 +127,13 @@ class CheckoutablesCheckedOutInBulkListener
 
     private function hasAssetThatRequiresAcceptance(Collection $assets): bool
     {
-        return (bool) $assets->reduce(
-            fn($count, $asset) => $count + $asset->requireAcceptance()
-        );
+        foreach ($assets as $asset) {
+            if ($asset->requireAcceptance()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function getNotifiableUser(CheckoutablesCheckedOutInBulk $event): ?Model
