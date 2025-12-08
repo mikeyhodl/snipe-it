@@ -154,8 +154,12 @@ class BulkAssetCheckoutMail extends Mailable
 
     private function requiresAcceptance(): bool
     {
-        return (bool) $this->assets->reduce(
-            fn($count, $asset) => $count + $asset->requireAcceptance()
-        );
+        foreach ($this->assets as $asset) {
+            if ($asset->requireAcceptance()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
