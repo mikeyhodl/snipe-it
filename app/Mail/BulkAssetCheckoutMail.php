@@ -111,7 +111,7 @@ class BulkAssetCheckoutMail extends Mailable
 
     private function getRequiresAcceptanceInfo(): ?string
     {
-        if (!$this->requiresAcceptance()) {
+        if (!$this->requires_acceptance) {
             return null;
         }
 
@@ -120,7 +120,7 @@ class BulkAssetCheckoutMail extends Mailable
 
     private function getRequiresAcceptancePrompt(): ?string
     {
-        if (!$this->requiresAcceptance()) {
+        if (!$this->requires_acceptance) {
             return null;
         }
 
