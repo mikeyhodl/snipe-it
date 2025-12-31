@@ -9,6 +9,10 @@
 @stop
 
 @section('header_right')
+
+  <a href="{{ route('manufacturers.index') }}" class="btn btn-primary text-right" style="margin-right: 10px;">{{ trans('general.back') }}</a>
+
+
   <div class="btn-group pull-right">
      <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{ trans('button.actions') }}
      <span class="caret"></span>
@@ -29,33 +33,84 @@
 
       <ul class="nav nav-tabs">
         <li class="active">
-          <a href="#assets" data-toggle="tab">Assets</a>
+
+          <a href="#assets" data-toggle="tab">
+            <span class="hidden-lg hidden-md">
+              <i class="fas fa-barcode fa-2x"></i>
+            </span>
+            <span class="hidden-xs hidden-sm">
+                {{ trans('general.assets') }}
+                {!! ($manufacturer->assets()->AssetsForShow()->count() > 0 ) ? '<span class="badge badge-secondary">'.number_format($manufacturer->assets()->AssetsForShow()->count()).'</span>' : '' !!}
+            </span>
+          </a>
+
         </li>
         <li>
-          <a href="#licenses" data-toggle="tab">Licenses</a>
+          <a href="#licenses" data-toggle="tab">
+            <span class="hidden-lg hidden-md">
+               <x-icon type="licenses" class="fa-2x" />
+            </span>
+            <span class="hidden-xs hidden-sm">
+              {{ trans('general.licenses') }}
+              {!! ($manufacturer->licenses->count() > 0 ) ? '<span class="badge badge-secondary">'.number_format($manufacturer->licenses->count()).'</span>' : '' !!}
+            </span>
+
+          </a>
         </li>
         <li>
-          <a href="#accessories" data-toggle="tab">Accessories</a>
+          <a href="#accessories" data-toggle="tab">
+
+             <span class="hidden-lg hidden-md">
+              <x-icon type="accessories" class="fa-2x" />
+            </span>
+            <span class="hidden-xs hidden-sm">
+              {{ trans('general.accessories') }}
+              {!! ($manufacturer->accessories->count() > 0 ) ? '<span class="badge badge-secondary">'.number_format($manufacturer->accessories->count()).'</span>' : '' !!}
+            </span>
+          </a>
         </li>
         <li>
-          <a href="#consumables" data-toggle="tab">Consumables</a>
+          <a href="#consumables" data-toggle="tab">
+
+             <span class="hidden-lg hidden-md">
+               <x-icon type="consumables" class="fa-2x" />
+            </span>
+            <span class="hidden-xs hidden-sm">
+              {{ trans('general.consumables') }}
+              {!! ($manufacturer->consumables->count() > 0 ) ? '<span class="badge badge-secondary">'.number_format($manufacturer->consumables->count()).'</span>' : '' !!}
+            </span>
+          </a>
+        </li>
+
+        <li>
+          <a href="#components" data-toggle="tab">
+
+             <span class="hidden-lg hidden-md">
+               <x-icon type="components" class="fa-2x" />
+            </span>
+            <span class="hidden-xs hidden-sm">
+              {{ trans('general.components') }}
+              {!! ($manufacturer->components->count() > 0 ) ? '<span class="badge badge-secondary">'.number_format($manufacturer->components->count()).'</span>' : '' !!}
+            </span>
+
+          </a>
         </li>
       </ul>
 
       <div class="tab-content">
         <div class="tab-pane fade in active" id="assets">
 
+          @include('partials.asset-bulk-actions')
+
           <table
                   data-columns="{{ \App\Presenters\AssetPresenter::dataTableLayout() }}"
+                  data-show-columns-search="true"
                   data-cookie-id-table="assetsListingTable"
-                  data-pagination="true"
                   data-id-table="assetsListingTable"
-                  data-search="true"
-                  data-show-footer="true"
+                  data-toolbar="#assetsBulkEditToolbar"
+                  data-bulk-button-id="#bulkAssetEditButton"
+                  data-bulk-form-id="#assetsBulkForm"
                   data-side-pagination="server"
-                  data-show-columns="true"
-                  data-show-export="true"
-                  data-show-refresh="true"
                   data-sort-order="asc"
                   id="assetsListingTable"
                   class="table table-striped snipe-table"
@@ -73,14 +128,9 @@
           <table
                   data-columns="{{ \App\Presenters\LicensePresenter::dataTableLayout() }}"
                   data-cookie-id-table="licensesTable"
-                  data-pagination="true"
                   data-id-table="licensesTable"
-                  data-search="true"
                   data-show-footer="true"
                   data-side-pagination="server"
-                  data-show-columns="true"
-                  data-show-export="true"
-                  data-show-refresh="true"
                   data-sort-order="asc"
                   id="licensesTable"
                   class="table table-striped snipe-table"
@@ -99,14 +149,9 @@
           <table
                   data-columns="{{ \App\Presenters\AccessoryPresenter::dataTableLayout() }}"
                   data-cookie-id-table="accessoriesTable"
-                  data-pagination="true"
                   data-id-table="accessoriesTable"
-                  data-search="true"
                   data-show-footer="true"
                   data-side-pagination="server"
-                  data-show-columns="true"
-                  data-show-export="true"
-                  data-show-refresh="true"
                   data-sort-order="asc"
                   id="accessoriesTable"
                   class="table table-striped snipe-table"
@@ -125,25 +170,38 @@
           <table
                   data-columns="{{ \App\Presenters\ConsumablePresenter::dataTableLayout() }}"
                   data-cookie-id-table="consumablesTable"
-                  data-pagination="true"
                   data-id-table="consumablesTable"
-                  data-search="true"
                   data-show-footer="true"
                   data-side-pagination="server"
-                  data-show-columns="true"
-                  data-show-export="true"
-                  data-show-refresh="true"
                   data-sort-order="asc"
                   id="consumablesTable"
                   class="table table-striped snipe-table"
                   data-url="{{ route('api.consumables.index', ['manufacturer_id' => $manufacturer->id]) }}"
                   data-export-options='{
-              "fileName": "export-manufacturers-{{ str_slug($manufacturer->name) }}-consumabled-{{ date('Y-m-d') }}",
+              "fileName": "export-manufacturers-{{ str_slug($manufacturer->name) }}-consumables-{{ date('Y-m-d') }}",
               "ignoreColumn": ["actions","image","change","checkbox","checkincheckout","icon"]
               }'>
           </table>
 
+        </div> <!-- /.tab-pan consumables-->
 
+        <div class="tab-pane fade" id="components">
+
+          <table
+                  data-columns="{{ \App\Presenters\ComponentPresenter::dataTableLayout() }}"
+                  data-cookie-id-table="componentsTable"
+                  data-id-table="componentsTable"
+                  data-show-footer="true"
+                  data-side-pagination="server"
+                  data-sort-order="asc"
+                  id="componentsTable"
+                  class="table table-striped snipe-table"
+                  data-url="{{ route('api.components.index', ['manufacturer_id' => $manufacturer->id]) }}"
+                  data-export-options='{
+              "fileName": "export-manufacturers-{{ str_slug($manufacturer->name) }}-components-{{ date('Y-m-d') }}",
+              "ignoreColumn": ["actions","image","change","checkbox","checkincheckout","icon"]
+              }'>
+          </table>
 
         </div> <!-- /.tab-pan consumables-->
 
