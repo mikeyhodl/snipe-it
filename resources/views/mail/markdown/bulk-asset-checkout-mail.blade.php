@@ -41,9 +41,6 @@
 | ------------- | ------------- |
 @foreach($group as $asset)
 | **{{ trans('general.asset_tag') }}** | <a href="{{ route('hardware.show', $asset->id) }}">{{ $asset->display_name }}</a><br><small>{{trans('mail.serial').': '.$asset->serial}}</small> |
-@if (isset($asset->model?->category))
-| **{{ trans('general.category') }}** | {{ $asset->model->category->name }} |
-@endif
 @if (isset($asset->manufacturer))
 | **{{ trans('general.manufacturer') }}** | {{ $asset->manufacturer->name }} |
 @endif
