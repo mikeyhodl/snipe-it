@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
-use App\Helpers\DisablesDebugbar;
 use App\Mail\CheckoutAccessoryMail;
 use App\Mail\CheckoutAssetMail;
 use App\Mail\CheckoutComponentMail;
@@ -50,8 +49,6 @@ use Illuminate\Http\RedirectResponse;
  */
 class ReportsController extends Controller
 {
-    use DisablesDebugbar;
-
     /**
      * Checks for correct permissions
      */

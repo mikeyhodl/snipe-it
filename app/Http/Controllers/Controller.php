@@ -22,6 +22,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\DisablesDebugbar;
 use App\Models\Accessory;
 use App\Models\Asset;
 use App\Models\AssetModel;
@@ -40,7 +41,7 @@ use Illuminate\Routing\Controller as BaseController;
 
 abstract class Controller extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+    use AuthorizesRequests, DisablesDebugbar, DispatchesJobs, ValidatesRequests;
 
     static $map_object_type = [
         'accessories' => Accessory::class,
