@@ -38,7 +38,7 @@ return [
         'messages' => env('DEBUGBAR_COLLECTORS_MESSAGES', true),         // Messages
         'time' => env('DEBUGBAR_COLLECTORS_TIME', true),             // Time Datalogger
         'memory' => env('DEBUGBAR_COLLECTORS_MEMORY', true),           // Memory usage
-        // 'exceptions' => env('DEBUGBAR_COLLECTORS_EXCEPTIONS', true),       // Exception displayer
+        'exceptions' => env('DEBUGBAR_COLLECTORS_EXCEPTIONS', true),       // Exception displayer
         'log' => env('DEBUGBAR_COLLECTORS_LOG', true),              // Logs from Monolog (merged in messages if enabled)
         'db' => env('DEBUGBAR_COLLECTORS_DB', true),               // Show database (PDO) queries and bindings
         'views' => env('DEBUGBAR_COLLECTORS_VIEWS', true),            // Views with their data
