@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Users;
 
 use App\Helpers\Helper;
+use App\Helpers\DisablesDebugbar;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DeleteUserRequest;
 use App\Http\Requests\ImageUploadRequest;
@@ -28,6 +29,8 @@ use App\Notifications\CurrentInventory;
  */
 class UsersController extends Controller
 {
+    use DisablesDebugbar;
+
     /**
      * Returns a view that invokes the ajax tables which actually contains
      * the content for the users listing, which is generated in getDatatable().
@@ -508,7 +511,8 @@ class UsersController extends Controller
     public function getExportUserCsv()
     {
         $this->authorize('view', User::class);
-        \Debugbar::disable();
+
+        $this->disableDebugbar();
 
         $response = new StreamedResponse(function () {
             // Open output stream

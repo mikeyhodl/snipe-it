@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Licenses;
 
 use App\Helpers\Helper;
+use App\Helpers\DisablesDebugbar;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\License;
@@ -21,6 +22,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class LicensesController extends Controller
 {
+    use DisablesDebugbar;
+
     /**
      * Returns a view that invokes the ajax tables which actually contains
      * the content for the licenses listing, which is generated in getDatatable.
@@ -315,7 +318,8 @@ class LicensesController extends Controller
     public function getExportLicensesCsv()
     {
         $this->authorize('view', License::class);
-        \Debugbar::disable();
+
+        $this->disableDebugbar();
 
         $response = new StreamedResponse(function () {
             // Open output stream

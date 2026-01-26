@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
+use App\Helpers\DisablesDebugbar;
 use App\Mail\CheckoutAccessoryMail;
 use App\Mail\CheckoutAssetMail;
 use App\Mail\CheckoutComponentMail;
@@ -49,6 +50,8 @@ use Illuminate\Http\RedirectResponse;
  */
 class ReportsController extends Controller
 {
+    use DisablesDebugbar;
+
     /**
      * Checks for correct permissions
      */
@@ -242,7 +245,8 @@ class ReportsController extends Controller
         ini_set('max_execution_time', 12000);
         $this->authorize('reports.view');
 
-        \Debugbar::disable();
+        $this->disableDebugbar();
+
         $response = new StreamedResponse(function () {
             Log::debug('Starting streamed response');
 
@@ -437,8 +441,8 @@ class ReportsController extends Controller
         ini_set('max_execution_time', env('REPORT_TIME_LIMIT', 12000)); //12000 seconds = 200 minutes
         $this->authorize('reports.view');
 
+        $this->disableDebugbar();
 
-        \Debugbar::disable();
         $customfields = CustomField::get();
         $response = new StreamedResponse(function () use ($customfields, $request) {
             Log::debug('Starting streamed response');
