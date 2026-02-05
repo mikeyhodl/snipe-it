@@ -355,9 +355,9 @@
                       <x-slot:content>
                           <x-table
                                   name="locationHistory"
-                                  api_url="{{ route('api.activity.index', ['target_id' => $location->id, 'target_type' => 'location']) }}"
+                                  api_url="{{ route('api.activity.index', ['item_id' => $location->id, 'item_type' => 'location']) }}"
                                   :presenter="\App\Presenters\HistoryPresenter::dataTableLayout()"
-                                  export_filename="export-children-locations-{{ str_slug($location->name) }}-{{ date('Y-m-d') }}"
+                                  export_filename="export-locations-history-{{ str_slug($location->name) }}-{{ date('Y-m-d') }}"
                           />
                       </x-slot:content>
                   </x-tabs.pane>

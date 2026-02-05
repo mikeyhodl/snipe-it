@@ -175,6 +175,11 @@
             border: 1px solid hsl(from var(--btn-theme-base) h s calc(l - 15)) !important;
         }
 
+        .btn-theme.active
+        {
+            background-color: var(--btn-theme-hover) !important;
+        }
+
         .btn-theme:focus {
             color: var(--nav-primary-text-color) !important;
         }
@@ -529,14 +534,18 @@
 
         .table-striped > tbody > tr:nth-of-type(even),
         .row-new-striped > .row:nth-of-type(even),
-        .row-new-striped > .div:nth-of-type(odd) {
+        .row-new-striped > .div:nth-of-type(odd),
+        .cansort
+        {
             background-color: var(--table-stripe-bg) !important;
             border-top: var(--table-border-row-top) !important;
+            color: var(--nav-primary-text-color) !important;
         }
 
         .table-striped > tbody > tr:nth-of-type(odd),
         .row-new-striped > .row:nth-of-type(even),
-        .row-new-striped > .div:nth-of-type(odd)
+        .row-new-striped > .div:nth-of-type(odd),
+        .cansort
         {
             background-color: var(--table-stripe-bg-alt) !important;
             border-top: var(--table-border-row-top) !important;
@@ -729,8 +738,9 @@
         .table > tfoot > tr > td
 
         {
-            border-top-color: var(--box-header-bottom-border-color) !important;
+            border-top-color: var(--box-bg) !important;
             border-bottom-color: var(--box-header-bottom-border-color) !important;
+            color: var(--color-fg);
         }
 
 
@@ -1826,7 +1836,7 @@
                         <a target="_blank" href="https://bsky.app/profile/snipeitapp.com" rel="noopener" data-tooltip="true" data-title="Join us on Bluesky">
                             <i class="fa-brands fa-square-bluesky fa-fw"></i>
                         </a>
-                        <a target="_blank" href="https://hachyderm.io/@grokability" rel="noopener" data-tooltip="true" data-title="Join us on Github">
+                        <a target="_blank" href="https://github.com/grokability/snipe-it/" rel="noopener" data-tooltip="true" data-title="Join us on Github">
                             <i class="fa-brands fa-square-github fa-fw"></i>
                         </a>
                         <a target="_blank" href="https://hachyderm.io/@grokability" rel="noopener" data-tooltip="true" data-title="Join us on Mastodon">

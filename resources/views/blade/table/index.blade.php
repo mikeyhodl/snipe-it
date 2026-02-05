@@ -51,7 +51,7 @@
 
     @if ($api_url)
         data-side-pagination="server"
-        data-url="{!! $api_url !!}"
+        data-url="{!!  $api_url !!}"
     @endif
 
     data-export-options='{
