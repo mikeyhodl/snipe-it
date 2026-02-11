@@ -7,7 +7,7 @@
 
 
 <!-- Start box component -->
-<div class="box box-{{ $box_style }}">
+<div {{ $attributes->merge(['class' => 'box box-'.$box_style]) }}>
 
     @if ($header)
         <div class="box-header with-border">

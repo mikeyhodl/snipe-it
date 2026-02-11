@@ -216,6 +216,7 @@
         {
             background-color: var(--table-stripe-bg) !important;
             color: var(--color-fg) !important;
+            border-color: var(--text-help);
 
         }
 
@@ -290,25 +291,24 @@
         }
 
 
-        input[type="text"]:focus,
-        input[type="url"]:focus,
-        input[type="date"]:focus,
-        input[type="email"]:focus,
-        input[type="number"]:focus,
-        input[type="password"]:focus,
+        input[type="*"]:focus,
         textarea:focus
         {
             border-color: hsl(from var(--main-theme-color) h s calc(l - 5)) !important;
         }
 
-        *:disabled,
+        input[type="*"]:disabled,
+        input[type=checkbox]:disabled,
+        input[type=radio]:disabled,
         input[readonly],
+        .select2-container--default.select2-container--disabled .select2-selection--single,
+        .select2-container--default.select2-container--disabled .select2-selection__rendered,
         textarea[readonly]
         {
             background-color: light-dark(rgb(234, 232, 232), rgb(117, 116, 117)) !important;
-            border: 1px solid light-dark(rgb(234, 232, 232), rgb(117, 116, 117)) !important;
             cursor: not-allowed !important;
         }
+
 
 
         input[type="search"].search-highlight {
@@ -539,7 +539,7 @@
         {
             background-color: var(--table-stripe-bg) !important;
             border-top: var(--table-border-row-top) !important;
-            color: var(--nav-primary-text-color) !important;
+            color: var(--color-fg) !important;
         }
 
         .table-striped > tbody > tr:nth-of-type(odd),
@@ -549,6 +549,7 @@
         {
             background-color: var(--table-stripe-bg-alt) !important;
             border-top: var(--table-border-row-top) !important;
+            color: var(--color-fg) !important;
         }
 
 
@@ -685,6 +686,10 @@
             background-color: #1e282c;
         }
 
+        .list-group-item.subitem {
+            padding-left:20px !important;
+        }
+
         .sidebar-menu>li.active > a,
         .sidebar-menu>li:hover>a,
         .treeview-menu>li> a
@@ -710,6 +715,10 @@
             background-color: #1e282c;
         }
 
+
+        .list-group-item:first-child {
+            border-top: 0 !important;
+        }
 
         .sidebar-menu > li > a:link,
         .sidebar-menu > li > a:visited,
@@ -2185,6 +2194,29 @@
              }
 
             $(function () {
+
+
+                // Handle the info-panel
+                $("#expand-info-panel-button").click(function () {
+
+                    $('.side-box').parent('div').parent('div').parent('div').hide();
+                    $(window).on('load', function() {
+                        $('.side-box').parent('div').parent('div').parent('div').show();
+                    });
+
+                    if($('.side-box').hasClass('expanded')) {
+                        $('.main-panel').removeClass('col-md-9').addClass('col-md-12');
+                        $('.side-box').removeClass('expanded');
+                        $("#expand-info-panel-button").addClass('fa-square-caret-left').removeClass('fa-square-caret-right');
+                    } else {
+                        $('.side-box').parent('div').parent('div').parent('div').fadeToggle("fast")
+                        $('.side-box').addClass('expanded');
+                        $('.main-panel').removeClass('col-md-12').addClass('col-md-9');
+                        $("#expand-info-panel-button").addClass('fa-square-caret-right').removeClass('fa-square-caret-left');
+                    }
+                });
+
+
 
                 // This handles the show/hide for cloned items
                 $('#use_cloned_image').click(function() {

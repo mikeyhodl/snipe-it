@@ -59,7 +59,7 @@ class ComponentsController extends Controller
 
         $components = Component::select('components.*')
             ->with('company', 'location', 'category', 'supplier', 'adminuser', 'manufacturer')
-            ->withSum('uncontrainedAssets as sum_unconstrained_assets', 'components_assets.assigned_qty');
+            ->withSum('unconstrainedAssets as sum_unconstrained_assets', 'components_assets.assigned_qty');
 
         $filter = [];
 

@@ -9,13 +9,13 @@
 @stop
 
 @section('header_right')
-  <a href="{{ route('manufacturers.edit', $manufacturer) }}" class="btn btn-primary text-right" style="margin-right: 10px;">{{ trans('general.update') }}</a>
-@stop
+    <i class="fa-regular fa-2x fa-square-caret-right pull-right" id="expand-info-panel-button" data-tooltip="true" title="{{ trans('button.show_hide_info') }}"></i>
+@endsection
 
 {{-- Page content --}}
 @section('content')
     <x-container columns="2">
-        <x-page-column class="col-md-9">
+        <x-page-column class="col-md-9 main-panel">
             <x-tabs>
                 <x-slot:tabnav>
                     @can('view', \App\Models\Asset::class)
@@ -191,9 +191,35 @@
         <x-page-column class="col-md-3">
 
             <x-box>
-                <x-box.contact :contact="$manufacturer" img_path="{{ app('manufacturers_upload_url') }}">
+                <x-box.info-panel :infoPanelObj="$manufacturer" img_path="{{ app('manufacturers_upload_url') }}">
 
-                </x-box.contact>
+                    <x-slot:before_list>
+
+                        @can('update', \App\Models\Manufacturer::class)
+                            <a href="{{ ($manufacturer->deleted_at=='') ? route('manufacturers.edit', $manufacturer->id) : '#' }}" class="btn btn-block btn-sm btn-warning btn-social hidden-print{{ ($manufacturer->deleted_at!='') ? ' disabled' : '' }}">
+                                <x-icon type="edit" />
+                                {{ trans('general.update') }}
+                            </a>
+                        @endcan
+
+                            @can('delete', \App\Models\Manufacturer::class)
+
+                                @if ($manufacturer->assets()->count() > 0)
+                                    <button class="btn btn-block btn-sm btn-danger btn-social hidden-print disabled" data-tooltip="true"  data-placement="top" data-title="{{ trans('general.cannot_be_deleted') }}">
+                                        <x-icon type="delete" />
+                                        {{ trans('general.delete') }}
+                                    </button>
+                                @else
+                                    <button class="btn btn-block btn-sm btn-danger btn-social delete-asset" data-toggle="modal" title="{{ trans('general.delete_what', ['item'=> trans('general.manufacturer')]) }}" data-content="{{ trans('general.sure_to_delete_var', ['item' => $manufacturer->name]) }}" data-target="#dataConfirmModal" data-tooltip="true" data-icon="fa fa-trash" data-placement="top" data-title="{{ trans('general.delete_what', ['item'=> trans('general.manufacturer')]) }}" onClick="return false;">
+                                        <x-icon type="delete" />
+                                        {{ trans('general.delete') }}
+                                    </button>
+                                @endif
+                            @endcan
+
+                    </x-slot:before_list>
+
+                </x-box.info-panel>
             </x-box>
         </x-page-column>
     </x-container>

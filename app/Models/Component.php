@@ -269,7 +269,7 @@ class Component extends SnipeModel
             // is *not* null - so we don't have to keep recalculating for un-checked-out components
             // NOTE: doing this will add a 'pseudo-attribute' to the component in question, so we need to _remove_ this
             // before we save - so that gets handled in the 'saving' callback defined in the 'booted' method, above.
-            $this->sum_unconstrained_assets = $this->uncontrainedAssets()->sum('assigned_qty') ?? 0;
+            $this->sum_unconstrained_assets = $this->unconstrainedAssets()->sum('assigned_qty') ?? 0;
         }
         return $this->sum_unconstrained_assets;
     }
@@ -280,7 +280,7 @@ class Component extends SnipeModel
      *
      * This allows us to get the assets with assigned components without the company restriction
      */
-    public function uncontrainedAssets()
+    public function unconstrainedAssets()
     {
 
         return $this->belongsToMany(\App\Models\Asset::class, 'components_assets')

@@ -197,7 +197,11 @@ class ComponentPresenter extends Presenter
      */
     public function nameUrl()
     {
-        return (string) link_to_route('consumables.show', e($this->name), $this->id);
+        if (auth()->user()->can('view', ['\App\Models\Component', $this])) {
+            return (string)link_to_route('components.show', e($this->display_name), $this->id);
+        } else {
+            return e($this->display_name);
+        }
     }
 
     /**

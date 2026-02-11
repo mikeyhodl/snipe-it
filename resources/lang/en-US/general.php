@@ -102,6 +102,8 @@ return [
     'record_created' 		=> 'Record Created',
     'updated_at' 			=> 'Updated At',
     'updated_plain' 		=> 'Updated',
+    'deleted_plain' 		=> 'Deleted',
+    'purchased_plain' 		=> 'Purchased',
     'created_plain' 		=> 'Created',
     'currency'  			=> '$', // this is deprecated
     'currency_text'  		=> 'Currency', //

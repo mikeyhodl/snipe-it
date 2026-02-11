@@ -67,6 +67,7 @@
                 data-sort-order="asc"
                 data-sort-name="name"
                 data-fixed-number="2"
+                data-fixed-right-number="2"
                 data-search-text="{{ session()->get('search') }}"
                 data-show-columns-search="true"
                 data-toolbar="#assetsBulkEditToolbar"

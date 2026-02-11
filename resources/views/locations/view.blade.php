@@ -9,10 +9,15 @@
 @parent
 @stop
 
+@section('header_right')
+    <i class="fa-regular fa-2x fa-square-caret-right pull-right" id="expand-info-panel-button" data-tooltip="true" title="{{ trans('button.show_hide_info') }}"></i>
+@endsection
+
+
 {{-- Page content --}}
 @section('content')
     <x-container columns="2">
-        <x-page-column class="col-md-9">
+        <x-page-column class="col-md-9 main-panel">
           <x-tabs>
 
               <x-slot:tabnav>
@@ -99,7 +104,6 @@
                       />
 
                   @endcan
-
 
                   <x-tabs.nav-item
                           name="child_locations"
@@ -370,7 +374,7 @@
         <x-page-column class="col-md-3">
 
             <x-box>
-                <x-box.contact :contact="$location" img_path="{{ app('locations_upload_url') }}">
+                <x-box.info-panel :infoPanelObj="$location" img_path="{{ app('locations_upload_url') }}">
 
                     <x-slot:before_list>
                         @can('update', $location)
@@ -424,7 +428,6 @@
                                         </button>
                                     </form>
                                 @endif
-                            </div>
                         @endcan
 
                     </x-slot:before_list>
@@ -437,7 +440,7 @@
                     @endif
 
 
-                </x-box.contact>
+                </x-box.info-panel>
             </x-box>
 
         </x-page-column>
