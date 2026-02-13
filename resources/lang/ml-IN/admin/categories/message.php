@@ -13,13 +13,16 @@ return array(
 
     'update' => array(
         'error'   => 'Category was not updated, please try again',
-        'success' => 'Category updated successfully.'
+        'success' => 'Category updated successfully.',
+        'cannot_change_category_type'   => 'You cannot change the category type once it has been created',
     ),
 
     'delete' => array(
-        'confirm'   => 'Are you sure you wish to delete this category?',
-        'error'   => 'There was an issue deleting the category. Please try again.',
-        'success' => 'The category was deleted successfully.'
+        'confirm'                => 'Are you sure you wish to delete this category?',
+        'error'                  => 'There was an issue deleting the category. Please try again.',
+        'success'                => 'Category was deleted successfully.',
+        'bulk_success'           => 'Categories were deleted successfully.',
+        'partial_success'        => 'Category deleted successfully. See additional information below. | :count categories were deleted successfully. See additional information below.',
     )
 
 );

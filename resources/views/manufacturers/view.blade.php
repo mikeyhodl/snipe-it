@@ -9,148 +9,221 @@
 @stop
 
 @section('header_right')
-  <div class="btn-group pull-right">
-     <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{ trans('button.actions') }}
-     <span class="caret"></span>
-      </button>
-      <ul class="dropdown-menu">
-        <li><a href="{{ route('manufacturers.edit', $manufacturer->id) }}">{{ trans('admin/manufacturers/table.update') }}</a></li>
-        <li><a href="{{ route('manufacturers.create') }}">{{ trans('admin/manufacturers/table.create') }}</a></li>
-      </ul>
-  </div>
-@stop
+    <i class="fa-regular fa-2x fa-square-caret-right pull-right" id="expand-info-panel-button" data-tooltip="true" title="{{ trans('button.show_hide_info') }}"></i>
+@endsection
 
 {{-- Page content --}}
 @section('content')
+    <x-container columns="2">
+        <x-page-column class="col-md-9 main-panel">
+            <x-tabs>
+                <x-slot:tabnav>
+                    @can('view', \App\Models\Asset::class)
+                        <x-tabs.nav-item
+                                name="assets"
+                                class="active"
+                                icon="fas fa-barcode fa-fw"
+                                label="{{ trans('general.assets') }}"
+                                count="{{ $manufacturer->assets()->AssetsForShow()->count() }}"
+                                tooltip="{{ trans('general.assets') }}"
+                        />
+                    @endcan
 
-<div class="row">
-  <div class="col-md-12">
-    <div class="nav-tabs-custom">
+                    @can('view', \App\Models\License::class)
+                        <x-tabs.nav-item
+                                name="licenses"
+                                icon="far fa-save"
+                                label="{{ trans('general.licenses') }}"
+                                count="{{ $manufacturer->licenses->count() }}"
+                                tooltip="{{ trans('general.licenses') }}"
+                        />
+                    @endcan
 
-      <ul class="nav nav-tabs">
-        <li class="active">
-          <a href="#assets" data-toggle="tab">Assets</a>
-        </li>
-        <li>
-          <a href="#licenses" data-toggle="tab">Licenses</a>
-        </li>
-        <li>
-          <a href="#accessories" data-toggle="tab">Accessories</a>
-        </li>
-        <li>
-          <a href="#consumables" data-toggle="tab">Consumables</a>
-        </li>
-      </ul>
+                    @can('view', \App\Models\Accessory::class)
+                        <x-tabs.nav-item
+                                name="accessories"
+                                icon="far fa-keyboard fa-fw"
+                                label="{{ trans('general.accessories') }}"
+                                count="{{ $manufacturer->accessories->count() }}"
+                                tooltip="{{ trans('general.accessories') }}"
+                        />
+                    @endcan
 
-      <div class="tab-content">
-        <div class="tab-pane fade in active" id="assets">
+                    @can('view', \App\Models\Consumable::class)
+                        <x-tabs.nav-item
+                                name="consumables"
+                                icon="fas fa-tint fa-fw"
+                                label="{{ trans('general.consumables') }}"
+                                count="{{ $manufacturer->consumables->count() }}"
+                                tooltip="{{ trans('general.consumables') }}"
+                        />
+                    @endcan
 
-          <table
-                  data-columns="{{ \App\Presenters\AssetPresenter::dataTableLayout() }}"
-                  data-cookie-id-table="assetsListingTable"
-                  data-pagination="true"
-                  data-id-table="assetsListingTable"
-                  data-search="true"
-                  data-show-footer="true"
-                  data-side-pagination="server"
-                  data-show-columns="true"
-                  data-show-export="true"
-                  data-show-refresh="true"
-                  data-sort-order="asc"
-                  id="assetsListingTable"
-                  class="table table-striped snipe-table"
-                  data-url="{{ route('api.assets.index', ['manufacturer_id' => $manufacturer->id, 'itemtype' => 'assets']) }}"
-                  data-export-options='{
-              "fileName": "export-manufacturers-{{ str_slug($manufacturer->name) }}-assets-{{ date('Y-m-d') }}",
-              "ignoreColumn": ["actions","image","change","checkbox","checkincheckout","icon"]
-              }'>
-          </table>
+                    @can('view', \App\Models\Component::class)
+                        <x-tabs.nav-item
+                                name="components"
+                                icon="fas fa-hdd fa-fw"
+                                label="{{ trans('general.components') }}"
+                                count="{{ $manufacturer->components->count() }}"
+                                tooltip="{{ trans('general.components') }}"
+                        />
+                    @endcan
 
-        </div> <!-- /.tab-pane assets -->
+                    @can('update', $manufacturer)
+                        <x-tabs.nav-item-upload />
+                    @endcan
 
-        <div class="tab-pane fade" id="licenses">
+                </x-slot:tabnav>
 
-          <table
-                  data-columns="{{ \App\Presenters\LicensePresenter::dataTableLayout() }}"
-                  data-cookie-id-table="licensesTable"
-                  data-pagination="true"
-                  data-id-table="licensesTable"
-                  data-search="true"
-                  data-show-footer="true"
-                  data-side-pagination="server"
-                  data-show-columns="true"
-                  data-show-export="true"
-                  data-show-refresh="true"
-                  data-sort-order="asc"
-                  id="licensesTable"
-                  class="table table-striped snipe-table"
-                  data-url="{{ route('api.licenses.index', ['manufacturer_id' => $manufacturer->id]) }}"
-                  data-export-options='{
-              "fileName": "export-manufacturers-{{ str_slug($manufacturer->name) }}-licenses-{{ date('Y-m-d') }}",
-              "ignoreColumn": ["actions","image","change","checkbox","checkincheckout","icon"]
-              }'>
-          </table>
+                <x-slot:tabpanes>
+                    <!-- start assets tab pane -->
+                    @can('view', \App\Models\Asset::class)
+                        <x-tabs.pane name="assets" class="in active">
+                            <x-slot:header>
+                                {{ trans('general.assets') }}
+                            </x-slot:header>
 
+                            <x-slot:bulkactions>
+                                <x-table.bulk-assets />
+                            </x-slot:bulkactions>
 
-        </div><!-- /.tab-pan licenses-->
+                            <x-slot:content>
+                                <x-table
+                                        show_column_search="true"
+                                        show_advanced_search="true"
+                                        buttons="assetButtons"
+                                        api_url="{{ route('api.assets.index', ['manufacturer_id' => $manufacturer->id, 'itemtype' => 'assets']) }}"
+                                        :presenter="\App\Presenters\AssetPresenter::dataTableLayout()"
+                                        export_filename="export-{{ str_slug($manufacturer->name) }}-assets-{{ date('Y-m-d') }}"
+                                />
+                            </x-slot:content>
+                        </x-tabs.pane>
+                    @endcan
+                    <!-- end assets tab pane -->
 
-        <div class="tab-pane fade" id="accessories">
+                    <!-- start licenses tab pane -->
+                    @can('view', \App\Models\License::class)
+                        <x-tabs.pane name="licenses">
+                            <x-slot:header>
+                                {{ trans('general.licenses') }}
+                            </x-slot:header>
 
-          <table
-                  data-columns="{{ \App\Presenters\AccessoryPresenter::dataTableLayout() }}"
-                  data-cookie-id-table="accessoriesTable"
-                  data-pagination="true"
-                  data-id-table="accessoriesTable"
-                  data-search="true"
-                  data-show-footer="true"
-                  data-side-pagination="server"
-                  data-show-columns="true"
-                  data-show-export="true"
-                  data-show-refresh="true"
-                  data-sort-order="asc"
-                  id="accessoriesTable"
-                  class="table table-striped snipe-table"
-                  data-url="{{ route('api.accessories.index', ['manufacturer_id' => $manufacturer->id]) }}"
-                  data-export-options='{
-              "fileName": "export-manufacturers-{{ str_slug($manufacturer->name) }}-accessories-{{ date('Y-m-d') }}",
-              "ignoreColumn": ["actions","image","change","checkbox","checkincheckout","icon"]
-              }'>
-          </table>
+                            <x-slot:content>
+                                <x-table
+                                        show_column_search="true"
+                                        show_advanced_search="true"
+                                        buttons="licenseButtons"
+                                        api_url="{{ route('api.licenses.index', ['manufacturer_id' => $manufacturer->id]) }}"
+                                        :presenter="\App\Presenters\LicensePresenter::dataTableLayout()"
+                                        export_filename="export-{{ str_slug($manufacturer->name) }}-licenses-{{ date('Y-m-d') }}"
+                                />
+                            </x-slot:content>
+                        </x-tabs.pane>
+                    @endcan
+                    <!-- end licenses tab pane -->
 
+                    <!-- start accessories tab pane -->
+                    @can('view', \App\Models\Accessory::class)
+                        <x-tabs.pane name="accessories">
+                            <x-slot:header>
+                                {{ trans('general.accessories') }}
+                            </x-slot:header>
 
-        </div> <!-- /.tab-pan accessories-->
+                            <x-slot:content>
+                                <x-table
+                                        show_column_search="true"
+                                        show_advanced_search="true"
+                                        buttons="accessoryButtons"
+                                        api_url="{{ route('api.accessories.index', ['manufacturer_id' => $manufacturer->id]) }}"
+                                        :presenter="\App\Presenters\AccessoryPresenter::dataTableLayout()"
+                                        export_filename="export-{{ str_slug($manufacturer->name) }}-accessories-{{ date('Y-m-d') }}"
+                                />
+                            </x-slot:content>
+                        </x-tabs.pane>
+                    @endcan
+                    <!-- end accessories tab pane -->
 
-        <div class="tab-pane fade" id="consumables">
+                    <!-- start consumables tab pane -->
+                    @can('view', \App\Models\Consumable::class)
+                        <x-tabs.pane name="consumables">
+                            <x-slot:header>
+                                {{ trans('general.consumables') }}
+                            </x-slot:header>
 
-          <table
-                  data-columns="{{ \App\Presenters\ConsumablePresenter::dataTableLayout() }}"
-                  data-cookie-id-table="consumablesTable"
-                  data-pagination="true"
-                  data-id-table="consumablesTable"
-                  data-search="true"
-                  data-show-footer="true"
-                  data-side-pagination="server"
-                  data-show-columns="true"
-                  data-show-export="true"
-                  data-show-refresh="true"
-                  data-sort-order="asc"
-                  id="consumablesTable"
-                  class="table table-striped snipe-table"
-                  data-url="{{ route('api.consumables.index', ['manufacturer_id' => $manufacturer->id]) }}"
-                  data-export-options='{
-              "fileName": "export-manufacturers-{{ str_slug($manufacturer->name) }}-consumabled-{{ date('Y-m-d') }}",
-              "ignoreColumn": ["actions","image","change","checkbox","checkincheckout","icon"]
-              }'>
-          </table>
+                            <x-slot:content>
+                                <x-table
+                                        show_column_search="true"
+                                        show_advanced_search="true"
+                                        buttons="consumableButtons"
+                                        api_url="{{ route('api.consumables.index', ['manufacturer_id' => $manufacturer->id]) }}"
+                                        :presenter="\App\Presenters\ConsumablePresenter::dataTableLayout()"
+                                        export_filename="export-{{ str_slug($manufacturer->name) }}-consumables-{{ date('Y-m-d') }}"
+                                />
+                            </x-slot:content>
+                        </x-tabs.pane>
+                    @endcan
+                    <!-- end consumables tab pane -->
 
+                    <!-- start components tab pane -->
+                    @can('view', \App\Models\Component::class)
+                        <x-tabs.pane name="components">
+                            <x-slot:header>
+                                {{ trans('general.components') }}
+                            </x-slot:header>
 
+                            <x-slot:content>
+                                <x-table
+                                        show_column_search="true"
+                                        show_advanced_search="true"
+                                        buttons="componentButtons"
+                                        api_url="{{ route('api.components.index', ['manufacturer_id' => $manufacturer->id]) }}"
+                                        :presenter="\App\Presenters\ComponentPresenter::dataTableLayout()"
+                                        export_filename="export-{{ str_slug($manufacturer->name) }}-components-{{ date('Y-m-d') }}"
+                                />
+                            </x-slot:content>
+                        </x-tabs.pane>
+                    @endcan
+                    <!-- end components tab pane -->
 
-        </div> <!-- /.tab-pan consumables-->
+                </x-slot:tabpanes>
+            </x-tabs>
+        </x-page-column>
+        <x-page-column class="col-md-3">
 
-      </div> <!-- /.tab-content -->
-    </div>  <!-- /.nav-tabs-custom -->
-  </div><!-- /. col-md-12 -->
-</div> <!-- /.row -->
+            <x-box>
+                <x-box.info-panel :infoPanelObj="$manufacturer" img_path="{{ app('manufacturers_upload_url') }}">
+
+                    <x-slot:before_list>
+
+                        @can('update', \App\Models\Manufacturer::class)
+                            <a href="{{ ($manufacturer->deleted_at=='') ? route('manufacturers.edit', $manufacturer->id) : '#' }}" class="btn btn-block btn-sm btn-warning btn-social hidden-print{{ ($manufacturer->deleted_at!='') ? ' disabled' : '' }}">
+                                <x-icon type="edit" />
+                                {{ trans('general.update') }}
+                            </a>
+                        @endcan
+
+                            @can('delete', \App\Models\Manufacturer::class)
+
+                                @if ($manufacturer->assets()->count() > 0)
+                                    <button class="btn btn-block btn-sm btn-danger btn-social hidden-print disabled" data-tooltip="true"  data-placement="top" data-title="{{ trans('general.cannot_be_deleted') }}">
+                                        <x-icon type="delete" />
+                                        {{ trans('general.delete') }}
+                                    </button>
+                                @else
+                                    <button class="btn btn-block btn-sm btn-danger btn-social delete-asset" data-toggle="modal" title="{{ trans('general.delete_what', ['item'=> trans('general.manufacturer')]) }}" data-content="{{ trans('general.sure_to_delete_var', ['item' => $manufacturer->name]) }}" data-target="#dataConfirmModal" data-tooltip="true" data-icon="fa fa-trash" data-placement="top" data-title="{{ trans('general.delete_what', ['item'=> trans('general.manufacturer')]) }}" onClick="return false;">
+                                        <x-icon type="delete" />
+                                        {{ trans('general.delete') }}
+                                    </button>
+                                @endif
+                            @endcan
+
+                    </x-slot:before_list>
+
+                </x-box.info-panel>
+            </x-box>
+        </x-page-column>
+    </x-container>
+
 @stop
 
 @section('moar_scripts')
