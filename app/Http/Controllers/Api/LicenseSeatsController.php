@@ -98,7 +98,18 @@ class LicenseSeatsController extends Controller
      */
     public function update(Request $request, $licenseId, $seatId) : JsonResponse | array
     {
-        $this->validate($request, ['assigned_to' => 'int']);
+        $this->validate($request, [
+            'assigned_to' => [
+                'sometimes',
+                'int',
+                // must be a valid user or null to unassign
+                function ($attribute, $value, $fail) {
+                    if (!is_null($value) && !User::find($value)) {
+                        $fail('The selected assigned_to is invalid.');
+                    }
+                },
+            ],
+        ]);
 
         $this->authorize('checkout', License::class);
 

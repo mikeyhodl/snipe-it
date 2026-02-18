@@ -112,6 +112,8 @@ trait CustomTestMacros
             function (array|string $keys) {
                 Assert::assertArrayHasKey('messages', $this, 'Response did not contain any messages');
 
+                Assert::assertIsArray($this['messages'], '"messages" not an array so specific message existence cannot be checked.');
+
                 if (is_string($keys)) {
                     $keys = [$keys];
                 }

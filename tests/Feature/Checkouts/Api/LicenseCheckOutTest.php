@@ -40,11 +40,14 @@ class LicenseCheckOutTest extends TestCase {
         $this->assertHasTheseActionLogs($license, ['add seats', 'create', 'checkout']); //FIXME - backwards
     }
 
+    public function test_license_update_without_checkout()
+    {
+        $this->markTestIncomplete();
+    }
+
     public function test_assigned_to_cannot_be_array()
     {
-        $licenseSeat = LicenseSeat::factory()->create([
-            'assigned_to' => null,
-        ]);
+        $licenseSeat = LicenseSeat::factory()->create(['assigned_to' => null]);
 
         $targets = User::factory()->count(2)->create();
 
@@ -60,6 +63,53 @@ class LicenseCheckOutTest extends TestCase {
                 ]
             )
             ->assertStatus(200)
+            ->assertStatusMessageIs('error')
+            ->assertMessagesContains('assigned_to');
+    }
+
+    public function test_assigned_to_must_be_valid_user()
+    {
+        $licenseSeat = LicenseSeat::factory()->create(['assigned_to' => null]);
+
+        $softDeletedUser = User::factory()->trashed()->create();
+
+        $this->actingAsForApi(User::factory()->superuser()->create())
+            ->patchJson(
+                route('api.licenses.seats.update', [$licenseSeat->license->id, $licenseSeat->id]),
+                [
+                    'assigned_to' => $softDeletedUser->id,
+                    'notes' => '',
+                ]
+            )
+            ->assertStatus(200)
+            ->assertStatusMessageIs('error')
+            ->assertMessagesContains('assigned_to');
+    }
+
+    public function test_null_assigned_to_checks_in_license_seat()
+    {
+        $this->markTestIncomplete();
+
+        $licenseSeat = LicenseSeat::factory()->reassignable()->assignedToUser()->create();
+
+        $this->actingAsForApi(User::factory()->superuser()->create())
+            ->patchJson(
+                route('api.licenses.seats.update', [$licenseSeat->license->id, $licenseSeat->id]),
+                [
+                    'assigned_to' => null,
+                    'notes' => '',
+                ]
+            )
+            ->assertStatus(200)
             ->assertStatusMessageIs('error');
+
+        $licenseSeat->refresh();
+
+        $this->assertNull($licenseSeat->assigned_to);
+    }
+
+    public function test_cannot_reassign_unreassignable_license_seat()
+    {
+        $this->markTestIncomplete();
     }
 }
