@@ -111,9 +111,46 @@ class LicenseSeatUpdateTest extends TestCase
         $this->assertEquals('A new note is here', $licenseSeat->notes);
     }
 
+    public function test_license_cannot_be_updated()
+    {
+        $licenseSeat = LicenseSeat::factory()->create();
+        $licenseId = $licenseSeat->license_id;
+
+        $this->actingAsForApi(User::factory()->superuser()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'notes' => '',
+                'license_id' => License::factory()->create()->id,
+            ])
+            ->assertStatus(200)
+            ->assertStatusMessageIs('success');
+
+        $licenseSeat->refresh();
+        $this->assertEquals($licenseId, $licenseSeat->license_id);
+    }
+
     public function test_created_by_and_timestamps_are_not_updated()
     {
-        $this->markTestIncomplete();
+        $licenseSeat = LicenseSeat::factory()->create();
+
+        $createdBy = $licenseSeat->created_by;
+        $createdAt = $licenseSeat->created_at;
+        $deleteAt = $licenseSeat->deleted_at;
+
+        $this->actingAsForApi(User::factory()->superuser()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'notes' => '',
+                'created_by' => User::factory()->create()->id,
+                'created_at' => now()->subDays(5)->toDateTimeString(),
+                'deleted_at' => now()->toDateTimeString(),
+            ])
+            ->assertStatus(200)
+            ->assertStatusMessageIs('success');
+
+        $licenseSeat->refresh();
+
+        $this->assertEquals($createdBy, $licenseSeat->created_by);
+        $this->assertEquals($createdAt, $licenseSeat->created_at);
+        $this->assertEquals($deleteAt, $licenseSeat->deleted_at);
     }
 
     public function test_reassignableness_cannot_be_updated()
