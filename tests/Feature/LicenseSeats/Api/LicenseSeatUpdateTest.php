@@ -128,6 +128,11 @@ class LicenseSeatUpdateTest extends TestCase
         $this->assertEquals($licenseId, $licenseSeat->license_id);
     }
 
+    public function test_reassignableness_is_not_updated()
+    {
+        $this->markTestIncomplete();
+    }
+
     public function test_created_by_and_timestamps_are_not_updated()
     {
         $licenseSeat = LicenseSeat::factory()->create();
@@ -153,7 +158,7 @@ class LicenseSeatUpdateTest extends TestCase
         $this->assertEquals($deleteAt, $licenseSeat->deleted_at);
     }
 
-    public function test_reassignableness_cannot_be_updated()
+    public function test_cannot_reassign_unreassignable_license_seat()
     {
         $this->markTestIncomplete();
     }
@@ -217,16 +222,6 @@ class LicenseSeatUpdateTest extends TestCase
         $licenseSeat->refresh();
 
         $this->assertNull($licenseSeat->assigned_to);
-    }
-
-    public function test_cannot_change_license_for_license_seat()
-    {
-        $this->markTestIncomplete();
-    }
-
-    public function test_cannot_reassign_unreassignable_license_seat()
-    {
-        $this->markTestIncomplete();
     }
 
     private function route(LicenseSeat $licenseSeat)
