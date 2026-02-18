@@ -102,12 +102,24 @@ class LicenseSeatsController extends Controller
             'assigned_to' => [
                 'sometimes',
                 'int',
+                'prohibits:asset_id',
                 // must be a valid user or null to unassign
                 function ($attribute, $value, $fail) {
-                    if (!is_null($value) && !User::find($value)) {
+                    if (!is_null($value) && !User::where('id', $value)->whereNull('deleted_at')->exists()) {
                         $fail('The selected assigned_to is invalid.');
                     }
                 },
+            ],
+            'asset_id' => [
+                'sometimes',
+                'int',
+                'prohibits:assigned_to',
+                // must be a valid asset or null to unassign
+                function ($attribute, $value, $fail) {
+                    if (!is_null($value) && !Asset::where('id', $value)->whereNull('deleted_at')->exists()) {
+                        $fail('The selected asset_id is invalid.');
+                    }
+                }
             ],
         ]);
 

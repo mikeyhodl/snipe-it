@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\LicenseSeats\Api;
 
+use App\Models\Asset;
 use App\Models\License;
 use App\Models\LicenseSeat;
 use App\Models\User;
@@ -59,9 +60,39 @@ class LicenseSeatUpdateTest extends TestCase
             ->assertMessagesContains('assigned_to');
     }
 
+    public function test_asset_id_must_be_a_valid_asset()
+    {
+        $licenseSeat = LicenseSeat::factory()->create(['assigned_to' => null]);
+
+        $softDeletedAsset = Asset::factory()->trashed()->create();
+
+        $this->actingAsForApi(User::factory()->superuser()->create())
+            ->patchJson(
+                route('api.licenses.seats.update', [$licenseSeat->license->id, $licenseSeat->id]),
+                [
+                    'asset_id' => $softDeletedAsset->id,
+                    'notes' => '',
+                ]
+            )
+            ->assertStatus(200)
+            ->assertStatusMessageIs('error')
+            ->assertMessagesContains('asset_id');
+    }
+
     public function test_assigned_to_and_asset_id_cannot_be_provided_together()
     {
-        $this->markTestIncomplete();
+        $licenseSeat = LicenseSeat::factory()->create(['assigned_to' => null]);
+
+        $this->actingAsForApi(User::factory()->superuser()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'assigned_to' => User::factory()->create()->id,
+                'asset_id' => Asset::factory()->create()->id,
+                'notes' => '',
+            ])
+            ->assertStatus(200)
+            ->assertStatusMessageIs('error')
+            ->assertMessagesContains('assigned_to')
+            ->assertMessagesContains('asset_id');
     }
 
     public function test_license_seat_can_be_updated()
