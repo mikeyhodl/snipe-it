@@ -1,13 +1,14 @@
 <?php
-namespace Tests\Feature\Checkouts\Api;
+
+namespace Tests\Feature\LicenseSeats\Api;
 
 use App\Models\License;
 use App\Models\LicenseSeat;
 use App\Models\User;
 use Tests\TestCase;
 
-class LicenseCheckOutTest extends TestCase {
-
+class LicenseSeatUpdateTest extends TestCase
+{
     public function test_requires_permission()
     {
         $licenseSeat = LicenseSeat::factory()->create();
@@ -17,8 +18,15 @@ class LicenseCheckOutTest extends TestCase {
             ->assertForbidden();
     }
 
-    public function testLicenseCheckout()
+    public function test_license_seat_can_be_updated()
     {
+        $this->markTestIncomplete();
+    }
+
+    public function test_license_seat_can_be_checked_out_when_updating()
+    {
+        $this->markTestIncomplete();
+
         $license = License::factory()->create();
         $licenseSeat = LicenseSeat::factory()->for($license)->create([
             'assigned_to' => null,
@@ -49,7 +57,29 @@ class LicenseCheckOutTest extends TestCase {
         $this->assertHasTheseActionLogs($license, ['add seats', 'create', 'checkout']); //FIXME - backwards
     }
 
-    public function test_license_update_without_checkout()
+    public function test_license_seat_can_be_checked_in_when_updating()
+    {
+        $this->markTestIncomplete();
+
+        $licenseSeat = LicenseSeat::factory()->reassignable()->assignedToUser()->create();
+
+        $this->actingAsForApi(User::factory()->superuser()->create())
+            ->patchJson(
+                route('api.licenses.seats.update', [$licenseSeat->license->id, $licenseSeat->id]),
+                [
+                    'assigned_to' => null,
+                    'notes' => '',
+                ]
+            )
+            ->assertStatus(200)
+            ->assertStatusMessageIs('error');
+
+        $licenseSeat->refresh();
+
+        $this->assertNull($licenseSeat->assigned_to);
+    }
+
+    public function test_cannot_reassign_unreassignable_license_seat()
     {
         $this->markTestIncomplete();
     }
@@ -93,33 +123,6 @@ class LicenseCheckOutTest extends TestCase {
             ->assertStatus(200)
             ->assertStatusMessageIs('error')
             ->assertMessagesContains('assigned_to');
-    }
-
-    public function test_null_assigned_to_checks_in_license_seat()
-    {
-        $this->markTestIncomplete();
-
-        $licenseSeat = LicenseSeat::factory()->reassignable()->assignedToUser()->create();
-
-        $this->actingAsForApi(User::factory()->superuser()->create())
-            ->patchJson(
-                route('api.licenses.seats.update', [$licenseSeat->license->id, $licenseSeat->id]),
-                [
-                    'assigned_to' => null,
-                    'notes' => '',
-                ]
-            )
-            ->assertStatus(200)
-            ->assertStatusMessageIs('error');
-
-        $licenseSeat->refresh();
-
-        $this->assertNull($licenseSeat->assigned_to);
-    }
-
-    public function test_cannot_reassign_unreassignable_license_seat()
-    {
-        $this->markTestIncomplete();
     }
 
     private function route(LicenseSeat $licenseSeat)
