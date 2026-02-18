@@ -7,6 +7,16 @@ use App\Models\User;
 use Tests\TestCase;
 
 class LicenseCheckOutTest extends TestCase {
+
+    public function test_requires_permission()
+    {
+        $licenseSeat = LicenseSeat::factory()->create();
+
+        $this->actingAsForApi(User::factory()->create())
+            ->patchJson($this->route($licenseSeat), [])
+            ->assertForbidden();
+    }
+
     public function testLicenseCheckout()
     {
         $authUser = User::factory()->superuser()->create();
@@ -111,5 +121,10 @@ class LicenseCheckOutTest extends TestCase {
     public function test_cannot_reassign_unreassignable_license_seat()
     {
         $this->markTestIncomplete();
+    }
+
+    private function route(LicenseSeat $licenseSeat)
+    {
+        return route('api.licenses.seats.update', [$licenseSeat->license->id, $licenseSeat->id]);
     }
 }
