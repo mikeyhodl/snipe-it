@@ -39,4 +39,29 @@ class LicenseCheckOutTest extends TestCase {
         $this->assertEquals('Checking out the seat to a user', $licenseSeat->notes);
         $this->assertHasTheseActionLogs($license, ['add seats', 'create', 'checkout']); //FIXME - backwards
     }
+
+    public function test_assigned_to_cannot_be_array()
+    {
+        $licenseSeat = LicenseSeat::factory()->create([
+            'assigned_to' => null,
+        ]);
+
+        $targets = User::factory()->count(2)->create();
+
+        $this->actingAsForApi(User::factory()->superuser()->create())
+            ->patchJson(
+                route('api.licenses.seats.update', [$licenseSeat->license->id, $licenseSeat->id]),
+                [
+                    'assigned_to' => [
+                        $targets[0]->id,
+                        $targets[1]->id,
+                    ],
+                    'notes' => '',
+                ]
+            )
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'status' => 'success',
+            ]);
+    }
 }
