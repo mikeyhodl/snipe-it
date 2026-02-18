@@ -26,16 +26,13 @@ class LicenseSeatUpdateTest extends TestCase
         $targets = User::factory()->count(2)->create();
 
         $this->actingAsForApi(User::factory()->superuser()->create())
-            ->patchJson(
-                route('api.licenses.seats.update', [$licenseSeat->license->id, $licenseSeat->id]),
-                [
-                    'assigned_to' => [
-                        $targets[0]->id,
-                        $targets[1]->id,
-                    ],
-                    'notes' => '',
-                ]
-            )
+            ->patchJson($this->route($licenseSeat), [
+                'assigned_to' => [
+                    $targets[0]->id,
+                    $targets[1]->id,
+                ],
+                'notes' => '',
+            ])
             ->assertStatus(200)
             ->assertStatusMessageIs('error')
             ->assertMessagesContains('assigned_to');
@@ -48,13 +45,10 @@ class LicenseSeatUpdateTest extends TestCase
         $softDeletedUser = User::factory()->trashed()->create();
 
         $this->actingAsForApi(User::factory()->superuser()->create())
-            ->patchJson(
-                route('api.licenses.seats.update', [$licenseSeat->license->id, $licenseSeat->id]),
-                [
-                    'assigned_to' => $softDeletedUser->id,
-                    'notes' => '',
-                ]
-            )
+            ->patchJson($this->route($licenseSeat), [
+                'assigned_to' => $softDeletedUser->id,
+                'notes' => '',
+            ])
             ->assertStatus(200)
             ->assertStatusMessageIs('error')
             ->assertMessagesContains('assigned_to');
@@ -67,13 +61,10 @@ class LicenseSeatUpdateTest extends TestCase
         $softDeletedAsset = Asset::factory()->trashed()->create();
 
         $this->actingAsForApi(User::factory()->superuser()->create())
-            ->patchJson(
-                route('api.licenses.seats.update', [$licenseSeat->license->id, $licenseSeat->id]),
-                [
-                    'asset_id' => $softDeletedAsset->id,
-                    'notes' => '',
-                ]
-            )
+            ->patchJson($this->route($licenseSeat), [
+                'asset_id' => $softDeletedAsset->id,
+                'notes' => '',
+            ])
             ->assertStatus(200)
             ->assertStatusMessageIs('error')
             ->assertMessagesContains('asset_id');
@@ -130,7 +121,18 @@ class LicenseSeatUpdateTest extends TestCase
 
     public function test_reassignableness_is_not_updated()
     {
-        $this->markTestIncomplete();
+        $licenseSeat = LicenseSeat::factory()->reassignable()->create(['unreassignable_seat' => false]);
+
+        $this->actingAsForApi(User::factory()->superuser()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'notes' => '',
+                'unreassignable_seat' => true,
+            ])
+            ->assertStatus(200)
+            ->assertStatusMessageIs('success');
+
+        $licenseSeat->refresh();
+        $this->assertFalse($licenseSeat->unreassignable_seat);
     }
 
     public function test_created_by_and_timestamps_are_not_updated()
@@ -161,6 +163,16 @@ class LicenseSeatUpdateTest extends TestCase
     public function test_cannot_reassign_unreassignable_license_seat()
     {
         $this->markTestIncomplete();
+
+        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser()->create();
+
+        $this->actingAsForApi(User::factory()->superuser()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'assigned_to' => User::factory()->create()->id,
+                'notes' => 'Attempting to reassign an unreassignable seat',
+            ])
+            ->assertStatus(200)
+            ->assertStatusMessageIs('error');
     }
 
     public function test_license_seat_can_be_checked_out_to_user_when_updating()
@@ -174,18 +186,11 @@ class LicenseSeatUpdateTest extends TestCase
 
         $targetUser = User::factory()->create();
 
-        $payload = [
-            'assigned_to' => $targetUser->id,
-            'notes' => 'Checking out the seat to a user',
-        ];
-
-        $response = $this->actingAsForApi(User::factory()->superuser()->create())
-            ->patchJson(
-                $this->route($licenseSeat),
-                $payload
-            );
-
-        $response->assertStatus(200)
+        $this->actingAsForApi(User::factory()->superuser()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'assigned_to' => $targetUser->id,
+                'notes' => 'Checking out the seat to a user',
+            ])->assertStatus(200)
             ->assertJsonFragment([
                 'status' => 'success',
             ]);
@@ -209,13 +214,10 @@ class LicenseSeatUpdateTest extends TestCase
         $licenseSeat = LicenseSeat::factory()->reassignable()->assignedToUser()->create();
 
         $this->actingAsForApi(User::factory()->superuser()->create())
-            ->patchJson(
-                route('api.licenses.seats.update', [$licenseSeat->license->id, $licenseSeat->id]),
-                [
-                    'assigned_to' => null,
-                    'notes' => '',
-                ]
-            )
+            ->patchJson($this->route($licenseSeat), [
+                'assigned_to' => null,
+                'notes' => '',
+            ])
             ->assertStatus(200)
             ->assertStatusMessageIs('error');
 
