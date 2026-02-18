@@ -98,6 +98,8 @@ class LicenseSeatsController extends Controller
      */
     public function update(Request $request, $licenseId, $seatId) : JsonResponse | array
     {
+        $this->validate($request, ['assigned_to' => 'int']);
+
         $this->authorize('checkout', License::class);
 
 

@@ -60,8 +60,6 @@ class LicenseCheckOutTest extends TestCase {
                 ]
             )
             ->assertStatus(200)
-            ->assertJsonFragment([
-                'status' => 'success',
-            ]);
+            ->assertStatusMessageIs('error');
     }
 }
