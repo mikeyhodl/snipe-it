@@ -121,6 +121,7 @@ class LicenseSeatsController extends Controller
                     }
                 }
             ],
+            'notes' => 'sometimes|string|nullable',
         ]);
 
         $this->authorize('checkout', License::class);
@@ -139,8 +140,7 @@ class LicenseSeatsController extends Controller
         $oldAsset = $licenseSeat->asset()->first();
 
         // attempt to update the license seat
-        $licenseSeat->fill($request->all());
-        $licenseSeat->created_by = auth()->id();
+        $licenseSeat->notes = $request->input('notes');
 
         // check if this update is a checkin operation
         // 1. are relevant fields touched at all?
