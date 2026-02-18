@@ -19,9 +19,6 @@ class LicenseCheckOutTest extends TestCase {
 
     public function testLicenseCheckout()
     {
-        $authUser = User::factory()->superuser()->create();
-        $this->actingAsForApi($authUser);
-
         $license = License::factory()->create();
         $licenseSeat = LicenseSeat::factory()->for($license)->create([
             'assigned_to' => null,
@@ -34,9 +31,11 @@ class LicenseCheckOutTest extends TestCase {
             'notes' => 'Checking out the seat to a user',
         ];
 
-        $response = $this->patchJson(
-            route('api.licenses.seats.update', [$license->id, $licenseSeat->id]),
-            $payload);
+        $response = $this->actingAsForApi(User::factory()->superuser()->create())
+            ->patchJson(
+                $this->route($licenseSeat),
+                $payload
+            );
 
         $response->assertStatus(200)
             ->assertJsonFragment([
