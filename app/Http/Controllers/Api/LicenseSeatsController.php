@@ -121,7 +121,7 @@ class LicenseSeatsController extends Controller
                     if (!is_null($value) && !Asset::where('id', $value)->whereNull('deleted_at')->exists()) {
                         $fail('The selected asset_id is invalid.');
                     }
-                }
+                },
             ],
             'notes' => 'sometimes|string|nullable',
         ]);

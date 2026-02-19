@@ -28,7 +28,7 @@ class LicenseSeatUpdateTest extends TestCase
 
         $targets = User::factory()->count(2)->create();
 
-        $this->actingAsForApi(User::factory()->superuser()->create())
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
                 'assigned_to' => [
                     $targets[0]->id,
@@ -47,7 +47,7 @@ class LicenseSeatUpdateTest extends TestCase
 
         $softDeletedUser = User::factory()->trashed()->create();
 
-        $this->actingAsForApi(User::factory()->superuser()->create())
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
                 'assigned_to' => $softDeletedUser->id,
                 'notes' => '',
@@ -63,7 +63,7 @@ class LicenseSeatUpdateTest extends TestCase
 
         $softDeletedAsset = Asset::factory()->trashed()->create();
 
-        $this->actingAsForApi(User::factory()->superuser()->create())
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
                 'asset_id' => $softDeletedAsset->id,
                 'notes' => '',
@@ -77,7 +77,7 @@ class LicenseSeatUpdateTest extends TestCase
     {
         $licenseSeat = LicenseSeat::factory()->create(['assigned_to' => null]);
 
-        $this->actingAsForApi(User::factory()->superuser()->create())
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
                 'assigned_to' => User::factory()->create()->id,
                 'asset_id' => Asset::factory()->create()->id,
@@ -93,7 +93,7 @@ class LicenseSeatUpdateTest extends TestCase
     {
         $licenseSeat = LicenseSeat::factory()->create();
 
-        $this->actingAsForApi(User::factory()->superuser()->create())
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
                 'notes' => 'A new note is here',
             ])
@@ -110,7 +110,7 @@ class LicenseSeatUpdateTest extends TestCase
         $licenseSeat = LicenseSeat::factory()->create();
         $licenseId = $licenseSeat->license_id;
 
-        $this->actingAsForApi(User::factory()->superuser()->create())
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
                 'notes' => '',
                 'license_id' => License::factory()->create()->id,
@@ -126,7 +126,7 @@ class LicenseSeatUpdateTest extends TestCase
     {
         $licenseSeat = LicenseSeat::factory()->reassignable()->create(['unreassignable_seat' => false]);
 
-        $this->actingAsForApi(User::factory()->superuser()->create())
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
                 'notes' => '',
                 'unreassignable_seat' => true,
@@ -146,7 +146,7 @@ class LicenseSeatUpdateTest extends TestCase
         $createdAt = $licenseSeat->created_at;
         $deleteAt = $licenseSeat->deleted_at;
 
-        $this->actingAsForApi(User::factory()->superuser()->create())
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
                 'notes' => '',
                 'created_by' => User::factory()->create()->id,
@@ -167,7 +167,7 @@ class LicenseSeatUpdateTest extends TestCase
     {
         $licenseSeat = LicenseSeat::factory()->assignedToUser()->create(['unreassignable_seat' => true]);
 
-        $this->actingAsForApi(User::factory()->superuser()->create())
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
                 'asset_id' => Asset::factory()->create()->id,
                 'notes' => 'Attempting to reassign an unreassignable seat',
@@ -184,7 +184,7 @@ class LicenseSeatUpdateTest extends TestCase
         $licenseSeat = LicenseSeat::factory()->create(['assigned_to' => null]);
         $targetUser = User::factory()->create();
 
-        $this->actingAsForApi(User::factory()->superuser()->create())
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
                 'assigned_to' => $targetUser->id,
                 'notes' => 'Checking out the seat to a user',
@@ -204,7 +204,7 @@ class LicenseSeatUpdateTest extends TestCase
         $licenseSeat = LicenseSeat::factory()->create(['assigned_to' => null]);
         $targetAsset = Asset::factory()->create();
 
-        $this->actingAsForApi(User::factory()->superuser()->create())
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
                 'asset_id' => $targetAsset->id,
                 'notes' => 'Checking out the seat to an asset',
@@ -225,7 +225,7 @@ class LicenseSeatUpdateTest extends TestCase
             'unreassignable_seat' => false,
         ]);
 
-        $this->actingAsForApi(User::factory()->superuser()->create())
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
                 'asset_id' => null,
                 'notes' => 'Checking in the seat',
@@ -246,7 +246,7 @@ class LicenseSeatUpdateTest extends TestCase
             'unreassignable_seat' => false,
         ]);
 
-        $this->actingAsForApi(User::factory()->superuser()->create())
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
                 'assigned_to' => null,
                 'notes' => 'Checking in the seat',
@@ -263,21 +263,75 @@ class LicenseSeatUpdateTest extends TestCase
     public function test_license_seat_checked_out_to_purged_asset_can_be_checked_in_when_updating()
     {
         $this->markTestIncomplete();
-    }
 
-    public function test_license_seat_checked_out_to_soft_deleted_asset_can_be_checked_in_when_updating()
-    {
-        $this->markTestIncomplete();
+        $licenseSeat = LicenseSeat::factory()->assignedToAsset()->create(['asset_id' => 100000]);
+
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'asset_id' => null,
+                'notes' => 'Checking in the seat',
+            ])
+            ->assertStatus(200)
+            ->assertStatusMessageIs('success');
+
+        $licenseSeat->refresh();
+
+        $this->assertNull($licenseSeat->asset_id);
     }
 
     public function test_license_seat_checked_out_to_purged_user_can_be_checked_in_when_updating()
     {
         $this->markTestIncomplete();
+
+        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser()->create(['assigned_to' => 100000]);
+
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'assigned_to' => null,
+                'notes' => 'Checking in the seat',
+            ])
+            ->assertStatus(200)
+            ->assertStatusMessageIs('success');
+
+        $licenseSeat->refresh();
+
+        $this->assertNull($licenseSeat->assigned_to);
+    }
+
+    public function test_license_seat_checked_out_to_soft_deleted_asset_can_be_checked_in_when_updating()
+    {
+        $licenseSeat = LicenseSeat::factory()->assignedToAsset()->create();
+        $licenseSeat->asset->delete();
+
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'asset_id' => null,
+                'notes' => 'Checking in the seat',
+            ])
+            ->assertStatus(200)
+            ->assertStatusMessageIs('success');
+
+        $licenseSeat->refresh();
+
+        $this->assertNull($licenseSeat->asset_id);
     }
 
     public function test_license_seat_checked_out_to_soft_deleted_user_can_be_checked_in_when_updating()
     {
-        $this->markTestIncomplete();
+        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser()->create();
+        $licenseSeat->user->delete();
+
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'assigned_to' => null,
+                'notes' => 'Checking in the seat',
+            ])
+            ->assertStatus(200)
+            ->assertStatusMessageIs('success');
+
+        $licenseSeat->refresh();
+
+        $this->assertNull($licenseSeat->assigned_to);
     }
 
     private function route(LicenseSeat $licenseSeat)
