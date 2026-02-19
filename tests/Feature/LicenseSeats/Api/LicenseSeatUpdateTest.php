@@ -224,7 +224,10 @@ class LicenseSeatUpdateTest extends TestCase
 
     public function test_license_seat_can_be_checked_in_when_updating()
     {
-        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser()->create();
+        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser()->create([
+            // this will be updated to true upon checkin...
+            'unreassignable_seat' => false,
+        ]);
 
         $this->actingAsForApi(User::factory()->superuser()->create())
             ->patchJson($this->route($licenseSeat), [
