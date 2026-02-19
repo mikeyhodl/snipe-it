@@ -162,35 +162,31 @@ class LicenseSeatUpdateTest extends TestCase
 
     public function test_cannot_reassign_unreassignable_license_seat()
     {
-        $this->markTestIncomplete();
-
-        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser()->create();
+        $licenseSeat = LicenseSeat::factory()->assignedToUser()->create(['unreassignable_seat' => true]);
 
         $this->actingAsForApi(User::factory()->superuser()->create())
             ->patchJson($this->route($licenseSeat), [
-                'assigned_to' => User::factory()->create()->id,
+                'asset_id' => Asset::factory()->create()->id,
                 'notes' => 'Attempting to reassign an unreassignable seat',
             ])
             ->assertStatus(200)
             ->assertStatusMessageIs('error');
+
+        $licenseSeat->refresh();
+        $this->assertNull($licenseSeat->asset_id);
     }
 
     public function test_license_seat_can_be_checked_out_to_user_when_updating()
     {
-        $this->markTestIncomplete();
-
-        $license = License::factory()->create();
-        $licenseSeat = LicenseSeat::factory()->for($license)->create([
-            'assigned_to' => null,
-        ]);
-
+        $licenseSeat = LicenseSeat::factory()->create(['assigned_to' => null]);
         $targetUser = User::factory()->create();
 
         $this->actingAsForApi(User::factory()->superuser()->create())
             ->patchJson($this->route($licenseSeat), [
                 'assigned_to' => $targetUser->id,
                 'notes' => 'Checking out the seat to a user',
-            ])->assertStatus(200)
+            ])
+            ->assertStatus(200)
             ->assertJsonFragment([
                 'status' => 'success',
             ]);
@@ -199,31 +195,46 @@ class LicenseSeatUpdateTest extends TestCase
 
         $this->assertEquals($targetUser->id, $licenseSeat->assigned_to);
         $this->assertEquals('Checking out the seat to a user', $licenseSeat->notes);
-        $this->assertHasTheseActionLogs($license, ['add seats', 'create', 'checkout']); //FIXME - backwards
+        $this->assertHasTheseActionLogs($licenseSeat->license, ['add seats', 'create', 'checkout']); //FIXME - backwards
     }
 
     public function test_license_seat_can_be_checked_out_to_asset_when_updating()
     {
-        $this->markTestIncomplete();
+        $licenseSeat = LicenseSeat::factory()->create(['assigned_to' => null]);
+        $targetAsset = Asset::factory()->create();
+
+        $this->actingAsForApi(User::factory()->superuser()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'asset_id' => $targetAsset->id,
+                'notes' => 'Checking out the seat to an asset',
+            ])
+            ->assertStatus(200)
+            ->assertJsonFragment([
+                'status' => 'success',
+            ]);
+
+        $licenseSeat->refresh();
+        $this->assertEquals($targetAsset->id, $licenseSeat->asset_id);
+        $this->assertEquals('Checking out the seat to an asset', $licenseSeat->notes);
+        $this->assertHasTheseActionLogs($licenseSeat->license, ['add seats', 'create', 'checkout']); //FIXME - backwards
     }
 
     public function test_license_seat_can_be_checked_in_when_updating()
     {
-        $this->markTestIncomplete();
-
-        $licenseSeat = LicenseSeat::factory()->reassignable()->assignedToUser()->create();
+        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser()->create();
 
         $this->actingAsForApi(User::factory()->superuser()->create())
             ->patchJson($this->route($licenseSeat), [
                 'assigned_to' => null,
-                'notes' => '',
+                'notes' => 'Checking in the seat',
             ])
             ->assertStatus(200)
-            ->assertStatusMessageIs('error');
+            ->assertStatusMessageIs('success');
 
         $licenseSeat->refresh();
 
         $this->assertNull($licenseSeat->assigned_to);
+        $this->assertTrue($licenseSeat->unreassignable_seat);
     }
 
     private function route(LicenseSeat $licenseSeat)

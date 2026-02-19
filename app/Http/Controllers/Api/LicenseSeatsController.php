@@ -98,10 +98,11 @@ class LicenseSeatsController extends Controller
      */
     public function update(Request $request, $licenseId, $seatId) : JsonResponse | array
     {
-        $this->validate($request, [
+        $validated = $this->validate($request, [
             'assigned_to' => [
                 'sometimes',
                 'int',
+                'nullable',
                 'prohibits:asset_id',
                 // must be a valid user or null to unassign
                 function ($attribute, $value, $fail) {
@@ -113,6 +114,7 @@ class LicenseSeatsController extends Controller
             'asset_id' => [
                 'sometimes',
                 'int',
+                'nullable',
                 'prohibits:assigned_to',
                 // must be a valid asset or null to unassign
                 function ($attribute, $value, $fail) {
@@ -140,7 +142,7 @@ class LicenseSeatsController extends Controller
         $oldAsset = $licenseSeat->asset()->first();
 
         // attempt to update the license seat
-        $licenseSeat->notes = $request->input('notes');
+        $licenseSeat->fill($validated);
 
         // check if this update is a checkin operation
         // 1. are relevant fields touched at all?
