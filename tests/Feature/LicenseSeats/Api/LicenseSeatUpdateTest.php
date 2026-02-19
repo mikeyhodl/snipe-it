@@ -89,6 +89,23 @@ class LicenseSeatUpdateTest extends TestCase
             ->assertMessagesContains('asset_id');
     }
 
+    public function test_assigned_to_and_asset_id_can_be_provided_together_if_they_are_both_null()
+    {
+        $licenseSeat = LicenseSeat::factory()->assignedToAsset()->create();
+
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'assigned_to' => null,
+                'asset_id' => null,
+                'notes' => '',
+            ])
+            ->assertStatus(200)
+            ->assertStatusMessageIs('success');
+
+        $licenseSeat->refresh();
+        $this->assertNull($licenseSeat->assigned_to);
+    }
+
     public function test_license_seat_can_be_updated()
     {
         $licenseSeat = LicenseSeat::factory()->create();
