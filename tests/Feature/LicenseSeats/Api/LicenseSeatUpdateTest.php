@@ -190,9 +190,7 @@ class LicenseSeatUpdateTest extends TestCase
                 'notes' => 'Checking out the seat to a user',
             ])
             ->assertStatus(200)
-            ->assertJsonFragment([
-                'status' => 'success',
-            ]);
+            ->assertStatusMessageIs('success');
 
         $licenseSeat->refresh();
 
@@ -212,9 +210,7 @@ class LicenseSeatUpdateTest extends TestCase
                 'notes' => 'Checking out the seat to an asset',
             ])
             ->assertStatus(200)
-            ->assertJsonFragment([
-                'status' => 'success',
-            ]);
+            ->assertStatusMessageIs('success');
 
         $licenseSeat->refresh();
         $this->assertEquals($targetAsset->id, $licenseSeat->asset_id);
@@ -222,7 +218,28 @@ class LicenseSeatUpdateTest extends TestCase
         $this->assertHasTheseActionLogs($licenseSeat->license, ['add seats', 'create', 'checkout']); //FIXME - backwards
     }
 
-    public function test_license_seat_can_be_checked_in_when_updating()
+    public function test_license_seat_checked_out_to_asset_can_be_checked_in_when_updating()
+    {
+        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToAsset()->create([
+            // this will be updated to true upon checkin...
+            'unreassignable_seat' => false,
+        ]);
+
+        $this->actingAsForApi(User::factory()->superuser()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'asset_id' => null,
+                'notes' => 'Checking in the seat',
+            ])
+            ->assertStatus(200)
+            ->assertStatusMessageIs('success');
+
+        $licenseSeat->refresh();
+
+        $this->assertNull($licenseSeat->asset_id);
+        $this->assertTrue($licenseSeat->unreassignable_seat);
+    }
+
+    public function test_license_seat_checked_out_to_user_can_be_checked_in_when_updating()
     {
         $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser()->create([
             // this will be updated to true upon checkin...
@@ -241,6 +258,26 @@ class LicenseSeatUpdateTest extends TestCase
 
         $this->assertNull($licenseSeat->assigned_to);
         $this->assertTrue($licenseSeat->unreassignable_seat);
+    }
+
+    public function test_license_seat_checked_out_to_purged_asset_can_be_checked_in_when_updating()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_license_seat_checked_out_to_soft_deleted_asset_can_be_checked_in_when_updating()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_license_seat_checked_out_to_purged_user_can_be_checked_in_when_updating()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_license_seat_checked_out_to_soft_deleted_user_can_be_checked_in_when_updating()
+    {
+        $this->markTestIncomplete();
     }
 
     private function route(LicenseSeat $licenseSeat)
