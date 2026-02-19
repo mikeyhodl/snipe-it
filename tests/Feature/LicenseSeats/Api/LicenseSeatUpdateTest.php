@@ -19,6 +19,9 @@ class LicenseSeatUpdateTest extends TestCase
             ->assertForbidden();
     }
 
+    /**
+     * @link [rb-20713]
+     */
     public function test_assigned_to_cannot_be_array()
     {
         $licenseSeat = LicenseSeat::factory()->create(['assigned_to' => null]);
