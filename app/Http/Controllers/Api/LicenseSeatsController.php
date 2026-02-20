@@ -128,18 +128,19 @@ class LicenseSeatsController extends Controller
 
         $this->authorize('checkout', License::class);
 
+        $licenseSeat = LicenseSeat::with(['license', 'asset', 'user'])->find($seatId);
 
-        if (! $licenseSeat = LicenseSeat::find($seatId)) {
+        if (!$licenseSeat) {
             return response()->json(Helper::formatStandardApiResponse('error', null, 'Seat not found'));
         }
 
-        $license = $licenseSeat->license()->first();
+        $license = $licenseSeat->license;
         if (!$license || $license->id != intval($licenseId)) {
             return response()->json(Helper::formatStandardApiResponse('error', null, 'Seat does not belong to the specified license'));
         }
 
-        $oldUser = $licenseSeat->user()->first();
-        $oldAsset = $licenseSeat->asset()->first();
+        $oldUser = $licenseSeat->user;
+        $oldAsset = $licenseSeat->asset;
 
         // attempt to update the license seat
         $licenseSeat->fill($validated);
@@ -167,6 +168,7 @@ class LicenseSeatsController extends Controller
         if ($licenseSeat->isDirty('assigned_to')) {
             $target = $is_checkin ? $oldUser : User::find($licenseSeat->assigned_to);
         }
+
         if ($licenseSeat->isDirty('asset_id')) {
             $target = $is_checkin ? $oldAsset : Asset::find($licenseSeat->asset_id);
         }
@@ -182,6 +184,7 @@ class LicenseSeatsController extends Controller
                         $licenseSeat->unreassignable_seat = true;
                         $licenseSeat->save();
                     }
+                    // todo: skip if target is null?
                     $licenseSeat->logCheckin($target, $licenseSeat->notes);
                 } else {
                     // in this case, relevant fields are touched but it's not a checkin operation. so it must be a checkout operation.
