@@ -182,7 +182,9 @@ class LicenseSeatUpdateTest extends TestCase
 
     public function test_cannot_reassign_unreassignable_license_seat()
     {
-        $licenseSeat = LicenseSeat::factory()->assignedToUser()->create(['unreassignable_seat' => true]);
+        $user = User::factory()->create();
+
+        $licenseSeat = LicenseSeat::factory()->assignedToUser($user)->create(['unreassignable_seat' => true]);
 
         $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
@@ -194,6 +196,16 @@ class LicenseSeatUpdateTest extends TestCase
 
         $licenseSeat->refresh();
         $this->assertNull($licenseSeat->asset_id);
+
+        $this->assertDatabaseHas('action_logs', [
+            'action_type' => 'checkin from',
+            'target_id' => $user->id,
+            'target_type' => User::class,
+            'note' => 'Attempting to reassign an unreassignable seat',
+            'item_type' => License::class,
+            'item_id' => $licenseSeat->license_id,
+            'quantity' => 1,
+        ]);
     }
 
     public function test_license_seat_can_be_checked_out_to_user_when_updating()
@@ -279,8 +291,6 @@ class LicenseSeatUpdateTest extends TestCase
 
     public function test_license_seat_checked_out_to_purged_asset_can_be_checked_in_when_updating()
     {
-        $this->markTestIncomplete();
-
         $licenseSeat = LicenseSeat::factory()->assignedToAsset()->create(['asset_id' => 100000]);
 
         $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
@@ -298,8 +308,6 @@ class LicenseSeatUpdateTest extends TestCase
 
     public function test_license_seat_checked_out_to_purged_user_can_be_checked_in_when_updating()
     {
-        $this->markTestIncomplete();
-
         $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser()->create(['assigned_to' => 100000]);
 
         $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
