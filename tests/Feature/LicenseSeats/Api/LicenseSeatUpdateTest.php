@@ -91,7 +91,8 @@ class LicenseSeatUpdateTest extends TestCase
 
     public function test_assigned_to_and_asset_id_can_be_provided_together_if_they_are_both_null()
     {
-        $licenseSeat = LicenseSeat::factory()->assignedToAsset()->create();
+        $asset = Asset::factory()->create();
+        $licenseSeat = LicenseSeat::factory()->assignedToAsset($asset)->create();
 
         $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
@@ -104,6 +105,16 @@ class LicenseSeatUpdateTest extends TestCase
 
         $licenseSeat->refresh();
         $this->assertNull($licenseSeat->assigned_to);
+
+        $this->assertDatabaseHas('action_logs', [
+            'action_type' => 'checkin from',
+            'target_id' => $asset->id,
+            'target_type' => Asset::class,
+            'note' => '',
+            'item_type' => License::class,
+            'item_id' => $licenseSeat->license_id,
+            'quantity' => 1,
+        ]);
     }
 
     public function test_license_seat_can_be_updated()
@@ -122,7 +133,7 @@ class LicenseSeatUpdateTest extends TestCase
         $this->assertEquals('A new note is here', $licenseSeat->notes);
     }
 
-    public function test_license_cannot_be_updated()
+    public function test_parent_license_cannot_be_updated()
     {
         $licenseSeat = LicenseSeat::factory()->create();
         $licenseId = $licenseSeat->license_id;
@@ -249,7 +260,8 @@ class LicenseSeatUpdateTest extends TestCase
 
     public function test_license_seat_checked_out_to_asset_can_be_checked_in_when_updating()
     {
-        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToAsset()->create([
+        $asset = Asset::factory()->create();
+        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToAsset($asset)->create([
             // this will be updated to true upon checkin...
             'unreassignable_seat' => false,
         ]);
@@ -266,11 +278,22 @@ class LicenseSeatUpdateTest extends TestCase
 
         $this->assertNull($licenseSeat->asset_id);
         $this->assertTrue($licenseSeat->unreassignable_seat);
+
+        $this->assertDatabaseHas('action_logs', [
+            'action_type' => 'checkin from',
+            'target_id' => $asset->id,
+            'target_type' => Asset::class,
+            'note' => 'Checking in the seat',
+            'item_type' => License::class,
+            'item_id' => $licenseSeat->license_id,
+            'quantity' => 1,
+        ]);
     }
 
     public function test_license_seat_checked_out_to_user_can_be_checked_in_when_updating()
     {
-        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser()->create([
+        $user = User::factory()->create();
+        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser($user)->create([
             // this will be updated to true upon checkin...
             'unreassignable_seat' => false,
         ]);
@@ -287,11 +310,21 @@ class LicenseSeatUpdateTest extends TestCase
 
         $this->assertNull($licenseSeat->assigned_to);
         $this->assertTrue($licenseSeat->unreassignable_seat);
+        $this->assertDatabaseHas('action_logs', [
+            'action_type' => 'checkin from',
+            'target_id' => $user->id,
+            'target_type' => User::class,
+            'note' => 'Checking in the seat',
+            'item_type' => License::class,
+            'item_id' => $licenseSeat->license_id,
+            'quantity' => 1,
+        ]);
     }
 
     public function test_license_seat_checked_out_to_purged_asset_can_be_checked_in_when_updating()
     {
-        $licenseSeat = LicenseSeat::factory()->assignedToAsset()->create(['asset_id' => 100000]);
+        $asset = Asset::factory()->create();
+        $licenseSeat = LicenseSeat::factory()->assignedToAsset($asset)->create(['asset_id' => 100000]);
 
         $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
@@ -304,11 +337,22 @@ class LicenseSeatUpdateTest extends TestCase
         $licenseSeat->refresh();
 
         $this->assertNull($licenseSeat->asset_id);
+
+        $this->assertDatabaseHas('action_logs', [
+            'action_type' => 'checkin from',
+            'target_id' => $asset->id,
+            'target_type' => Asset::class,
+            'note' => 'Checking in the seat',
+            'item_type' => License::class,
+            'item_id' => $licenseSeat->license_id,
+            'quantity' => 1,
+        ]);
     }
 
     public function test_license_seat_checked_out_to_purged_user_can_be_checked_in_when_updating()
     {
-        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser()->create(['assigned_to' => 100000]);
+        $user = User::factory()->create();
+        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser($user)->create(['assigned_to' => 100000]);
 
         $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
@@ -321,11 +365,22 @@ class LicenseSeatUpdateTest extends TestCase
         $licenseSeat->refresh();
 
         $this->assertNull($licenseSeat->assigned_to);
+
+        $this->assertDatabaseHas('action_logs', [
+            'action_type' => 'checkin from',
+            'target_id' => $user->id,
+            'target_type' => User::class,
+            'note' => 'Checking in the seat',
+            'item_type' => License::class,
+            'item_id' => $licenseSeat->license_id,
+            'quantity' => 1,
+        ]);
     }
 
     public function test_license_seat_checked_out_to_soft_deleted_asset_can_be_checked_in_when_updating()
     {
-        $licenseSeat = LicenseSeat::factory()->assignedToAsset()->create();
+        $asset = Asset::factory()->create();
+        $licenseSeat = LicenseSeat::factory()->assignedToAsset($asset)->create();
         $licenseSeat->asset->delete();
 
         $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
@@ -339,11 +394,22 @@ class LicenseSeatUpdateTest extends TestCase
         $licenseSeat->refresh();
 
         $this->assertNull($licenseSeat->asset_id);
+
+        $this->assertDatabaseHas('action_logs', [
+            'action_type' => 'checkin from',
+            'target_id' => $asset->id,
+            'target_type' => Asset::class,
+            'note' => 'Checking in the seat',
+            'item_type' => License::class,
+            'item_id' => $licenseSeat->license_id,
+            'quantity' => 1,
+        ]);
     }
 
     public function test_license_seat_checked_out_to_soft_deleted_user_can_be_checked_in_when_updating()
     {
-        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser()->create();
+        $user = User::factory()->create();
+        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser($user)->create();
         $licenseSeat->user->delete();
 
         $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
@@ -357,6 +423,16 @@ class LicenseSeatUpdateTest extends TestCase
         $licenseSeat->refresh();
 
         $this->assertNull($licenseSeat->assigned_to);
+
+        $this->assertDatabaseHas('action_logs', [
+            'action_type' => 'checkin from',
+            'target_id' => $user->id,
+            'target_type' => User::class,
+            'note' => 'Checking in the seat',
+            'item_type' => License::class,
+            'item_id' => $licenseSeat->license_id,
+            'quantity' => 1,
+        ]);
     }
 
     private function route(LicenseSeat $licenseSeat)
