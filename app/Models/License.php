@@ -389,7 +389,7 @@ class License extends Depreciable
      */
     public function category()
     {
-        return $this->belongsTo(\App\Models\Category::class, 'category_id');
+        return $this->belongsTo(\App\Models\Category::class, 'category_id')->withTrashed();
     }
 
     /**
@@ -401,7 +401,7 @@ class License extends Depreciable
      */
     public function manufacturer()
     {
-        return $this->belongsTo(\App\Models\Manufacturer::class, 'manufacturer_id');
+        return $this->belongsTo(\App\Models\Manufacturer::class, 'manufacturer_id')->withTrashed();
     }
 
     /**

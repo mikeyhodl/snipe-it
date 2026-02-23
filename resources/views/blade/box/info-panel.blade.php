@@ -69,7 +69,7 @@
         @endif
 
         @if ($infoPanelObj->termination_date)
-            <x-info-element icon_type="terminates" title="{{ trans('general.termination_date') }}">
+            <x-info-element icon_type="terminates" title="{{ trans('admin/licenses/form.termination_date') }}">
                 {{ Helper::getFormattedDateObject($infoPanelObj->termination_date, 'date', false) }}
             </x-info-element>
         @endif
@@ -130,7 +130,9 @@
                     {{ $snipeSettings->default_currency }}
                 @endif
 
-                {{ Helper::formatCurrencyOutput($infoPanelObj->purchase_cost) }}
+                <x-copy-to-clipboard copy_what="purchase_cost" class="pull-right">
+                    {{ Helper::formatCurrencyOutput($infoPanelObj->purchase_cost) }}
+                </x-copy-to-clipboard>
             </x-info-element>
 
             @if (isset($infoPanelObj->qty))
@@ -175,7 +177,7 @@
 
         @if ($infoPanelObj->category)
             <x-info-element icon_type="category" icon_color="{{ $infoPanelObj->category->tag_color }}" title="{{ trans('general.category') }}">
-                {!!  $infoPanelObj->category->present()->nameUrl !!}
+                {!!  $infoPanelObj->category->present()->formattedNameLink !!}
             </x-info-element>
         @endif
 
