@@ -1271,6 +1271,7 @@ class Asset extends Depreciable
             $query = $query
                 ->orWhere('assets_users.first_name', 'LIKE', '%'.$term.'%')
                 ->orWhere('assets_users.last_name', 'LIKE', '%'.$term.'%')
+                ->orWhere('assets_users.display_name', 'LIKE', '%'.$term.'%')
                 ->orWhere('assets_users.jobtitle', 'LIKE', '%'.$term.'%')
                 ->orWhere('assets_users.username', 'LIKE', '%'.$term.'%')
                 ->orWhere('assets_users.employee_num', 'LIKE', '%'.$term.'%')
