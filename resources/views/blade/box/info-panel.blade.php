@@ -481,11 +481,7 @@
                 <span class="text-muted">
                     <x-icon type="user" class="fa-fw" title="{{ trans('general.created_by') }}" />
                         {{ trans('general.created_by') }}
-                    @can('view', $infoPanelObj->adminuser)
-                        <a href="{{ route('users.show', $infoPanelObj->adminuser) }}"> {{ $infoPanelObj->adminuser->display_name }}</a>
-                    @else
-                        {{ $infoPanelObj->adminuser->display_name }}
-                    @endcan
+                    {!!  $infoPanelObj->adminuser->present()->formattedNameLink !!}
 
                 </span>
             </x-info-element>
