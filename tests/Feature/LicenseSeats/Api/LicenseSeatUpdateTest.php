@@ -19,6 +19,10 @@ class LicenseSeatUpdateTest extends TestCase
             ->assertForbidden();
     }
 
+    /**************************************************************************
+     * Validation
+     **************************************************************************/
+
     /**
      * @link [rb-20713]
      */
@@ -117,22 +121,6 @@ class LicenseSeatUpdateTest extends TestCase
         ]);
     }
 
-    public function test_license_seat_can_be_updated()
-    {
-        $licenseSeat = LicenseSeat::factory()->create();
-
-        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
-            ->patchJson($this->route($licenseSeat), [
-                'notes' => 'A new note is here',
-            ])
-            ->assertStatus(200)
-            ->assertStatusMessageIs('success');
-
-        $licenseSeat->refresh();
-
-        $this->assertEquals('A new note is here', $licenseSeat->notes);
-    }
-
     public function test_parent_license_cannot_be_updated()
     {
         $licenseSeat = LicenseSeat::factory()->create();
@@ -148,6 +136,53 @@ class LicenseSeatUpdateTest extends TestCase
 
         $licenseSeat->refresh();
         $this->assertEquals($licenseId, $licenseSeat->license_id);
+    }
+
+    public function test_cannot_reassign_unreassignable_license_seat()
+    {
+        $user = User::factory()->create();
+
+        $licenseSeat = LicenseSeat::factory()->assignedToUser($user)->create(['unreassignable_seat' => true]);
+
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'asset_id' => Asset::factory()->create()->id,
+                'notes' => 'Attempting to reassign an unreassignable seat',
+            ])
+            ->assertStatus(200)
+            ->assertStatusMessageIs('error');
+
+        $licenseSeat->refresh();
+        $this->assertNull($licenseSeat->asset_id);
+
+        $this->assertDatabaseHas('action_logs', [
+            'action_type' => 'checkin from',
+            'target_id' => $user->id,
+            'target_type' => User::class,
+            'note' => 'Attempting to reassign an unreassignable seat',
+            'item_type' => License::class,
+            'item_id' => $licenseSeat->license_id,
+            'quantity' => 1,
+        ]);
+    }
+
+    /**************************************************************************
+     * Happy Path
+     **************************************************************************/
+    public function test_license_seat_can_be_updated()
+    {
+        $licenseSeat = LicenseSeat::factory()->create();
+
+        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
+            ->patchJson($this->route($licenseSeat), [
+                'notes' => 'A new note is here',
+            ])
+            ->assertStatus(200)
+            ->assertStatusMessageIs('success');
+
+        $licenseSeat->refresh();
+
+        $this->assertEquals('A new note is here', $licenseSeat->notes);
     }
 
     public function test_reassignableness_is_not_updated()
@@ -191,34 +226,9 @@ class LicenseSeatUpdateTest extends TestCase
         $this->assertEquals($deleteAt, $licenseSeat->deleted_at);
     }
 
-    public function test_cannot_reassign_unreassignable_license_seat()
-    {
-        $user = User::factory()->create();
-
-        $licenseSeat = LicenseSeat::factory()->assignedToUser($user)->create(['unreassignable_seat' => true]);
-
-        $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
-            ->patchJson($this->route($licenseSeat), [
-                'asset_id' => Asset::factory()->create()->id,
-                'notes' => 'Attempting to reassign an unreassignable seat',
-            ])
-            ->assertStatus(200)
-            ->assertStatusMessageIs('error');
-
-        $licenseSeat->refresh();
-        $this->assertNull($licenseSeat->asset_id);
-
-        $this->assertDatabaseHas('action_logs', [
-            'action_type' => 'checkin from',
-            'target_id' => $user->id,
-            'target_type' => User::class,
-            'note' => 'Attempting to reassign an unreassignable seat',
-            'item_type' => License::class,
-            'item_id' => $licenseSeat->license_id,
-            'quantity' => 1,
-        ]);
-    }
-
+    /**************************************************************************
+     * Checkout/Checkin
+     **************************************************************************/
     public function test_license_seat_can_be_checked_out_to_user_when_updating()
     {
         $licenseSeat = LicenseSeat::factory()->create(['assigned_to' => null]);
