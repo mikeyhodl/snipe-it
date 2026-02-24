@@ -22,7 +22,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\DisablesDebugbar;
 use App\Models\Accessory;
 use App\Models\Asset;
 use App\Models\AssetModel;
@@ -33,11 +32,12 @@ use App\Models\Location;
 use App\Models\Maintenance;
 use App\Models\Supplier;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use App\Traits\DisablesDebugbar;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
 
 abstract class Controller extends BaseController
 {
