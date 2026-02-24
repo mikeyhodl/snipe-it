@@ -174,7 +174,11 @@ class LicenseSeatsController extends Controller
         }
 
         if ($assignmentTouched && is_null($target)){
-            return response()->json(Helper::formatStandardApiResponse('error', null, 'Target not found'));
+            // if both asset_id and assigned_to are null then we are "checking-in"
+            // a related model that does not exist (possible purged or bad data).
+            if (!is_null($request->input('asset_id')) || !is_null($request->input('assigned_to'))) {
+                return response()->json(Helper::formatStandardApiResponse('error', null, 'Target not found'));
+            }
         }
 
         if ($licenseSeat->save()) {

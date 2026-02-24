@@ -109,12 +109,13 @@ class LicenseSeatUpdateTest extends TestCase
 
         $licenseSeat->refresh();
         $this->assertNull($licenseSeat->assigned_to);
+        $this->assertNull($licenseSeat->asset_id);
 
         $this->assertDatabaseHas('action_logs', [
             'action_type' => 'checkin from',
             'target_id' => $asset->id,
             'target_type' => Asset::class,
-            'note' => '',
+            'note' => null,
             'item_type' => License::class,
             'item_id' => $licenseSeat->license_id,
             'quantity' => 1,
@@ -150,20 +151,13 @@ class LicenseSeatUpdateTest extends TestCase
                 'notes' => 'Attempting to reassign an unreassignable seat',
             ])
             ->assertStatus(200)
-            ->assertStatusMessageIs('error');
+            ->assertStatusMessageIs('error')
+            ->assertJsonFragment([
+                'messages' => trans('admin/licenses/message.checkout.unavailable'),
+            ]);
 
         $licenseSeat->refresh();
-        $this->assertNull($licenseSeat->asset_id);
-
-        $this->assertDatabaseHas('action_logs', [
-            'action_type' => 'checkin from',
-            'target_id' => $user->id,
-            'target_type' => User::class,
-            'note' => 'Attempting to reassign an unreassignable seat',
-            'item_type' => License::class,
-            'item_id' => $licenseSeat->license_id,
-            'quantity' => 1,
-        ]);
+        $this->assertEquals($user->id, $licenseSeat->assigned_to);
     }
 
     /**************************************************************************
@@ -333,12 +327,12 @@ class LicenseSeatUpdateTest extends TestCase
 
     public function test_license_seat_checked_out_to_purged_asset_can_be_checked_in_when_updating()
     {
-        $asset = Asset::factory()->create();
-        $licenseSeat = LicenseSeat::factory()->assignedToAsset($asset)->create(['asset_id' => 100000]);
+        $licenseSeat = LicenseSeat::factory()->create(['asset_id' => 100000]);
 
         $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
                 'asset_id' => null,
+                'assigned_to' => null,
                 'notes' => 'Checking in the seat',
             ])
             ->assertStatus(200)
@@ -350,8 +344,10 @@ class LicenseSeatUpdateTest extends TestCase
 
         $this->assertDatabaseHas('action_logs', [
             'action_type' => 'checkin from',
-            'target_id' => $asset->id,
-            'target_type' => Asset::class,
+            // this will be null and not 100000
+            // because the asset is not in the system
+            'target_id' => null,
+            'target_type' => null,
             'note' => 'Checking in the seat',
             'item_type' => License::class,
             'item_id' => $licenseSeat->license_id,
@@ -361,11 +357,12 @@ class LicenseSeatUpdateTest extends TestCase
 
     public function test_license_seat_checked_out_to_purged_user_can_be_checked_in_when_updating()
     {
-        $user = User::factory()->create();
-        $licenseSeat = LicenseSeat::factory()->unreassignable()->assignedToUser($user)->create(['assigned_to' => 100000]);
+        $licenseSeat = LicenseSeat::factory()->unreassignable()->create(['assigned_to' => 100000]);
 
         $this->actingAsForApi(User::factory()->checkoutLicenses()->create())
             ->patchJson($this->route($licenseSeat), [
+                // purposefully leaving asset_id off here
+                // because it is a realistic scenario.
                 'assigned_to' => null,
                 'notes' => 'Checking in the seat',
             ])
@@ -378,8 +375,10 @@ class LicenseSeatUpdateTest extends TestCase
 
         $this->assertDatabaseHas('action_logs', [
             'action_type' => 'checkin from',
-            'target_id' => $user->id,
-            'target_type' => User::class,
+            // this will be null and not 100000
+            // because the user is not in the system
+            'target_id' => null,
+            'target_type' => null,
             'note' => 'Checking in the seat',
             'item_type' => License::class,
             'item_id' => $licenseSeat->license_id,
