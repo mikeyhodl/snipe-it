@@ -36,6 +36,8 @@ class IconHelper
                 return 'fa-solid fa-user';
             case 'users':
                 return 'fas fa-users';
+            case 'supplier':
+                return 'fa-solid fa-store';
             case 'restore':
                 return 'fa-solid fa-trash-arrow-up';
             case 'external-link':
@@ -87,8 +89,11 @@ class IconHelper
             case 'licenses':
             case 'license':
                 return 'far fa-save';
+            case 'requests':
             case 'requestable':
-                return 'fas fa-laptop';
+            case 'request':
+            case 'requested':
+                return 'fa-solid fa-bell-concierge';
             case 'reports':
                 return 'fas fa-chart-bar';
             case 'heart':
@@ -253,6 +258,8 @@ class IconHelper
                 return 'fa-solid fa-boxes-stacked';
             case 'min-qty':
                 return 'fa-solid fa-chart-pie';
+
+
 
         }
     }

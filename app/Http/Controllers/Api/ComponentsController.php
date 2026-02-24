@@ -87,6 +87,10 @@ class ComponentsController extends Controller
             $components->where('components.company_id', '=', $request->input('company_id'));
         }
 
+        if ($request->filled('order_number')) {
+            $components->where('components.order_number', '=', $request->input('order_number'));
+        }
+
         if ($request->filled('category_id')) {
             $components->where('category_id', '=', $request->input('category_id'));
         }

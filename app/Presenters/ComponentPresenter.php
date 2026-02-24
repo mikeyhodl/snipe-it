@@ -191,6 +191,63 @@ class ComponentPresenter extends Presenter
         return json_encode($layout);
     }
 
+    public static function checkedOut() {
+        $layout = [
+            [
+                'field' => 'id',
+                'searchable' => false,
+                'sortable' => true,
+                'switchable' => true,
+                'title' => trans('general.id'),
+                'visible' => false,
+            ],
+            [
+                'field' => 'name',
+                'searchable' => true,
+                'sortable' => true,
+                'title' => trans('general.name'),
+                'visible' => true,
+                'formatter' => 'hardwareLinkFormatter',
+            ],
+            [
+                'field' => 'qty',
+                'searchable' => true,
+                'sortable' => true,
+                'switchable' => true,
+                'title' => trans('general.qty'),
+                'visible' => true,
+            ],
+            [
+                'field' => 'note',
+                'searchable' => true,
+                'sortable' => true,
+                'visible' => true,
+                'title' => trans('general.notes'),
+                'formatter' => 'notesFormatter',
+            ],[
+                'field' => 'created_at',
+                'searchable' => false,
+                'sortable' => true,
+                'visible' => false,
+                'title' => trans('general.created_at'),
+                'formatter' => 'dateDisplayFormatter',
+            ],
+            $layout[] = [
+                'field' => 'available_actions',
+                'searchable' => false,
+                'sortable' => false,
+                'switchable' => false,
+                'title' => trans('general.checkin').'/'.trans('general.checkout'),
+                'visible' => true,
+                'formatter' => 'componentsInOutFormatter',
+                'printIgnore' => true,
+
+            ],
+        ];
+
+        return json_encode($layout);
+    }
+
     /**
      * Generate html link to this items name.
      * @return string

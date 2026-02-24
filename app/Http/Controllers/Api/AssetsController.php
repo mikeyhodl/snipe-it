@@ -154,15 +154,15 @@ class AssetsController extends Controller
         }
 
         $assets = Asset::select('assets.*')
-            ->addSelect([
-                'first_checkout_at' => Actionlog::query()
-                    ->select('created_at')
-                    ->whereColumn('item_id', 'assets.id')
-                    ->where('item_type', Asset::class)
-                    ->where('action_type', 'checkout')
-                    ->orderBy('created_at')
-                    ->limit(1),
-            ])
+//            ->addSelect([
+//                'first_checkout_at' => Actionlog::query()
+//                    ->select('created_at')
+//                    ->whereColumn('item_id', 'assets.id')
+//                    ->where('item_type', Asset::class)
+//                    ->where('action_type', 'checkout')
+//                    ->orderBy('created_at')
+//                    ->limit(1),
+//            ])
             ->with(
                 'model',
                 'location',
@@ -1148,7 +1148,9 @@ class AssetsController extends Controller
             $payload = [
                 'id' => $asset->id,
                 'asset_tag' => $asset->asset_tag,
-                'note' => $request->input('note'),
+                'note' => e($request->input('note')),
+                'status_label' => e($asset->assetstatus->display_name),
+                'status_type' => $asset->assetstatus->getStatuslabelType(),
                 'next_audit_date' => Helper::getFormattedDateObject($asset->next_audit_date),
             ];
 

@@ -67,6 +67,7 @@
             --text-info: light-dark(#31708f,#2baae6);
             --text-success: light-dark(#039516,#4ced61);
             --text-warning: light-dark(#da9113,#f3a51f);
+            --input-border-color: light-dark(#d2d6de,#656464);
         }
 
         [data-theme="light"] {
@@ -216,7 +217,7 @@
         {
             background-color: var(--table-stripe-bg) !important;
             color: var(--color-fg) !important;
-            border-color: var(--text-help);
+            border-color: var(--input-border-color) !important;
 
         }
 
@@ -288,14 +289,10 @@
         .input-group-addon {
             background-color: var(--input-group-bg) !important;
             color: var(--input-group-fg) !important;
+            border-color: var(--input-border-color) !important;
         }
 
 
-        input[type="*"]:focus,
-        textarea:focus
-        {
-            border-color: hsl(from var(--main-theme-color) h s calc(l - 5)) !important;
-        }
 
         input[type="*"]:disabled,
         input[type=checkbox]:disabled,
@@ -925,6 +922,33 @@
             border-top:  var(--main-theme-color) !important;
         }
 
+        input[type="date"]:focus,
+        input[type="number"]:focus,
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="tel"]:focus,
+        textarea:focus
+        {
+            border-color: hsl(from var(--main-theme-color) h s calc(l - 5)) !important;
+        }
+
+        input[type="date"]:required,
+        input[type="number"]:required,
+        input[type="text"]:required,
+        input[type="url"]:required,
+        input[type="email"]:required,
+        input[type="password"]:required,
+        input[type="tel"]:required,
+        textarea:required
+        {
+            border-right: 5px solid var(--text-warning) !important;
+        }
+
+        .bootstrap-table .fixed-table-container .table tbody tr.selected td {
+            background-color: light-dark(hsl(from var(--main-theme-color) h s calc(l + 40)),hsl(from var(--main-theme-color) h s calc(l - 40))) !important;
+        }
     </style>
 
     {{-- Custom CSS --}}
@@ -1121,79 +1145,7 @@
                             @endcan
 
                             @can('admin')
-                                <!-- Tasks: style can be found in dropdown.less -->
-                                <?php $alert_items = ($snipeSettings->show_alerts_in_menu=='1') ? Helper::checkLowInventory() : [];
-                                      $deprecations = Helper::deprecationCheck()
-                                        ?>
-
-                                <li class="dropdown tasks-menu">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                        <x-icon type="alerts" />
-                                        <span class="sr-only">{{ trans('general.alerts') }}</span>
-                                        @if(count($alert_items) + count($deprecations))
-                                            <span class="label label-danger">{{ count($alert_items) + count($deprecations)}}</span>
-                                        @endif
-                                    </a>
-                                    <ul class="dropdown-menu">
-
-                                        @if ((count($alert_items) + count($deprecations)) > 0)
-
-                                            @can('superadmin')
-                                                @if($deprecations)
-                                                    @foreach ($deprecations as $key => $deprecation)
-                                                        @if ($deprecation['check'])
-                                                            <li class="header alert-warning">{!! $deprecation['message'] !!}</li>
-                                                        @endif
-                                                    @endforeach
-                                                @endif
-                                            @endcan
-
-                                            @if($alert_items)
-                                                <li class="header">
-                                                    {{ trans_choice('general.quantity_minimum', count($alert_items)) }}
-                                                </li>
-                                                <li>
-                                                <!-- inner menu: contains the actual data -->
-                                                    <ul class="menu">
-                                                        @for($i = 0; count($alert_items) > $i; $i++)
-                                                            <!-- Task item -->
-                                                            <li>
-                                                                <a href="{{ route($alert_items[$i]['type'].'.show', $alert_items[$i]['id'])}}">
-                                                                    <h2 class="task_menu">{{ $alert_items[$i]['name'] }}
-                                                                        <small class="pull-right">
-                                                                            {{ $alert_items[$i]['remaining'] }} {{ trans('general.remaining') }}
-                                                                        </small>
-                                                                    </h2>
-                                                                    <div class="progress xs">
-                                                                        <div class="progress-bar progress-bar-yellow"
-                                                                             style="width: {{ $alert_items[$i]['percent'] }}%"
-                                                                             role="progressbar"
-                                                                             aria-valuenow="{{ $alert_items[$i]['percent'] }}"
-                                                                             aria-valuemin="0"
-                                                                             aria-valuemax="100">
-                                                                            <span class="sr-only">
-                                                                                {{ $alert_items[$i]['percent'] }}%
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                </a>
-                                                            </li>
-                                                            <!-- end task item -->
-                                                        @endfor
-                                                    </ul>
-                                                </li>
-                                            @endif
-                                        @else
-                                            <li class="header">
-                                                {{ trans_choice('general.quantity_minimum', 0) }}
-                                            </li>
-
-                                        @endif
-{{--                                        <li class="footer">--}}
-{{--                                          <a href="#">{{ trans('general.tasks_view_all') }}</a>--}}
-{{--                                        </li>--}}
-                                    </ul>
-                                </li>
+                                <x-alert-menu />
                             @endcan
 
 
@@ -1228,7 +1180,7 @@
                                         @can('viewRequestable', \App\Models\Asset::class)
                                             <li {!! (request()->is('account/requested') ? ' class="active"' : '') !!}>
                                                 <a href="{{ route('account.requested') }}">
-                                                    <x-icon type="checkmark" class="fa-fw" />
+                                                    <x-icon type="requested" class="fa-fw" />
                                                     {{ trans('general.requested_assets_menu') }}
                                                 </a></li>
                                         @endcan
@@ -1965,6 +1917,14 @@
 
         <script nonce="{{ csrf_token() }}">
 
+            // Handle the first selected tabs regardless of permissions
+            if ($('li.snipetab').is(':first-of-type')) {
+                var hash = $('li.snipetab:first-of-type').children().attr('href');
+                $('li.snipetab:first-of-type').addClass('active');
+                $('div'+hash+'.snipetab-pane').addClass('in active');
+            }
+
+
             //color picker with addon
             $(".color").colorpicker();
 
@@ -2107,6 +2067,7 @@
                 format: "yyyy-mm-dd",
                 weekStart: {{ $snipeSettings->week_start ?? 0 }},
             };
+
 
             var clipboard = new ClipboardJS('.js-copy-link');
 

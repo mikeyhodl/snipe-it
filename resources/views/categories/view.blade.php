@@ -227,27 +227,8 @@
 
                 <x-slot:before_list>
 
-                    @can('update', $category)
-                        <a href="{{ ($category->deleted_at=='') ? route('categories.edit', $category->id) : '#' }}" class="btn btn-block btn-sm btn-warning btn-social hidden-print{{ ($category->deleted_at!='') ? ' disabled' : '' }}">
-                            <x-icon type="edit" />
-                            {{ trans('general.update') }}
-                        </a>
-                    @endcan
-
-                    @can('delete', $category)
-
-                        @if (!$category->isDeletable())
-                            <button class="btn btn-block btn-sm btn-danger btn-social hidden-print disabled" data-tooltip="true"  data-placement="top" data-title="{{ trans('general.cannot_be_deleted') }}">
-                                <x-icon type="delete" />
-                                {{ trans('general.delete') }}
-                            </button>
-                        @else
-                            <button class="btn btn-block btn-sm btn-danger btn-social delete-asset" data-toggle="modal" title="{{ trans('general.delete_what', ['item'=> trans('general.category')]) }}" data-content="{{ trans('general.sure_to_delete_var', ['item' => $category->name]) }}" data-target="#dataConfirmModal" data-tooltip="true" data-icon="fa fa-trash" data-placement="top" data-title="{{ trans('general.delete_what', ['item'=> trans('general.category')]) }}" onClick="return false;">
-                                <x-icon type="delete" />
-                                {{ trans('general.delete') }}
-                            </button>
-                        @endif
-                    @endcan
+                    <x-button.wide-edit :item="$category" :route="route('categories.edit', $category->id)" />
+                    <x-button.wide-delete :item="$category" />
 
                 </x-slot:before_list>
             </x-box.info-panel>

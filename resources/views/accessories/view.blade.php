@@ -24,29 +24,9 @@
             <x-tabs>
                 <x-slot:tabnav>
 
-                    <x-tabs.nav-item
-                            name="checkedout"
-                            class="active"
-                            icon_type="checkedout"
-                            label="{{ trans('general.checked_out') }}"
-                            count="{{ $accessory->checkouts_count }}"
-                    />
-
-
-                    <x-tabs.nav-item
-                            name="history"
-                            icon="fa-solid fa-clock-rotate-left fa-fw"
-                            label="{{ trans('general.history') }}"
-                            tooltip="{{ trans('general.history') }}"
-                    />
-
-                    <x-tabs.nav-item
-                            name="files"
-                            icon="fa-solid fa-file-contract fa-fw"
-                            label="{{ trans('general.files') }}"
-                            count="{{ $accessory->uploads()->count() }}"
-                    />
-
+                    <x-tabs.checkedout-tab :item="$accessory" count="{{ $accessory->checkouts_count }}" />
+                    <x-tabs.files-tab count="{{ $accessory->uploads()->count() }}" />
+                    <x-tabs.history-tab model="\App\Models\Accessory::class"/>
 
                     @can('update', $accessory)
                         <x-tabs.nav-item-upload />
@@ -55,7 +35,7 @@
                     <x-slot:tabpanes>
 
                         <!-- start history tab pane -->
-                        <x-tabs.pane name="checkedout" class="in active">
+                        <x-tabs.pane name="assigned" class="in active">
                             <x-slot:header>
                                 {{ trans('general.checked_out') }}
                             </x-slot:header>
@@ -113,55 +93,10 @@
 
                     <x-slot:before_list>
 
-                        @can('update', $accessory)
-                            <a href="{{ route('accessories.edit', $accessory->id) }}" class="btn btn-warning btn-sm btn-social btn-block hidden-print" style="margin-bottom: 5px;">
-                                <x-icon type="edit" />
-                                {{ trans('button.edit') }}
-                            </a>
-                            <a href="{{ route('clone/accessories', $accessory->id) }}" class="btn btn-info btn-block btn-sm btn-social hidden-print" style="margin-bottom: 5px;">
-                                <x-icon type="clone" />
-                                {{ trans('button.clone') }}</a>
-                        @endcan
-
-                        @can('checkout', $accessory)
-
-                            @if (($accessory->numRemaining() > 0))
-
-                                <a href="{{ route('accessories.checkout.show', $accessory->id) }}" class="btn bg-maroon btn-sm btn-social btn-block hidden-print" style="margin-bottom: 5px;">
-                                    <x-icon type="checkout" />
-                                    {{ trans('general.checkout') }}
-                                </a>
-
-                            @else
-                                <span data-tooltip="true" title="{{ ($accessory->numRemaining() == 0) ? trans('admin/accessories/general.bulk.checkout_all.disabled_tooltip') : trans('admin/accessories/message.checkout.license_is_inactive') }}" class="btn bg-maroon btn-sm btn-social btn-block hidden-print disabled" style="margin-bottom: 5px;" data-tooltip="true" title="{{ trans('general.checkout') }}">
-                                    <x-icon type="checkout" />
-                                    {{ trans('general.checkout') }}
-                                  </span>
-
-                            @endif
-                        @endcan
-
-
-
-                        @can('delete', $accessory)
-
-                            @if ($accessory->numRemaining() == 0)
-                                <a class="btn btn-block btn-danger btn-sm btn-social delete-asset" data-icon="fa fa trash" data-toggle="modal" data-title="{{ trans('general.delete') }}" data-content="{{ trans('general.delete_confirm', ['item' => $accessory->name]) }}" data-target="#dataConfirmModal" onClick="return false;">
-                                    <x-icon type="delete" />
-                                    {{ trans('general.delete') }}
-                                </a>
-                            @else
-                                <span data-tooltip="true" title=" {{ trans('admin/accessories/general.delete_disabled') }}">
-                                        <a href="#" class="btn btn-block btn-danger btn-sm btn-social delete-asset disabled" onClick="return false;">
-                                          <x-icon type="delete" />
-                                          {{ trans('general.delete') }}
-                                        </a>
-                                      </span>
-                            @endif
-                        @endcan
-
-
-
+                        <x-button.wide-checkout :item="$accessory" :route="route('accessories.checkout.show', $accessory->id)" />
+                        <x-button.wide-edit :item="$accessory" :route="route('accessories.edit', $accessory->id)" />
+                        <x-button.wide-clone :item="$accessory" :route="route('clone/accessories', $accessory->id)" />
+                        <x-button.wide-delete :item="$accessory" />
 
                     </x-slot:before_list>
                 </x-box.info-panel>

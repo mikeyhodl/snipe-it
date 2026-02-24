@@ -3,7 +3,7 @@
 ])
 
 <!-- tab-pane -->
-<div id="{{ $name }}" {{ $attributes->merge(['class' => 'tab-pane fade']) }}  style="min-height: 400px !important;">
+<div id="{{ $name }}" {{ $attributes->merge(['class' => 'snipetab-pane tab-pane fade']) }}  style="min-height: 400px !important;">
 
     @if (isset($header))
         <h2 class="box-title{{ (!isset($bulkactions)) ? ' pull-left' : '' }}">
@@ -17,6 +17,14 @@
         </div>
     @endif
 
-    {{ $content }}
+        @if ((isset($content)) && (!$content->isEmpty()))
+            {{ $content }}
+        @endif
+
+        @if (($slot) && (!$slot->isEmpty()))
+            {{ $slot }}
+        @endif
+
+
 </div>
 <!-- /.tab-pane -->

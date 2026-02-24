@@ -188,7 +188,7 @@ class ProfileController extends Controller
 
             $eula_user = User::find($request->input('user_id'));
 
-            if (($eula_user) && (Setting::getSettings()->manager_view_enabled) && (auth()->user()->isManagerOf($eula_user->id))) {
+            if (($eula_user) && (Setting::getSettings()->manager_view_enabled) && (auth()->user()->isManagerOf($eula_user))) {
                 $eulas = $eula_user->eulas;
             } else {
                 return response()->json(Helper:: formatStandardApiResponse('error', null, trans('admin/users/message.user_not_found')));

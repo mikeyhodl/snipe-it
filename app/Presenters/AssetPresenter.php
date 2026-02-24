@@ -151,14 +151,15 @@ class AssetPresenter extends Presenter
                 'visible' => false,
                 'title' => trans('general.purchase_date'),
                 'formatter' => 'dateDisplayFormatter',
-            ], [
-                'field' => 'first_checkout',
-                'searchable' => true,
-                'sortable' => true,
-                'visible' => false,
-                'title' => trans('general.first_checkout'),
-                'formatter' => 'dateDisplayFormatter',
             ],
+//            [
+//                'field' => 'first_checkout',
+//                'searchable' => true,
+//                'sortable' => true,
+//                'visible' => false,
+//                'title' => trans('general.first_checkout'),
+//                'formatter' => 'dateDisplayFormatter',
+//            ],
             [
                 'field' => 'age',
                 'searchable' => false,

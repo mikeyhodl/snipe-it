@@ -19,54 +19,12 @@
         <x-page-column class="col-md-9 main-panel">
             <x-tabs>
                 <x-slot:tabnav>
-                    @can('view', \App\Models\Asset::class)
-                        <x-tabs.nav-item
-                            name="assets"
-                            class="active"
-                            icon="fas fa-barcode fa-fw"
-                            label="{{ trans('general.assets') }}"
-                            count="{{ $supplier->assets()->AssetsForShow()->count() }}"
-                        />
-                    @endcan
 
-                    @can('view', \App\Models\License::class)
-                        <x-tabs.nav-item
-                                name="licenses"
-                                icon="far fa-save"
-                                label="{{ trans('general.licenses') }}"
-                                count="{{ $supplier->licenses->count() }}"
-                                tooltip="{{ trans('general.licenses') }}"
-                        />
-                    @endcan
-
-
-                    @can('view', \App\Models\Accessory::class)
-                        <x-tabs.nav-item
-                                name="accessories"
-                                icon="far fa-keyboard fa-fw"
-                                label="{{ trans('general.accessories') }}"
-                                count="{{ $supplier->accessories()->count() }}"
-                        />
-                    @endcan
-
-
-                    @can('view', \App\Models\Consumable::class)
-                        <x-tabs.nav-item
-                                name="consumables"
-                                icon="fas fa-tint fa-fw"
-                                label="{{ trans('general.consumables') }}"
-                                count="{{ $supplier->consumables()->count() }}"
-                        />
-                    @endcan
-
-                    @can('view', \App\Models\Component::class)
-                        <x-tabs.nav-item
-                                name="components"
-                                icon="fas fa-hdd fa-fw"
-                                label="{{ trans('general.components') }}"
-                                count="{{ $supplier->components->count() }}"
-                        />
-                    @endcan
+                    <x-tabs.asset-tab count="{{ $supplier->assets()->AssetsForShow()->count() }}" class="active" />
+                    <x-tabs.license-tab count="{{ $supplier->licenses->count() }}" class="active" />
+                    <x-tabs.accessory-tab count="{{ $supplier->accessories->count() }}" />
+                    <x-tabs.consumable-tab count="{{ $supplier->consumables->count() }}" />
+                    <x-tabs.component-tab count="{{ $supplier->components->count() }}" />
 
                     @can('view', \App\Models\AssetMaintenance::class)
                         <x-tabs.nav-item
@@ -245,27 +203,8 @@
 
                     <x-slot:before_list>
 
-                        @can('update', \App\Models\Supplier::class)
-                            <a href="{{ ($supplier->deleted_at=='') ? route('suppliers.edit', $supplier->id) : '#' }}" class="btn btn-block btn-sm btn-warning btn-social hidden-print{{ ($supplier->deleted_at!='') ? ' disabled' : '' }}">
-                                <x-icon type="edit" />
-                                {{ trans('general.update') }}
-                            </a>
-                        @endcan
-
-                        @can('delete', \App\Models\Supplier::class)
-
-                            @if ($supplier->assets()->count() > 0)
-                                <button class="btn btn-block btn-sm btn-danger btn-social hidden-print disabled" data-tooltip="true"  data-placement="top" data-title="{{ trans('general.cannot_be_deleted') }}">
-                                    <x-icon type="delete" />
-                                    {{ trans('general.delete') }}
-                                </button>
-                            @else
-                                <button class="btn btn-block btn-sm btn-danger btn-social delete-asset" data-toggle="modal" title="{{ trans('general.delete_what', ['item'=> trans('general.supplier')]) }}" data-content="{{ trans('general.sure_to_delete_var', ['item' => $supplier->name]) }}" data-target="#dataConfirmModal" data-tooltip="true" data-icon="fa fa-trash" data-placement="top" data-title="{{ trans('general.delete_what', ['item'=> trans('general.supplier')]) }}" onClick="return false;">
-                                    <x-icon type="delete" />
-                                    {{ trans('general.delete') }}
-                                </button>
-                            @endif
-                        @endcan
+                        <x-button.wide-edit :item="$supplier" :route="route('suppliers.edit', $supplier->id)" />
+                        <x-button.wide-delete :item="$supplier" />
 
                     </x-slot:before_list>
 
