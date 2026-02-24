@@ -29,10 +29,17 @@ class HealthController extends BaseController
     public function get()
     {
 
-        if (DB::select('select 2 + 2')) {
-            $db_status = 'ok';
-        } else {
-            $db_status = 'could not connect to database';
+        try {
+
+            if (DB::select('select 2 + 2')) {
+                $db_status = 'ok';
+            } else {
+                $db_status = 'Could not connect to database';
+            }
+
+        } catch (\Exception $e) {
+            $db_status = 'Could not connect to database';
+
         }
 
 
