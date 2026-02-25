@@ -47,7 +47,7 @@
                                 }
                                     table_html += '</a></td>';
                                 if (canViewKeys) {
-                                    table_html += '<td class="col-md-4">' + license.product_key + '</td>';
+                                    table_html += '<td>' + license.product_key + '</td>';
                                 }
                                     table_html += "</tr>";
                             }
