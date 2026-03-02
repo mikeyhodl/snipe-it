@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Asset;
 use App\Models\Setting;
-use Artisan;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Console\Command;
 
 class RegenerateAssetTags extends Command
@@ -60,7 +60,7 @@ class RegenerateAssetTags extends Command
             }
 
             foreach ($total_assets as $asset) {
-                $start_tag++;
+
                 $output['info'][] = 'Asset tag:'.$asset->asset_tag;
                 $asset->asset_tag = $settings->auto_increment_prefix.$settings->auto_increment_prefix.$start_tag;
 
@@ -72,7 +72,14 @@ class RegenerateAssetTags extends Command
 
                 // Use forceSave here to override model level validation
                 $asset->forceSave();
+                $start_tag++;
+                if ($bar) {
+                    $bar->advance();
+                }
             }
+
+            $settings->next_auto_tag_base = Asset::zerofill($start_tag, $settings->zerofill_count);
+            $settings->save();
 
             $bar->finish();
             $this->info("\n");
