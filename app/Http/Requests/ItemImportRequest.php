@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Import;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ItemImportRequest extends FormRequest
 {
@@ -37,10 +38,11 @@ class ItemImportRequest extends FormRequest
 
         $filename = config('app.private_uploads').'/imports/'.$import->file_path;
         $import->import_type = $this->input('import-type');
-        $class = title_case($import->import_type);
+        $class = ucfirst($import->import_type);
         $classString = "App\\Importer\\{$class}Importer";
         $importer = new $classString($filename);
         $import->field_map = request('column-mappings');
+        $import->created_by = auth()->id();
         $import->save();
         $fieldMappings = [];
 
@@ -49,7 +51,7 @@ class ItemImportRequest extends FormRequest
                 $errorMessage = null;
 
                 if (is_null($fieldValue)) {
-                    $errorMessage = trans('validation.import_field_empty');
+                    $errorMessage = trans('validation.import_field_empty', ['fieldname' => $field]);
                     $this->errorCallback($import, $field, $errorMessage);
 
                     return $this->errors;
@@ -59,9 +61,9 @@ class ItemImportRequest extends FormRequest
             $fieldMappings = array_change_key_case(array_flip($import->field_map), CASE_LOWER);
         }
         $importer->setCallbacks([$this, 'log'], [$this, 'progress'], [$this, 'errorCallback'])
-                 ->setUserId(Auth::id())
-                 ->setUpdating($this->has('import-update'))
-                 ->setShouldNotify($this->has('send-welcome'))
+                 ->setCreatedBy(auth()->id())
+                 ->setUpdating($this->input('import-update'))
+                 ->setShouldNotify($this->input('send-welcome'))
                  ->setUsernameFormat('firstname.lastname')
                  ->setFieldMappings($fieldMappings);
         $importer->import();
@@ -71,7 +73,7 @@ class ItemImportRequest extends FormRequest
 
     public function log($string)
     {
-        \Log::Info($string);
+        Log::Info($string);
     }
 
     public function progress($count)

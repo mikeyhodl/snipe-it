@@ -13,13 +13,16 @@ return array(
 
     'update' => array(
         'error'   => 'Kategorin uppdaterades inte, vänligen försök igen.',
-        'success' => 'Kategorin uppdaterades.'
+        'success' => 'Kategorin uppdaterades.',
+        'cannot_change_category_type'   => 'Du kan inte ändra kategoritypen när den har skapats',
     ),
 
     'delete' => array(
-        'confirm'   => 'Är du säker på att du vill radera denna kategori?',
-        'error'   => 'Ett problem uppstod när kategorin skulle raderas. Försök igen.',
-        'success' => 'Kategorin raderades.'
+        'confirm'                => 'Är du säker på att du vill radera denna kategori?',
+        'error'                  => 'Ett problem uppstod när kategorin skulle raderas. Försök igen.',
+        'success'                => 'Category was deleted successfully.',
+        'bulk_success'           => 'Categories were deleted successfully.',
+        'partial_success'        => 'Category deleted successfully. See additional information below. | :count categories were deleted successfully. See additional information below.',
     )
 
 );

@@ -13,13 +13,16 @@ return array(
 
     'update' => array(
         'error'   => 'A categoria não foi atualizada, tente novamente',
-        'success' => 'Categoria atualizada com sucesso.'
+        'success' => 'Categoria atualizada com sucesso.',
+        'cannot_change_category_type'   => 'Você não pode alterar o tipo de categoria uma vez que ele foi criado',
     ),
 
     'delete' => array(
-        'confirm'   => 'Tem certeza de que deseja excluir esta categoria?',
-        'error'   => 'Houve um problema ao excluir a categoria. Tente novamente.',
-        'success' => 'A categoria foi excluída com sucesso.'
+        'confirm'                => 'Tem certeza de que deseja excluir esta categoria?',
+        'error'                  => 'Houve um problema ao excluir a categoria. Tente novamente.',
+        'success'                => 'Category was deleted successfully.',
+        'bulk_success'           => 'Categories were deleted successfully.',
+        'partial_success'        => 'Categorias excluídas com sucesso. Veja as informações adicionais abaixo. :count categorias foram excluídas com sucesso. Veja as informações adicionais abaixo.',
     )
 
 );
