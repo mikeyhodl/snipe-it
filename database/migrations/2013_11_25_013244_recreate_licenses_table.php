@@ -11,7 +11,7 @@ class ReCreateLicensesTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('licenses')) {
+        if (! Schema::hasTable('licenses')) {
             Schema::create('licenses', function ($table) {
                 $table->increments('id');
                 $table->string('name');
@@ -37,7 +37,7 @@ class ReCreateLicensesTable extends Migration
      */
     public function down()
     {
-        //
-        Schema::drop('licenses');
+        // This was most likely handled in 2013_11_17_054359_drop_licenses_table.php
+        Schema::dropIfExists('licenses');
     }
 }
