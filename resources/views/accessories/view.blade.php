@@ -12,140 +12,81 @@
 @parent
 @stop
 
-{{-- Right header --}}
 @section('header_right')
-    @can('manage', \App\Models\Accessory::class)
-        <div class="dropdown pull-right">
-          <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-              {{ trans('button.actions') }}
-              <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu pull-right" role="menu">
-            @if ($accessory->assigned_to != '')
-              @can('checkin', \App\Models\Accessory::class)
-              <li role="menuitem">
-                <a href="{{ route('checkin/accessory', $accessory->id) }}">{{ trans('admin/accessories/general.checkin') }}</a>
-              </li>
-              @endcan
-            @else
-              @can('checkout', \App\Models\Accessory::class)
-              <li role="menuitem">
-                <a href="{{ route('checkout/accessory', $accessory->id)  }}">{{ trans('admin/accessories/general.checkout') }}</a>
-              </li>
-              @endcan
-            @endif
-            @can('update', \App\Models\Accessory::class)
-            <li role="menuitem">
-              <a href="{{ route('accessories.edit', $accessory->id) }}">{{ trans('admin/accessories/general.edit') }}</a>
-            </li>
-            @endcan
-          </ul>
-        </div>
-    @endcan
-@stop
+    <x-button.info-panel-toggle/>
+@endsection
 
 {{-- Page content --}}
 @section('content')
+    <x-container columns="2">
+        <x-page-column class="col-md-9 main-panel">
 
 
-<div class="row">
-  <div class="col-md-9">
+            <x-tabs>
+                <x-slot:tabnav>
+                    <x-tabs.checkedout-tab :item="$accessory" count="{{ $accessory->checkouts_count }}" />
+                    <x-tabs.files-tab :item="$accessory" count="{{ $accessory->uploads()->count() }}"/>
+                    <x-tabs.history-tab count="{{ $accessory->history()->count() }}" :model="$accessory"/>
+                    <x-tabs.upload-tab :item="$accessory"/>
+                </x-slot:tabnav>
 
-    <div class="box box-default">
-      <div class="box-body">
-        <div class="table table-responsive">
+                <x-slot:tabpanes>
 
-            <table
-                    data-cookie-id-table="usersTable"
-                    data-pagination="true"
-                    data-id-table="usersTable"
-                    data-search="true"
-                    data-side-pagination="server"
-                    data-show-columns="true"
-                    data-show-export="true"
-                    data-show-refresh="true"
-                    data-sort-order="asc"
-                    id="usersTable"
-                    class="table table-striped snipe-table"
-                    data-url="{{ route('api.accessories.checkedout', $accessory->id) }}"
-                    data-export-options='{
-                    "fileName": "export-accessories-{{ str_slug($accessory->name) }}-users-{{ date('Y-m-d') }}",
-                    "ignoreColumn": ["actions","image","change","checkbox","checkincheckout","icon"]
-                    }'>
-                <thead>
-                <tr>
-                    <th data-searchable="false" data-formatter="usersLinkFormatter" data-sortable="false" data-field="name">{{ trans('general.user') }}</th>
-                    <th data-searchable="false" data-sortable="false" data-field="checkout_notes">{{ trans('general.notes') }}</th>
-                    <th data-searchable="false" data-formatter="dateDisplayFormatter" data-sortable="false" data-field="last_checkout">{{ trans('admin/hardware/table.checkout_date') }}</th>
-                    <th data-searchable="false" data-sortable="false" data-field="actions" data-formatter="accessoriesInOutFormatter">{{ trans('table.actions') }}</th>
-                </tr>
-                </thead>
+                    <!-- start assigned tab pane -->
+                    <x-tabs.pane name="assigned">
+                        <x-slot:table_header>
+                            {{ trans('general.checked_out') }}
+                        </x-slot:table_header>
 
-            </table>
-        </div>
-      </div>
-    </div>
-  </div>
+                        <x-table
+                            api_url="{{ route('api.accessories.checkedout', $accessory->id) }}"
+                            :presenter="\App\Presenters\AccessoryPresenter::assignedDataTableLayout()"
+                            export_filename="export-{{ str_slug($accessory->name) }}-assets-{{ date('Y-m-d') }}"
+                        />
 
+                    </x-tabs.pane>
+                    <!-- end assigned tab pane -->
 
-  <!-- side address column -->
+                    <!-- start history tab pane -->
+                    <x-tabs.pane name="history">
+                        <x-table.history :model="$accessory" :route="route('api.accessories.history', $accessory)"/>
+                    </x-tabs.pane>
+                    <!-- end history tab pane -->
 
-  <div class="col-md-3">
+                    <!-- start files tab pane -->
+                    <x-tabs.pane name="files">
+                        <x-table.files object_type="accessories" :object="$accessory"/>
+                    </x-tabs.pane>
+                    <!-- end files tab pane -->
+                </x-slot:tabpanes>
 
-      @if ($accessory->image!='')
-      <div class="row">
-          <div class="col-md-12 text-center" style="padding-bottom: 15px;">
-              <a href="{{ Storage::disk('public')->url('accessories/'.e($accessory->image)) }}" data-toggle="lightbox"><img src="{{ Storage::disk('public')->url('accessories/'.e($accessory->image)) }}" class="img-responsive img-thumbnail" alt="{{ $accessory->name }}"></a>
-          </div>
-      </div>
-      @endif
+            </x-tabs>
 
-      @if ($accessory->company)
-        <div class="row">
-          <div class="col-md-4" style="padding-bottom: 15px;">
-            {{ trans('general.company')}}
-          </div>
-          <div class="col-md-8">
-            <a href="{{ route('companies.show', $accessory->company->id) }}">{{ $accessory->company->name }} </a>
-          </div>
-        </div>
-      @endif 
-      
+        </x-page-column>
 
-      @if ($accessory->category)
-        <div class="row">
-          <div class="col-md-4" style="padding-bottom: 15px;">
-            {{ trans('general.category')}}
-          </div>
-          <div class="col-md-8">
-            <a href="{{ route('categories.show', $accessory->category->id) }}">{{ $accessory->category->name }} </a>
-          </div>
-        </div>
-      @endif 
-      
+        <x-page-column class="col-md-3">
+            <x-box class="side-box expanded">
+                <x-info-panel :infoPanelObj="$accessory" img_path="{{ app('accessories_upload_url') }}">
+                    <x-slot:buttons>
+                        <x-button.edit :item="$accessory" :route="route('accessories.edit', $accessory->id)"/>
+                        <x-button.clone :item="$accessory" :route="route('clone/accessories', $accessory->id)"/>
+                        <x-button.checkout permission="checkout" :item="$accessory" :route="route('accessories.checkout.show', $accessory->id)" />
+                        <x-button.delete :item="$accessory" />
+                    </x-slot:buttons>
+                </x-info-panel>
+            </x-box>
 
-        <div class="row">
-          <div class="col-md-4" style="padding-bottom: 15px;">
-            Number remaining
-          </div>
-          <div class="col-md-8">
-            {{ $accessory->numRemaining() }}
-          </div>
-        </div>
+        </x-page-column>
+    </x-container>
+
+@endsection
 
 
-
-      @can('checkout', \App\Models\Accessory::class)
-      <div class="row">
-        <div class="col-md-12 text-center">
-              <a href="{{ route('checkout/accessory', $accessory->id) }}" style="margin-right:5px;" class="btn btn-primary btn-sm" {{ (($accessory->numRemaining() > 0 ) ? '' : ' disabled') }}>{{ trans('general.checkout') }}</a>   
-        </div>
-      </div>
-      @endcan
-  </div>
-</div>
-@stop
 
 @section('moar_scripts')
+    @can('files', $accessory)
+        @include ('modals.upload-file', ['item_type' => 'accessories', 'item_id' => $accessory->id])
+    @endcan
+
 @include ('partials.bootstrap-table')
-@stop
+@endsection

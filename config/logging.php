@@ -1,10 +1,13 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
+use Rollbar\ErrorWrapper;
+use Rollbar\Laravel\MonologHandler;
 
-return [
+$config = [
 
     /*
     |--------------------------------------------------------------------------
@@ -35,6 +38,8 @@ return [
     */
 
     'channels' => [
+        // This will get overwritten to 'single' AND 'rollbar' in the code at the bottom of this file
+        // if a ROLLBAR_TOKEN is given in the .env file
         'stack' => [
             'driver' => 'stack',
             'channels' => ['single'],
@@ -44,14 +49,14 @@ return [
         'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level' => env('LOG_LEVEL', 'warning'),
         ],
 
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
-            'days' => 14,
+            'level' => env('LOG_LEVEL', 'warning'),
+            'days' => env('LOG_MAX_DAYS', 14),
         ],
 
         'slack' => [
@@ -64,7 +69,7 @@ return [
 
         'papertrail' => [
             'driver' => 'monolog',
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level' => env('LOG_LEVEL', 'warning'),
             'handler' => SyslogUdpHandler::class,
             'handler_with' => [
                 'host' => env('PAPERTRAIL_URL'),
@@ -74,7 +79,7 @@ return [
 
         'stderr' => [
             'driver' => 'monolog',
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level' => env('LOG_LEVEL', 'warning'),
             'handler' => StreamHandler::class,
             'formatter' => env('LOG_STDERR_FORMATTER'),
             'with' => [
@@ -84,12 +89,12 @@ return [
 
         'syslog' => [
             'driver' => 'syslog',
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level' => env('LOG_LEVEL', 'warning'),
         ],
 
         'errorlog' => [
             'driver' => 'errorlog',
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level' => env('LOG_LEVEL', 'warning'),
         ],
 
         'null' => [
@@ -100,6 +105,51 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+        'scimtrace' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/scim.log'),
+        ],
+
+        'rollbar' => [
+            'driver' => 'monolog',
+            'handler' => MonologHandler::class,
+            'access_token' => env('ROLLBAR_TOKEN'),
+            'level' => env('ROLLBAR_LEVEL', 'error'),
+        ],
     ],
 
 ];
+
+if ((env('APP_ENV') == 'production') && (env('ROLLBAR_TOKEN'))) {
+    // Only add rollbar if the .env has a rollbar token
+    $config['channels']['stack']['channels'] = ['single', 'rollbar'];
+
+    // and only add the rollbar filter under the same conditions
+    // Note: it will *not* be cacheable
+    $config['channels']['rollbar']['check_ignore'] = function ($isUncaught, $args, $payload) {
+        if (App::environment('production') && is_object($args) && get_class($args) == ErrorWrapper::class && $args->errorLevel == E_WARNING) {
+            Log::info('IGNORING E_WARNING in production mode: '.$args->getMessage());
+
+            return true; // "TRUE - you should ignore it!"
+        }
+        $needle = 'ArieTimmerman\\Laravel\\SCIMServer\\Exceptions\\SCIMException';
+        if (App::environment('production') && is_string($args) && strncmp($args, $needle, strlen($needle)) === 0) {
+            Log::info("String: '$args' looks like a SCIM Exception; ignoring error");
+
+            return true; // yes, *do* ignore it
+        }
+
+        return false;
+    };
+
+}
+
+if (env('LOG_DEPRECATIONS') == 'true') {
+    $config['channels']['deprecations'] = [
+        'driver' => 'single',
+        'path' => storage_path('logs/deprecations.log'),
+    ];
+}
+
+return $config;
