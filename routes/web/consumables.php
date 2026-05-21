@@ -9,13 +9,18 @@ Route::group(['prefix' => 'consumables', 'middleware' => ['auth']], function () 
     Route::get(
         '{consumablesID}/checkout',
         [Consumables\ConsumableCheckoutController::class, 'create']
-    )->name('checkout/consumable');
+    )->name('consumables.checkout.show');
 
     Route::post(
         '{consumablesID}/checkout',
         [Consumables\ConsumableCheckoutController::class, 'store']
-    )->name('checkout/consumable');
+    )->name('consumables.checkout.store');
 
+
+    Route::get('{consumable}/clone',
+        [Consumables\ConsumablesController::class, 'clone']
+    )->name('consumables.clone.create');
+    
 
 });
     
