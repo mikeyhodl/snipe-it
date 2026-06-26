@@ -1,31 +1,24 @@
 <?php
+
 namespace Tests\Unit;
 
 use App\Models\Location;
-use Tests\Unit\BaseTest;
+use Tests\TestCase;
 
-
-class LocationTest extends BaseTest
+class LocationTest extends TestCase
 {
-    /**
-     * @var \UnitTester
-     */
-    protected $tester;
-
-    public function testPassesIfNotSelfParent()
+    public function test_passes_if_not_self_parent()
     {
-        $this->createValidLocation(['id' => 10]);
-
         $a = Location::factory()->make([
             'name' => 'Test Location',
             'id' => 1,
-            'parent_id' => 10,
+            'parent_id' => Location::factory()->create(['id' => 10])->id,
         ]);
 
         $this->assertTrue($a->isValid());
     }
 
-    public function testFailsIfSelfParent()
+    public function test_fails_if_self_parent()
     {
         $a = Location::factory()->make([
             'name' => 'Test Location',
