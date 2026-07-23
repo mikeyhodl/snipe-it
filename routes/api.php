@@ -1163,13 +1163,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'api-throttle:api']], fu
             ]
         )->name('api.user.eulas');
 
-        Route::get('list/{status?}',
-            [
-                Api\UsersController::class,
-                'getDatatable',
-            ]
-        )->name('api.users.list');
-
         Route::get('{user}/assets',
             [
                 Api\UsersController::class,
