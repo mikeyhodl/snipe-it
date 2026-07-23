@@ -904,14 +904,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'api-throttle:api']], fu
                 'assets',
             ]
         )->name('api.models.assets');
-
-        Route::post('{id}/restore',
-            [
-                Api\AssetModelsController::class,
-                'restore',
-            ]
-        )->name('api.models.restore');
-
     });
 
     Route::resource('models',
