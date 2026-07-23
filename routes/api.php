@@ -984,13 +984,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'api-throttle:api']], fu
             ]
         )->name('api.settings.ldaptestlogin');
 
-        Route::post('slacktest',
-            [
-                Api\SettingsController::class,
-                'slacktest',
-            ]
-        )->name('api.settings.slacktest');
-
         Route::post('mailtest',
             [
                 Api\SettingsController::class,
