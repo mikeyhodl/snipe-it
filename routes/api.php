@@ -247,13 +247,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'api-throttle:api']], fu
             ]
         )->name('api.components.history')->withTrashed();
 
-        Route::get('selectlist',
-            [
-                Api\ComponentsController::class,
-                'selectlist',
-            ]
-        )->name('api.components.selectlist');
-
         Route::get('{component}/assets',
             [
                 Api\ComponentsController::class,
@@ -796,14 +789,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'api-throttle:api']], fu
             ]
         )->name('api.locations.selectlist');
 
-        // Users within a location
-        Route::get('{location}/users',
-            [
-                Api\LocationsController::class,
-                'getDataViewUsers',
-            ]
-        )->name('api.locations.viewusers');
-
         // Get list of assets with a default location
         Route::get('{location}/assets',
             [
@@ -912,14 +897,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'api-throttle:api']], fu
                 'assets',
             ]
         )->name('api.models.assets');
-
-        Route::post('{id}/restore',
-            [
-                Api\AssetModelsController::class,
-                'restore',
-            ]
-        )->name('api.models.restore');
-
     });
 
     Route::resource('models',
@@ -991,13 +968,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'api-throttle:api']], fu
                 'ldaptestlogin',
             ]
         )->name('api.settings.ldaptestlogin');
-
-        Route::post('slacktest',
-            [
-                Api\SettingsController::class,
-                'slacktest',
-            ]
-        )->name('api.settings.slacktest');
 
         Route::post('mailtest',
             [
@@ -1177,13 +1147,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'api-throttle:api']], fu
                 'eulas',
             ]
         )->name('api.user.eulas');
-
-        Route::get('list/{status?}',
-            [
-                Api\UsersController::class,
-                'getDatatable',
-            ]
-        )->name('api.users.list');
 
         Route::get('{user}/assets',
             [
