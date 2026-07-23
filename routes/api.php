@@ -247,13 +247,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'api-throttle:api']], fu
             ]
         )->name('api.components.history')->withTrashed();
 
-        Route::get('selectlist',
-            [
-                Api\ComponentsController::class,
-                'selectlist',
-            ]
-        )->name('api.components.selectlist');
-
         Route::get('{component}/assets',
             [
                 Api\ComponentsController::class,
