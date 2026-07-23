@@ -796,14 +796,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'api-throttle:api']], fu
             ]
         )->name('api.locations.selectlist');
 
-        // Users within a location
-        Route::get('{location}/users',
-            [
-                Api\LocationsController::class,
-                'getDataViewUsers',
-            ]
-        )->name('api.locations.viewusers');
-
         // Get list of assets with a default location
         Route::get('{location}/assets',
             [
