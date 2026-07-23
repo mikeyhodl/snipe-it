@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Accessories;
+use App\Http\Controllers\BulkAccessoriesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -8,28 +9,39 @@ use Illuminate\Support\Facades\Route;
  */
 Route::group(['prefix' => 'accessories', 'middleware' => ['auth']], function () {
     Route::get(
-        '{accessoryID}/checkout',
+        '{accessory}/checkout',
         [Accessories\AccessoryCheckoutController::class, 'create']
-    )->name('checkout/accessory');
+    )->name('accessories.checkout.show');
 
     Route::post(
-        '{accessoryID}/checkout',
+        '{accessory}/checkout',
         [Accessories\AccessoryCheckoutController::class, 'store']
-    )->name('checkout/accessory');
+    )->name('accessories.checkout.store');
 
     Route::get(
         '{accessoryID}/checkin/{backto?}',
         [Accessories\AccessoryCheckinController::class, 'create']
-    )->name('checkin/accessory');
+    )->name('accessories.checkin.show');
 
     Route::post(
         '{accessoryID}/checkin/{backto?}',
         [Accessories\AccessoryCheckinController::class, 'store']
-    )->name('checkin/accessory');
+    )->name('accessories.checkin.store');
+
+    Route::get('{accessory}/clone',
+        [Accessories\AccessoriesController::class, 'getClone']
+    )->name('clone/accessories');
+
+    Route::post('{accessory}/clone',
+        [Accessories\AccessoriesController::class, 'postCreate']
+    );
 
 });
 
 Route::resource('accessories', Accessories\AccessoriesController::class, [
     'middleware' => ['auth'],
-    'parameters' => ['accessory' => 'accessory_id'],
 ]);
+
+Route::post('accessories/bulk/delete', [BulkAccessoriesController::class, 'destroy'])
+    ->middleware(['auth'])
+    ->name('accessories.bulk.delete');
