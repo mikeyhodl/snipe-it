@@ -3,15 +3,16 @@
 namespace App\Services;
 
 use App\Events\CheckoutableCheckedOut;
+use App\Models\Asset;
 use App\Models\PredefinedKit;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Class incapsulates checkout logic for reuse in different controllers
+ *
  * @author [D. Minaev.] [<dmitriy.minaev.v@gmail.com>]
  */
 class PredefinedKitCheckoutService
@@ -19,9 +20,9 @@ class PredefinedKitCheckoutService
     use AuthorizesRequests;
 
     /**
-     * @param Request $request, this function works with fields: checkout_at, expected_checkin, note
-     * @param PredefinedKit $kit kit for checkout
-     * @param User $user checkout target
+     * @param  Request  $request,  this function works with fields: checkout_at, expected_checkin, note
+     * @param  PredefinedKit  $kit  kit for checkout
+     * @param  User  $user  checkout target
      * @return array Empty array if all ok, else [string_error1, string_error2...]
      */
     public function checkout(Request $request, PredefinedKit $kit, User $user)
@@ -45,18 +46,18 @@ class PredefinedKitCheckoutService
             }
 
             $checkout_at = date('Y-m-d H:i:s');
-            if (($request->filled('checkout_at')) && ($request->get('checkout_at') != date('Y-m-d'))) {
-                $checkout_at = $request->get('checkout_at');
+            if (($request->filled('checkout_at')) && ($request->input('checkout_at') != date('Y-m-d'))) {
+                $checkout_at = $request->input('checkout_at');
             }
 
             $expected_checkin = '';
             if ($request->filled('expected_checkin')) {
-                $expected_checkin = $request->get('expected_checkin');
+                $expected_checkin = $request->input('expected_checkin');
             }
 
-            $admin = Auth::user();
+            $admin = auth()->user();
 
-            $note = e($request->get('note'));
+            $note = e($request->input('note'));
 
             $errors = $this->saveToDb($user, $admin, $checkout_at, $expected_checkin, $errors, $assets_to_add, $license_seats_to_add, $consumables_to_add, $accessories_to_add, $note);
 
@@ -93,7 +94,7 @@ class PredefinedKitCheckoutService
                 }
             }
             if ($quantity > 0) {
-                $errors[] = trans('admin/kits/general.none_models', ['model'=> $model->name, 'qty' => $model->pivot->quantity]);
+                $errors[] = trans('admin/kits/general.none_models', ['model' => $model->name, 'qty' => $model->pivot->quantity]);
             }
         }
 
@@ -107,9 +108,10 @@ class PredefinedKitCheckoutService
             ->with('freeSeats')
             ->get();
         foreach ($licenses as $license) {
+            $this->authorize('checkout', $license);
             $quantity = $license->pivot->quantity;
             if ($quantity > count($license->freeSeats)) {
-                $errors[] = trans('admin/kits/general.none_licenses', ['license'=> $license->name, 'qty' => $license->pivot->quantity]);
+                $errors[] = trans('admin/kits/general.none_licenses', ['license' => $license->name, 'qty' => $license->pivot->quantity]);
             }
             for ($i = 0; $i < $quantity; $i++) {
                 $seats_to_add[] = $license->freeSeats[$i];
@@ -123,8 +125,9 @@ class PredefinedKitCheckoutService
     {
         $consumables = $kit->consumables()->with('users')->get();
         foreach ($consumables as $consumable) {
+            $this->authorize('checkout', $consumable);
             if ($consumable->numRemaining() < $consumable->pivot->quantity) {
-                $errors[] = trans('admin/kits/general.none_consumables', ['consumable'=> $consumable->name, 'qty' => $consumable->pivot->quantity]);
+                $errors[] = trans('admin/kits/general.none_consumables', ['consumable' => $consumable->name, 'qty' => $consumable->pivot->quantity]);
             }
         }
 
@@ -135,8 +138,9 @@ class PredefinedKitCheckoutService
     {
         $accessories = $kit->accessories()->with('users')->get();
         foreach ($accessories as $accessory) {
+            $this->authorize('checkout', $accessory);
             if ($accessory->numRemaining() < $accessory->pivot->quantity) {
-                $errors[] = trans('admin/kits/general.none_accessory', ['accessory'=> $accessory->name, 'qty' => $accessory->pivot->quantity]);
+                $errors[] = trans('admin/kits/general.none_accessory', ['accessory' => $accessory->name, 'qty' => $accessory->pivot->quantity]);
             }
         }
 
@@ -150,6 +154,19 @@ class PredefinedKitCheckoutService
                 // assets
                 foreach ($assets_to_add as $asset) {
                     $asset->location_id = $user->location_id;
+
+                    // Concurrency guard, same shape as Api\AssetsController::checkout.
+                    // Kit checkout can race with any other checkout of the same asset.
+                    // Re-fetch under lockForUpdate and re-check availability before
+                    // invoking checkOut; a claimed asset gets skipped rather than
+                    // producing a duplicate history row and counter bump.
+                    $locked = Asset::whereKey($asset->id)->lockForUpdate()->first();
+                    if (! $locked || ! $locked->availableForCheckout()) {
+                        $errors[] = trans('admin/hardware/message.checkout.not_available').' ('.$asset->asset_tag.')';
+
+                        continue;
+                    }
+
                     $error = $asset->checkOut($user, $admin, $checkout_at, $expected_checkin, $note, null);
                     if ($error) {
                         array_merge_recursive($errors, $asset->getErrors()->toArray());
@@ -157,7 +174,7 @@ class PredefinedKitCheckoutService
                 }
                 // licenses
                 foreach ($license_seats_to_add as $licenseSeat) {
-                    $licenseSeat->user_id = $admin->id;
+                    $licenseSeat->created_by = $admin->id;
                     $licenseSeat->assigned_to = $user->id;
                     if ($licenseSeat->save()) {
                         event(new CheckoutableCheckedOut($licenseSeat, $user, $admin, $note));
@@ -175,7 +192,7 @@ class PredefinedKitCheckoutService
                     ]);
                     event(new CheckoutableCheckedOut($consumable, $user, $admin, $note));
                 }
-                //accessories
+                // accessories
                 foreach ($accessories_to_add as $accessory) {
                     $accessory->assigned_to = $user->id;
                     $accessory->users()->attach($accessory->id, [
