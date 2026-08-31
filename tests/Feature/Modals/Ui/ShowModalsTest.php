@@ -29,34 +29,83 @@ class ShowModalsTest extends TestCase
         $response->assertDontSee($admin->first_name);
         $response->assertDontSee($admin->last_name);
         $response->assertDontSee($admin->email);
+        $response->assertSee('data-source="blade-modals"', false);
     }
 
     public function test_department_modal_renders()
     {
         $this->actingAs(User::factory()->superuser()->create())
             ->get('modals/model')
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('data-source="blade-modals"', false);
     }
 
     public function test_status_label_modal_renders()
     {
         $this->actingAs(User::factory()->superuser()->create())
             ->get('modals/statuslabel')
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('data-source="blade-modals"', false);
     }
 
     public function test_location_modal_renders()
     {
         $this->actingAs(User::factory()->superuser()->create())
             ->get('modals/location')
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('data-source="blade-modals"', false);
+    }
+
+    public function test_kit_model_modal_renders()
+    {
+        $kit = \App\Models\PredefinedKit::factory()->create();
+
+        $this->actingAs(User::factory()->superuser()->create())
+            ->get(route('modal.show', ['type' => 'kit-model', 'itemId' => $kit->id]))
+            ->assertOk()
+            ->assertSee('data-source="blade-modals"', false)
+            ->assertSee(route('api.kits.models.store', $kit->id));
+    }
+
+    public function test_kit_license_modal_renders()
+    {
+        $kit = \App\Models\PredefinedKit::factory()->create();
+
+        $this->actingAs(User::factory()->superuser()->create())
+            ->get(route('modal.show', ['type' => 'kit-license', 'itemId' => $kit->id]))
+            ->assertOk()
+            ->assertSee('data-source="blade-modals"', false)
+            ->assertSee(route('api.kits.licenses.store', $kit->id));
+    }
+
+    public function test_kit_accessory_modal_renders()
+    {
+        $kit = \App\Models\PredefinedKit::factory()->create();
+
+        $this->actingAs(User::factory()->superuser()->create())
+            ->get(route('modal.show', ['type' => 'kit-accessory', 'itemId' => $kit->id]))
+            ->assertOk()
+            ->assertSee('data-source="blade-modals"', false)
+            ->assertSee(route('api.kits.accessories.store', $kit->id));
+    }
+
+    public function test_kit_consumable_modal_renders()
+    {
+        $kit = \App\Models\PredefinedKit::factory()->create();
+
+        $this->actingAs(User::factory()->superuser()->create())
+            ->get(route('modal.show', ['type' => 'kit-consumable', 'itemId' => $kit->id]))
+            ->assertOk()
+            ->assertSee('data-source="blade-modals"', false)
+            ->assertSee(route('api.kits.consumables.store', $kit->id));
     }
 
     public function test_category_modal_renders()
     {
         $this->actingAs(User::factory()->superuser()->create())
             ->get('modals/category')
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('data-source="blade-modals"', false);
     }
 
     public function test_company_modal_renders()
@@ -65,20 +114,23 @@ class ShowModalsTest extends TestCase
             ->get('modals/company')
             ->assertOk()
             ->assertSee(route('api.companies.store'))
-            ->assertSee(trans('admin/companies/table.create'));
+            ->assertSee(trans('admin/companies/table.create'))
+            ->assertSee('data-source="blade-modals"', false);
     }
 
     public function test_manufacturer_modal_renders()
     {
         $this->actingAs(User::factory()->superuser()->create())
             ->get('modals/manufacturer')
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('data-source="blade-modals"', false);
     }
 
     public function test_supplier_modal_renders()
     {
         $this->actingAs(User::factory()->superuser()->create())
             ->get('modals/supplier')
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('data-source="blade-modals"', false);
     }
 }
