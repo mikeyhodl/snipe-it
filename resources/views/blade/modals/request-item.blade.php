@@ -26,19 +26,16 @@
          hidden input keeps request-quantity=1
          posted so the server-side path stays
          uniform across every requestable type. --}}
-    <x-form.stacked name="request-quantity" id="requestItemQuantityRow">
-        <label for="requestItemQuantity">{{ trans('general.qty') }}</label>
-        <input
-            type="number"
-            class="form-control"
-            id="requestItemQuantity"
-            name="request-quantity"
-            min="1"
-            step="1"
-            value="1"
-            required
-        >
-    </x-form.stacked>
+    <x-form.row
+        stacked
+        id="requestItemQuantityRow"
+        name="request-quantity"
+        type="number"
+        :label="trans('general.qty')"
+        :min="1"
+        default="1"
+        required
+    />
 
     {{-- Start / end dates are optional. Requesters who just
          want "whenever this becomes available" leave both
@@ -47,20 +44,22 @@
          end_date validates as after_or_equal:start_date in
          the controller. --}}
     <div class="row">
-        <x-form.stacked name="start_date" class="col-md-6">
-            <label for="requestItemStartDate">{{ trans('general.start_date') }}</label>
-            <x-input.datepicker
-                id="requestItemStartDate"
-                name="start_date"
-            />
-        </x-form.stacked>
-        <x-form.stacked name="end_date" class="col-md-6">
-            <label for="requestItemEndDate">{{ trans('general.end_date') }}</label>
-            <x-input.datepicker
-                id="requestItemEndDate"
-                name="end_date"
-            />
-        </x-form.stacked>
+        <x-form.row
+            stacked
+            class="col-md-6"
+            id="requestItemStartDate"
+            name="start_date"
+            type="datepicker"
+            :label="trans('general.start_date')"
+        />
+        <x-form.row
+            stacked
+            class="col-md-6"
+            id="requestItemEndDate"
+            name="end_date"
+            type="datepicker"
+            :label="trans('general.end_date')"
+        />
     </div>
 
     {{-- Optional free-text notes so the requester can
@@ -69,13 +68,12 @@
          checkout_requests.notes and surfaced on the
          admin queue + in the "new request"
          notification. --}}
-    <x-form.stacked name="notes">
-        <label for="requestItemNotes">{{ trans('general.notes') }}</label>
-        <textarea
-            id="requestItemNotes"
-            name="notes"
-            class="form-control"
-            rows="3"
-        ></textarea>
-    </x-form.stacked>
+    <x-form.row
+        stacked
+        id="requestItemNotes"
+        name="notes"
+        type="textarea"
+        :rows="3"
+        :label="trans('general.notes')"
+    />
 </x-modals>

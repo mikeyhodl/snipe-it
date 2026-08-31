@@ -12,8 +12,12 @@
     form_attrs='id="completeMaintenanceForm"'
 >
     <p>{{ trans('admin/maintenances/message.complete.confirm') }}</p>
-    <x-form.stacked name="note">
-        <label for="completionNote">{{ trans('admin/maintenances/form.completion_notes') }}</label>
-        <textarea class="form-control" id="completionNote" name="note" rows="3"></textarea>
-    </x-form.stacked>
+    <x-form.row
+        stacked
+        name="note"
+        id="completionNote"
+        type="textarea"
+        :rows="3"
+        :label="trans('admin/maintenances/form.completion_notes')"
+    />
 </x-modals>
