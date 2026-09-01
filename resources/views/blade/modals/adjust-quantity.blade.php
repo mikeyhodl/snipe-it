@@ -25,7 +25,6 @@
          log entry with no qty change so users can record a physical
          count against the current DB value. --}}
     <x-form.row
-        stacked
         id="adjustQuantityAmount"
         name="amount"
         type="number"
@@ -40,7 +39,6 @@
          losses rather than purchases, so purchase metadata doesn't apply. --}}
     <div id="adjustQuantityAcquisitionFields">
         <x-form.row
-            stacked
             id="adjustQuantityOrder"
             name="order_number"
             :label="trans('general.order_number')"
@@ -51,7 +49,7 @@
              horizontal-form scaffold (col-md-3 label + col-md-7 input),
              which fights the stacked form-group layout used across this
              modal. snipeit.js auto-initializes any .js-data-ajax select. --}}
-        <x-form.row stacked name="supplier_id" :label="trans('general.supplier')">
+        <x-form.row name="supplier_id" :label="trans('general.supplier')">
             <x-slot:input>
                 <select
                     class="js-data-ajax form-control"
@@ -74,7 +72,7 @@
          because most adjust events happen the day they are recorded.
          Snipeit.js resets to today on every modal open so a stale date
          can't bleed across sessions. --}}
-    <x-form.row stacked name="purchase_date" id="adjustQuantityPurchaseDate" type="datepicker" :end_date="'0d'" :default="now()->toDateString()">
+    <x-form.row name="purchase_date" id="adjustQuantityPurchaseDate" type="datepicker" :end_date="'0d'" :default="now()->toDateString()">
         <x-slot:labelHtml>
             <label
                 for="adjustQuantityPurchaseDate"
@@ -93,7 +91,7 @@
          historical currency handling is squishy already). Placeholder hints
          at the system default without stamping it. --}}
     <div class="row" id="adjustQuantityCostRow">
-        <x-form.row stacked class="col-md-8" style="padding-right: 5px;" name="unit_cost" :label="trans('general.unit_cost')">
+        <x-form.row class="col-md-8" style="padding-right: 5px;" name="unit_cost" :label="trans('general.unit_cost')">
             <x-slot:input>
                 <input
                     type="number"
@@ -106,7 +104,7 @@
                 >
             </x-slot:input>
         </x-form.row>
-        <x-form.row stacked class="col-md-4" style="padding-left: 5px;" name="currency" :label="trans('general.currency')">
+        <x-form.row class="col-md-4" style="padding-left: 5px;" name="currency" :label="trans('general.currency')">
             <x-slot:input>
                 <input
                     type="text"
@@ -130,7 +128,6 @@
     </x-form.help>
 
     <x-form.row
-        stacked
         id="adjustQuantityNote"
         name="note"
         type="textarea"
@@ -141,7 +138,7 @@
 
     {{-- Inlined instead of x-input.file-upload because that component wraps
          its markup in x-form.row's horizontal scaffold. --}}
-    <x-form.row stacked name="file" :label="trans('general.file_upload')">
+    <x-form.row name="file" :label="trans('general.file_upload')">
         <x-slot:input>
             <div>
                 <label class="btn btn-sm btn-theme" for="adjustQuantityFile">

@@ -26,7 +26,17 @@
     'required' => null,
 ])
 
+{{-- Inherit `stacked` from an ancestor <x-modals stacked> so callers don't
+     repeat the flag on every row inside a vertical modal. @aware
+     unconditionally overwrites $stacked, so we snapshot the row's explicit
+     value first and OR the two after aware runs. Row-explicit stacked=true
+     still wins if the modal is horizontal. --}}
 @php
+    $callerStacked = $stacked;
+@endphp
+@aware(['stacked' => false])
+@php
+    $stacked = $callerStacked || $stacked;
     $errors_class = $errors->has($name) ? ' has-error' : '';
     $input_id = $id ?? $name;
 @endphp

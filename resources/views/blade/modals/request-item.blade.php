@@ -28,7 +28,6 @@
          posted so the server-side path stays
          uniform across every requestable type. --}}
     <x-form.row
-        stacked
         id="requestItemQuantityRow"
         name="request-quantity"
         type="number"
@@ -46,7 +45,6 @@
          the controller. --}}
     <div class="row">
         <x-form.row
-            stacked
             class="col-md-6"
             id="requestItemStartDate"
             name="start_date"
@@ -54,7 +52,6 @@
             :label="trans('general.start_date')"
         />
         <x-form.row
-            stacked
             class="col-md-6"
             id="requestItemEndDate"
             name="end_date"
@@ -70,7 +67,6 @@
          admin queue + in the "new request"
          notification. --}}
     <x-form.row
-        stacked
         id="requestItemNotes"
         name="notes"
         type="textarea"

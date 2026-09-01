@@ -14,7 +14,6 @@
 >
     <p>{{ trans('admin/maintenances/message.complete.confirm') }}</p>
     <x-form.row
-        stacked
         name="note"
         id="completionNote"
         type="textarea"
