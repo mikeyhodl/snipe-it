@@ -3,6 +3,7 @@
      handler. --}}
 <x-modals
     id="adjustQuantityModal"
+    stacked
     form_attrs='id="adjustQuantityForm" enctype="multipart/form-data"'
 >
     <x-slot:header>

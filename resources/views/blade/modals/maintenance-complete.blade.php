@@ -6,6 +6,7 @@
      as a delegated `.complete-maintenance` handler. --}}
 <x-modals
     id="completeMaintenanceModal"
+    stacked
     :title="trans('admin/maintenances/form.mark_complete')"
     :submit_label="trans('admin/maintenances/form.mark_complete')"
     submit_class="btn-success"

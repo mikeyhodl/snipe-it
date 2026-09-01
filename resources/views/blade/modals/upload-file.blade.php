@@ -2,6 +2,7 @@
 
 <x-modals
     id="uploadFileModal"
+    stacked
     :title="trans('general.file_upload')"
     :action="route('ui.files.store', ['object_type' => str_plural($itemType), 'id' => $itemId])"
     :submit_label="trans('button.upload')"

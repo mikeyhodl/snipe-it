@@ -5,7 +5,6 @@
     :title="trans('admin/users/table.createuser')"
     :action="route('api.users.store')"
     submitToSelect2
-    form_class="form-horizontal"
 >
     @if ($user->companies->isNotEmpty())
         <input type="hidden" name="company_id" value="{{ $user->companies->first()->id }}">

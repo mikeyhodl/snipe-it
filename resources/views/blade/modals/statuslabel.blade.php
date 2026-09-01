@@ -4,7 +4,6 @@
     :title="trans('admin/statuslabels/table.create')"
     :action="route('api.statuslabels.store')"
     submitToSelect2
-    form_class="form-horizontal"
 >
     <x-form.row name="name" :label="trans('admin/statuslabels/table.name')" id="modal-name" required />
 

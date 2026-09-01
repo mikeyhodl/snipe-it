@@ -3,7 +3,6 @@
     :title="trans('admin/locations/table.create')"
     :action="route('api.locations.store')"
     submitToSelect2
-    form_class="form-horizontal"
 >
     <x-form.row name="name" :label="trans('general.name')" id="modal-name" required />
 

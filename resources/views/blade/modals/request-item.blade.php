@@ -3,6 +3,7 @@
      moving parts stay familiar. --}}
 <x-modals
     id="requestItemModal"
+    stacked
     :submit_label="trans('button.request')"
     form_attrs='id="requestItemForm" accept-charset="utf-8"'
 >

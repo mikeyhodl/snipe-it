@@ -3,6 +3,7 @@
 {{-- See snipeit_modals.js for what powers this --}}
 <x-modals
     id="createNoteModal"
+    stacked
     :title="trans('general.add_note')"
     :action="route('notes.store')"
     form_attrs='accept-charset="UTF-8"'

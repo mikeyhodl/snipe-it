@@ -3,7 +3,6 @@
     :title="trans('admin/kits/general.append_license')"
     :action="route('api.kits.licenses.store', $kitId)"
     submitToSelect2
-    form_class="form-horizontal"
 >
     <x-input.license-select
         name="license"

@@ -1,3 +1,9 @@
+{{-- stacked: default false, giving BS3 form-horizontal (label-left,
+     input-right grid) which matches every regular edit/create form in
+     the app. Pass stacked to opt into a vertical form (labels above
+     inputs), typically paired with x-form.row's stacked prop on each
+     row. form_class layers additional classes on top of the layout
+     default, if a caller needs one. --}}
 @props([
     'id' => null,
     'title' => null,
@@ -8,6 +14,7 @@
     'labelledby' => null,
     'form_attrs' => '',
     'form_class' => null,
+    'stacked' => false,
 ])
 
 @php
@@ -15,6 +22,7 @@
     $labelledById = $labelledby ?? ($id ? $id.'Label' : null);
     $onsubmit = $submitToSelect2 ? ' onsubmit="return false"' : '';
     $saveButtonAttrs = $submitToSelect2 ? ' type="button" id="modal-save"' : ' type="submit"';
+    $formClass = trim(($stacked ? '' : 'form-horizontal').' '.($form_class ?? ''));
 @endphp
 
 @if ($id)
@@ -44,7 +52,7 @@
             @if ($submitToSelect2)
                 <div class="modal-body">
                     <x-alert type="danger" id="modal_error_msg" style="display:none"></x-alert>
-                    <form action="{{ $action }}" method="POST" @if ($form_class) class="{{ $form_class }}" @endif{!! $onsubmit !!} {!! $form_attrs !!}>
+                    <form action="{{ $action }}" method="POST" @if ($formClass) class="{{ $formClass }}" @endif{!! $onsubmit !!} {!! $form_attrs !!}>
                         @csrf
                         {{ $slot }}
                     </form>
@@ -58,7 +66,7 @@
                     @endisset
                 </div>
             @else
-                <form action="{{ $action }}" method="POST" @if ($form_class) class="{{ $form_class }}" @endif{!! $onsubmit !!} {!! $form_attrs !!}>
+                <form action="{{ $action }}" method="POST" @if ($formClass) class="{{ $formClass }}" @endif{!! $onsubmit !!} {!! $form_attrs !!}>
                     @csrf
                     <div class="modal-body">
                         {{ $slot }}

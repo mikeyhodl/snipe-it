@@ -13,7 +13,7 @@
     :action="$route"
     :submit_label="$buttonLabel ?? trans('general.confirm')"
     :submit_class="$buttonClass"
-    :form_class="$modalClass ? 'form-horizontal '.$modalClass : 'form-horizontal'"
+    :form_class="$modalClass"
 >
     <div class="row">
         <div class="col-md-12">

@@ -3,7 +3,6 @@
     :title="trans('admin/kits/general.append_model')"
     :action="route('api.kits.models.store', $kitId)"
     submitToSelect2
-    form_class="form-horizontal"
 >
     <x-input.model-select
         name="model"

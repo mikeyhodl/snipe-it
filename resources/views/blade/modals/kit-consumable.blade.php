@@ -3,7 +3,6 @@
     :title="trans('admin/kits/general.append_consumable')"
     :action="route('api.kits.consumables.store', $kitId)"
     submitToSelect2
-    form_class="form-horizontal"
 >
     <x-input.consumable-select
         name="consumable"

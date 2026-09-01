@@ -3,7 +3,6 @@
     :title="trans('admin/suppliers/table.create')"
     :action="route('api.suppliers.store')"
     submitToSelect2
-    form_class="form-horizontal"
 >
     <x-form.row name="name" :label="trans('admin/suppliers/table.name')" id="modal-name" required />
     <x-form.row name="contact" :label="trans('admin/suppliers/table.contact')" id="modal-contact" />

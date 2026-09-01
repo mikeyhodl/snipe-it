@@ -3,7 +3,6 @@
     :title="trans('admin/kits/general.append_accessory')"
     :action="route('api.kits.accessories.store', $kitId)"
     submitToSelect2
-    form_class="form-horizontal"
 >
     <x-input.accessory-select
         name="accessory"
