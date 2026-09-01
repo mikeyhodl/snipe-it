@@ -14,14 +14,12 @@
         name="company_id"
         id="modal_company_id_select"
         :label="trans('general.company')"
-        hideNewButton
     />
 
     <x-input.location-select
         name="location_id"
         id="modal_location_id_select"
         :label="trans('general.location')"
-        hideNewButton
     />
 
     <x-form.row name="first_name" :label="trans('general.first_name')" id="modal-first_name" required />

@@ -12,14 +12,12 @@
         :label="trans('general.category')"
         categoryType="asset"
         required
-        hideNewButton
     />
 
     <x-input.manufacturer-select
         name="manufacturer_id"
         id="modal_manufacturer_id_select"
         :label="trans('general.manufacturer')"
-        hideNewButton
     />
 
     <x-form.row name="model_number" :label="trans('general.model_no')" id="modal-model_number" />

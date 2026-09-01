@@ -9,7 +9,6 @@
         id="modal_accessory_select"
         :label="trans('general.accessory')"
         required
-        hideNewButton
     />
 
     <x-form.row

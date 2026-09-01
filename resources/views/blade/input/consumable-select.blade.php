@@ -1,6 +1,10 @@
 @use('App\Models\Consumable', 'Consumable')
 @use('Illuminate\Support\Arr', 'Arr')
 
+{{-- Auto-hides the "New" button when rendered inside an AJAX modal.
+     See x-input.company-select for the pattern. --}}
+@aware(['submitToSelect2' => false])
+
 @props([
     'label',
     'name',
@@ -13,6 +17,7 @@
 
 @php
     $selectId = $id ?? $name.'_select';
+    $hideNewButton = $hideNewButton || $submitToSelect2;
 @endphp
 
 <div

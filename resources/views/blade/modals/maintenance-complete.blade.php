@@ -1,7 +1,7 @@
 {{-- Confirmation modal for marking a maintenance complete. Rendered on any
      page that lists maintenances via `x-table.maintenances`. The bootstrap-
      table actions formatter that emits the green checkmark button lives in
-     partials/bootstrap-table.blade.php; the click handler that populates the
+     partials/bootstrap-table.blade.php. The click handler that populates the
      form action and shows this modal lives in resources/assets/js/snipeit.js
      as a delegated `.complete-maintenance` handler. --}}
 <x-modals

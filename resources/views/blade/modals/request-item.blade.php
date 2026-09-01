@@ -40,7 +40,7 @@
 
     {{-- Start / end dates are optional. Requesters who just
          want "whenever this becomes available" leave both
-         blank; requesters reserving for a specific window
+         blank. Requesters reserving for a specific window
          (offsite event, project sprint) fill them in.
          end_date validates as after_or_equal:start_date in
          the controller. --}}

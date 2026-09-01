@@ -9,7 +9,6 @@
         id="modal_consumable_select"
         :label="trans('general.consumable')"
         required
-        hideNewButton
     />
 
     <x-form.row

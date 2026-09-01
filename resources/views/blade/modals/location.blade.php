@@ -21,7 +21,6 @@
             name="company_id"
             id="modal_company_id_select"
             :label="trans('general.company')"
-            hideNewButton
         />
     @endif
 

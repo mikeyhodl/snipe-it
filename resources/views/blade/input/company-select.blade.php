@@ -12,6 +12,11 @@
      a company picker with the same name (which would collide on the id and confuse select2,
      leading to a broken select2 on the page if another "new" button is clicked.)
      The form's submitted field name stays $name either way.--}}
+
+{{-- Auto-hides the "New" button when rendered inside an AJAX modal.
+     See x-input.company-select for the pattern. --}}
+@aware(['submitToSelect2' => false])
+
 @props([
     'label',
     'name',
@@ -26,6 +31,7 @@
 
 @php
     $selectId = $id ?? $name.'_select';
+    $hideNewButton = $hideNewButton || $submitToSelect2;
 @endphp
 
 <div

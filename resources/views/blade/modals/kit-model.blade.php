@@ -9,7 +9,6 @@
         id="modal_model_select"
         :label="trans('general.asset_model')"
         required
-        hideNewButton
     />
 
     <x-form.row

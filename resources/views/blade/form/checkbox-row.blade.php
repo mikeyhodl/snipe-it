@@ -52,7 +52,7 @@
     // Old-input aware check-state. On a fresh render, session()->hasOldInput()
     // is false, so we fall back to the model (or supplied :selected). On a
     // validation-failure redisplay, hasOldInput() is true and we trust the
-    // (possibly missing) old value — an unchecked box comes back correctly
+    // (possibly missing) old value: an unchecked box comes back correctly
     // unchecked instead of falling through to the stale $item->{$name}.
     $is_redisplay = session()->hasOldInput();
 
@@ -175,9 +175,9 @@
             <x-form.help :name="$name" :icon="$help_icon">{!! $help_text !!}</x-form.help>
         </div>
     @elseif ($help_html)
-        {{-- Raw HTML help — caller has opted in via help_html rather than
+        {{-- Raw HTML help. Caller has opted in via help_html rather than
              help_text. Callers passing a trans() string with HTML MUST use
-             the static-attribute form  help_html="{!! trans('...') !!}"  —
+             the static-attribute form  help_html="{!! trans('...') !!}",
              the dynamic-binding form  :help_html="trans('...')"  runs the
              value through BladeCompiler::sanitizeComponentAttribute() and
              turns <a> tags into &lt;a&gt; entities. See x-form.row for the

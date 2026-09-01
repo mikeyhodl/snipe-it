@@ -9,7 +9,6 @@
         id="modal_license_select"
         :label="trans('general.license')"
         required
-        hideNewButton
     />
 
     <x-form.row

@@ -11,6 +11,5 @@
         id="modal_parent_id_select"
         :label="trans('admin/companies/table.parent')"
         onlyTopLevel
-        hideNewButton
     />
 </x-modals>
