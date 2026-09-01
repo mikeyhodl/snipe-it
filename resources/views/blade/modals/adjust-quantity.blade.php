@@ -68,25 +68,21 @@
     </div>
 
     {{-- Label swaps between "Purchase Date" (positive qty) and "Date" (0
-         or negative) via snipeit.js reading data-label-*. Hand-rolled
-         because x-form.row assumes a plain label string. Pre-populated
-         with today because most adjust events happen the day they are
-         recorded. Snipeit.js resets to today on every modal open so a
-         stale date can't bleed across sessions. --}}
-    <div class="form-group">
-        <label
-            for="adjustQuantityPurchaseDate"
-            id="adjustQuantityPurchaseDateLabel"
-            data-label-purchase="{{ trans('general.purchase_date') }}"
-            data-label-generic="{{ trans('general.date') }}"
-        >{{ trans('general.purchase_date') }}</label>
-        <x-input.datepicker
-            id="adjustQuantityPurchaseDate"
-            name="purchase_date"
-            :value="now()->toDateString()"
-            :end_date="'0d'"
-        />
-    </div>
+         or negative) via snipeit.js reading data-label-*. Custom label
+         markup passed through the labelHtml slot. Pre-populated with today
+         because most adjust events happen the day they are recorded.
+         Snipeit.js resets to today on every modal open so a stale date
+         can't bleed across sessions. --}}
+    <x-form.row stacked name="purchase_date" id="adjustQuantityPurchaseDate" type="datepicker" :end_date="'0d'" :default="now()->toDateString()">
+        <x-slot:labelHtml>
+            <label
+                for="adjustQuantityPurchaseDate"
+                id="adjustQuantityPurchaseDateLabel"
+                data-label-purchase="{{ trans('general.purchase_date') }}"
+                data-label-generic="{{ trans('general.date') }}"
+            >{{ trans('general.purchase_date') }}</label>
+        </x-slot:labelHtml>
+    </x-form.row>
 
     {{-- Unit cost + currency side by side. Bootstrap 3 input-group doesn't
          handle a form-control addon cleanly (the addon slot expects a span,

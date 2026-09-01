@@ -9,6 +9,7 @@
 
     <x-input.company-select
         name="parent_id"
+        id="modal_parent_id_select"
         :label="trans('admin/companies/table.parent')"
         onlyTopLevel
         hideNewButton

@@ -5,22 +5,13 @@
     submitToSelect2
     form_class="form-horizontal"
 >
-    <x-form.row name="license" :label="trans('general.license')" id="modal-license_id" required>
-        <x-slot:input>
-            <select
-                class="js-data-ajax"
-                data-endpoint="licenses"
-                data-placeholder="{{ trans('general.select_license') }}"
-                name="license"
-                id="modal-license_id"
-                style="width: 100%"
-                aria-label="{{ trans('general.license') }}"
-                required
-            >
-                <option value=""></option>
-            </select>
-        </x-slot:input>
-    </x-form.row>
+    <x-input.license-select
+        name="license"
+        id="modal_license_select"
+        :label="trans('general.license')"
+        required
+        hideNewButton
+    />
 
     <x-form.row
         name="quantity"

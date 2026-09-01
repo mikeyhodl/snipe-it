@@ -5,22 +5,13 @@
     submitToSelect2
     form_class="form-horizontal"
 >
-    <x-form.row name="consumable" :label="trans('general.consumable')" id="modal-consumable_id" required>
-        <x-slot:input>
-            <select
-                class="js-data-ajax"
-                data-endpoint="consumables"
-                data-placeholder="{{ trans('general.select_consumable') }}"
-                name="consumable"
-                id="modal-consumable_id"
-                style="width: 100%"
-                aria-label="{{ trans('general.consumable') }}"
-                required
-            >
-                <option value=""></option>
-            </select>
-        </x-slot:input>
-    </x-form.row>
+    <x-input.consumable-select
+        name="consumable"
+        id="modal_consumable_select"
+        :label="trans('general.consumable')"
+        required
+        hideNewButton
+    />
 
     <x-form.row
         name="quantity"

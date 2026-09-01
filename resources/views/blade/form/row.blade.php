@@ -33,7 +33,13 @@
 
 <div {{ $attributes->merge(['class' => 'form-group'.$errors_class]) }}>
 
-    @if (isset($label))
+    {{-- x-slot:labelHtml overrides the label prop when you need custom markup
+        (JS-driven data-label-* attributes, an inline icon, etc).
+        Otherwise the label prop renders through x-form.label (horizontal) or a plain <label>
+        (stacked, usually for modals). --}}
+    @isset($labelHtml)
+        {{ $labelHtml }}
+    @elseif (isset($label))
         @if ($stacked)
             <label for="{{ $input_id }}">{{ $label }}</label>
         @else
@@ -94,8 +100,7 @@
     {{-- Optional col-md-1 sibling of the input column for a small action
          button (e.g. the "new" button next to a user select, or the wand
          generator next to the password field). Callers pass
-         <x-slot:after_input>...</x-slot:after_input>. Matches the
-         manager-picker layout in x-input.user-select. --}}
+         <x-slot:after_input>...</x-slot:after_input>. --}}
     @isset($after_input)
         <div @class(['col-md-1 col-sm-1 text-left' => ! $stacked])>
             {{ $after_input }}

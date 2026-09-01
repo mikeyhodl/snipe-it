@@ -8,7 +8,12 @@
     'required' => false,
     'multiple' => false,
     'hideNewButton' => false,
+    'id' => null,
 ])
+
+@php
+    $selectId = $id ?? $name.'_select';
+@endphp
 
 <div
     @class([
@@ -16,14 +21,14 @@
         'has-error' => $errors->has($name),
     ])
 >
-    <label for="{{ $name }}_select" class="col-md-3 control-label">{{ $label }}</label>
+    <label for="{{ $selectId }}" class="col-md-3 control-label">{{ $label }}</label>
     <div class="col-md-7">
         <select
             class="js-data-ajax"
             data-endpoint="consumables"
             data-placeholder="{{ trans('general.select_consumable') }}"
             name="{{ $name }}{{ $multiple ? '[]' : '' }}"
-            id="{{ $name }}_select"
+            id="{{ $selectId }}"
             style="width: 100%"
             aria-label="{{ $label }}"
             @required($required)
@@ -43,7 +48,7 @@
     @unless($hideNewButton)
         <div class="col-md-1 col-sm-1 text-left">
             @can('create', Consumable::class)
-                <a href="{{ route('modal.show', 'consumable') }}" data-toggle="modal" data-target="#createModal" data-select="{{ $name }}_select" class="btn btn-sm btn-theme">{{ trans('button.new') }}</a>
+                <a href="{{ route('modal.show', 'consumable') }}" data-toggle="modal" data-target="#createModal" data-select="{{ $selectId }}" class="btn btn-sm btn-theme">{{ trans('button.new') }}</a>
             @endcan
         </div>
     @endunless

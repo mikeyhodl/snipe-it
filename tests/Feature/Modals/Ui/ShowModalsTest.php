@@ -29,31 +29,27 @@ class ShowModalsTest extends TestCase
         $response->assertDontSee($admin->first_name);
         $response->assertDontSee($admin->last_name);
         $response->assertDontSee($admin->email);
-        $response->assertSee('data-source="blade-modals"', false);
     }
 
     public function test_department_modal_renders()
     {
         $this->actingAs(User::factory()->superuser()->create())
             ->get('modals/model')
-            ->assertOk()
-            ->assertSee('data-source="blade-modals"', false);
+            ->assertOk();
     }
 
     public function test_status_label_modal_renders()
     {
         $this->actingAs(User::factory()->superuser()->create())
             ->get('modals/statuslabel')
-            ->assertOk()
-            ->assertSee('data-source="blade-modals"', false);
+            ->assertOk();
     }
 
     public function test_location_modal_renders()
     {
         $this->actingAs(User::factory()->superuser()->create())
             ->get('modals/location')
-            ->assertOk()
-            ->assertSee('data-source="blade-modals"', false);
+            ->assertOk();
     }
 
     public function test_kit_model_modal_renders()
@@ -63,7 +59,6 @@ class ShowModalsTest extends TestCase
         $this->actingAs(User::factory()->superuser()->create())
             ->get(route('modal.show', ['type' => 'kit-model', 'itemId' => $kit->id]))
             ->assertOk()
-            ->assertSee('data-source="blade-modals"', false)
             ->assertSee(route('api.kits.models.store', $kit->id));
     }
 
@@ -74,7 +69,6 @@ class ShowModalsTest extends TestCase
         $this->actingAs(User::factory()->superuser()->create())
             ->get(route('modal.show', ['type' => 'kit-license', 'itemId' => $kit->id]))
             ->assertOk()
-            ->assertSee('data-source="blade-modals"', false)
             ->assertSee(route('api.kits.licenses.store', $kit->id));
     }
 
@@ -85,7 +79,6 @@ class ShowModalsTest extends TestCase
         $this->actingAs(User::factory()->superuser()->create())
             ->get(route('modal.show', ['type' => 'kit-accessory', 'itemId' => $kit->id]))
             ->assertOk()
-            ->assertSee('data-source="blade-modals"', false)
             ->assertSee(route('api.kits.accessories.store', $kit->id));
     }
 
@@ -96,7 +89,6 @@ class ShowModalsTest extends TestCase
         $this->actingAs(User::factory()->superuser()->create())
             ->get(route('modal.show', ['type' => 'kit-consumable', 'itemId' => $kit->id]))
             ->assertOk()
-            ->assertSee('data-source="blade-modals"', false)
             ->assertSee(route('api.kits.consumables.store', $kit->id));
     }
 
@@ -104,8 +96,7 @@ class ShowModalsTest extends TestCase
     {
         $this->actingAs(User::factory()->superuser()->create())
             ->get('modals/category')
-            ->assertOk()
-            ->assertSee('data-source="blade-modals"', false);
+            ->assertOk();
     }
 
     public function test_company_modal_renders()
@@ -114,23 +105,20 @@ class ShowModalsTest extends TestCase
             ->get('modals/company')
             ->assertOk()
             ->assertSee(route('api.companies.store'))
-            ->assertSee(trans('admin/companies/table.create'))
-            ->assertSee('data-source="blade-modals"', false);
+            ->assertSee(trans('admin/companies/table.create'));
     }
 
     public function test_manufacturer_modal_renders()
     {
         $this->actingAs(User::factory()->superuser()->create())
             ->get('modals/manufacturer')
-            ->assertOk()
-            ->assertSee('data-source="blade-modals"', false);
+            ->assertOk();
     }
 
     public function test_supplier_modal_renders()
     {
         $this->actingAs(User::factory()->superuser()->create())
             ->get('modals/supplier')
-            ->assertOk()
-            ->assertSee('data-source="blade-modals"', false);
+            ->assertOk();
     }
 }

@@ -14,8 +14,13 @@
     @if (($snipeSettings->scope_locations_fmcs == '1') && (auth()->user()->companies->isNotEmpty()))
         <input type="hidden" name="company_id" id="modal-company_id" value="{{ auth()->user()->companies->first()->id }}">
     @else
+        {{-- Explicit id so the modal's company picker doesn't collide with
+             an outer page's company picker (which also renders as
+             #company_id_select). Duplicate ids leave select2 bound to the
+             wrong element and the dropdown never opens. --}}
         <x-input.company-select
             name="company_id"
+            id="modal_company_id_select"
             :label="trans('general.company')"
             hideNewButton
         />

@@ -7,6 +7,7 @@
 >
     <x-input.model-select
         name="model"
+        id="modal_model_select"
         :label="trans('general.asset_model')"
         required
         hideNewButton
