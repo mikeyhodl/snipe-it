@@ -18,9 +18,9 @@
 @endphp
 
 @if ($id)
-    <div class="modal fade" id="{{ $id }}" tabindex="-1" role="dialog" @if ($labelledById) aria-labelledby="{{ $labelledById }}" @endif aria-hidden="true" data-source="blade-modals">
+    <div class="modal fade" id="{{ $id }}" tabindex="-1" role="dialog" @if ($labelledById) aria-labelledby="{{ $labelledById }}" @endif aria-hidden="true">
 @endif
-        <div class="modal-dialog" data-source="blade-modals">
+        <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="{{ trans('button.close') }}">
