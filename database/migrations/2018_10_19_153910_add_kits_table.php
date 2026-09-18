@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddKitsTable extends Migration
 {
@@ -12,13 +12,15 @@ class AddKitsTable extends Migration
      */
     public function up()
     {
-        //
-        Schema::create('kits', function ($table) {
-            $table->increments('id');
-            $table->string('name')->nullable()->default(null);
-            $table->timestamps();
-            $table->engine = 'InnoDB';
-        });
+        if (! Schema::hasTable('kits')) {
+            Schema::create('kits', function ($table) {
+                $table->increments('id');
+                $table->string('name')->nullable()->default(null);
+                $table->timestamps();
+                $table->engine = 'InnoDB';
+            });
+        }
+
     }
 
     /**
@@ -28,7 +30,9 @@ class AddKitsTable extends Migration
      */
     public function down()
     {
-        //
-        Schema::drop('kits');
+        if (Schema::hasTable('kits')) {
+            Schema::drop('kits');
+        }
+
     }
 }
