@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Statuslabel;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class StatuslabelFactory extends Factory
@@ -22,15 +23,15 @@ class StatuslabelFactory extends Factory
     public function definition()
     {
         return [
-            'name'      => $this->faker->sentence,
+            'archived' => 0,
             'created_at' => $this->faker->dateTime(),
-            'updated_at' => $this->faker->dateTime(),
-            'user_id' => 1,
+            'created_by' => User::factory()->superuser(),
             'deleted_at' => null,
             'deployable' => 0,
-            'pending' => 0,
-            'archived' => 0,
+            'name' => $this->faker->sentence(),
             'notes' => '',
+            'pending' => 0,
+            'updated_at' => $this->faker->dateTime(),
         ];
     }
 
@@ -38,18 +39,23 @@ class StatuslabelFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'notes' => $this->faker->sentence,
+                'notes' => $this->faker->sentence(),
                 'deployable' => 1,
                 'default_label' => 1,
             ];
         });
     }
 
+    public function readyToDeploy()
+    {
+        return $this->rtd();
+    }
+
     public function pending()
     {
         return $this->state(function () {
             return [
-                'notes' => $this->faker->sentence,
+                'notes' => $this->faker->sentence(),
                 'pending' => 1,
                 'default_label' => 1,
             ];
@@ -81,7 +87,7 @@ class StatuslabelFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'name'      => 'Out for Repair',
+                'name' => 'Out for Repair',
                 'default_label' => 0,
             ];
         });
@@ -91,7 +97,7 @@ class StatuslabelFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'name'      => 'Broken - Not Fixable',
+                'name' => 'Broken - Not Fixable',
                 'default_label' => 0,
             ];
         });
@@ -101,7 +107,7 @@ class StatuslabelFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'name'      => 'Lost/Stolen',
+                'name' => 'Lost/Stolen',
                 'default_label' => 0,
             ];
         });

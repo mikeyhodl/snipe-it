@@ -3,7 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Gate;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class CheckPermissions
 {
@@ -13,8 +14,7 @@ class CheckPermissions
      * The $section variable is passed via the route middleware,
      * 'middleware' => [authorize:superadmin']
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param  Request  $request
      * @param  string|null  $section
      * @return mixed
      */
@@ -26,6 +26,6 @@ class CheckPermissions
 
         return response()->view('layouts/basic', [
             'content' => view('errors/403'),
-        ]);
+        ], 403);
     }
 }
